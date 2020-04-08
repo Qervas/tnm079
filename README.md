@@ -75,6 +75,7 @@ and then choosing one of the color maps.
 - When calculating the the genus, remember that `size_t` (e.g., returned by `GetNumVerts()`) is an unsigned type. This is problematic when intermediate results are negative (such as `V-E`). Make sure to use a signed type instead.
 
 ### Lab 2
+- If you need the camera position for the other cost heurisitc, you can obtain it by including `GUI/GLViewer.h` and calling `GLViewer::GetCamera().GetPosition();`.
 
 ### Lab 3
 
