@@ -1,4 +1,4 @@
-# Copyright Linköping University 2010
+# Copyright Linkï¿½ping University 2010
 # Author Stefan Lindholm <stefan.lindholm@liu.se>
 
 if(BUILD_LAB1)
@@ -13,6 +13,8 @@ if(BUILD_LAB1)
 		#Util/glext.h
 		Util/GLObjectPlayback.cpp
 		Util/GLObjectPlayback.h
+		Util/GrayColorMap.h
+		Util/GrayColorMap.cpp
 		Util/GreenRedColorMap.cpp
 		Util/GreenRedColorMap.h
 		Util/Heap.cpp
