@@ -51,6 +51,7 @@
  */
 #include "trackball.h"
 #include <cmath>
+#include <algorithm>
 
 /*
  * This size should really be based on the distance from the center of
@@ -86,9 +87,7 @@ void vsub(const float *src1, const float *src2, float *dst) {
 }
 
 void vcopy(const float *v1, float *v2) {
-  register int i;
-  for (i = 0; i < 3; i++)
-    v2[i] = v1[i];
+    std::copy(v1, v1 + 2, v2);
 }
 
 void vcross(const float *v1, const float *v2, float *cross) {
