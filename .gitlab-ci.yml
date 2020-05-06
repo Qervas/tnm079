@@ -1,12 +1,8 @@
 # Use the official gcc image
-image: gcc
+image: petiteviking/tnm079:latest
 
 stages:
     - build
-
-before_script:
-    # Install build dependencies
-    - apt-get update && apt-get -y install cmake freeglut3 freeglut3-dev libglew-dev libwxgtk3.0-dev
 
 MoA:
     # Build the application
@@ -15,4 +11,4 @@ MoA:
         - mkdir build
         - cd build
         - cmake ..
-        - make
+        - make -j$((`nproc`+1))
