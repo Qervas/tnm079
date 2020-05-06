@@ -82,6 +82,7 @@ and then choosing one of the color maps.
 ### Lab 4
 
 ### Lab 5
+- If your objects disappear when smoothing, check that the denominator of equation 16 is not equal to 0.
 
 ### Lab 6
 - If you cannot see the fluid whatsoever after loading template 1 (i.e, if it doesn't look like the image below), check your ```Quadric.cpp``` implementation. For both, ```GetValue()``` and ```GetGradient()```, the computations need to be performed in object space.
