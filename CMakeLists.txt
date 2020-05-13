@@ -7,6 +7,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 project(MoA)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 ###
 ## WX
