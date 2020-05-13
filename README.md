@@ -89,6 +89,4 @@ and then choosing one of the color maps.
 - If the level-set doesn't move at all, check in the ```Evaluate()``` method in ```OperatorAdvect.h``` that you sample the vector field with ```x```, ```y```, ```z``` BUT calculate the gradient using ```i```, ```j```, ```k```.
 - If your fluid falls through the bottom even though your boundary condition is correct, make sure you pay attention to the operator precedence when calculating the b vector, e.g., ```a/b*c != a/(b*c)```.
 - If your water magically loses volume, make sure that in the ```ExternalForces()``` method you call ```GetValue()``` on ```mVelocityField``` and not on the ```FluidSolver``` itself.
-<br>
-<br>
-<img src="fluid.png" alt="fluid" align="middle" style="width: 600px;"/>
+- If your fluid starts to "crinkle", make sure you multiply the values for `A` with -1.
