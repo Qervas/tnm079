@@ -9,8 +9,7 @@
  *   Andreas Sderstrm (andreas.soderstrom@itn.liu.se)
  *
  *************************************************************************************************/
-#ifndef __operatormorph_h__
-#define __operatormorph_h__
+#pragma once
 
 #include "Levelset/LevelSetOperator.h"
 
@@ -19,38 +18,33 @@
 //! \lab5 Implement morphing
 class OperatorMorph : public LevelSetOperator {
 protected:
-  const Implicit *mTarget;
+    const Implicit *mTarget;
 
 public:
-  OperatorMorph(LevelSet *LS, const Implicit *target)
-      : LevelSetOperator(LS), mTarget(target) {}
+    OperatorMorph(LevelSet *LS, const Implicit *target) : LevelSetOperator(LS), mTarget(target) {}
 
-  virtual float ComputeTimestep() {
-    // Compute and return a stable timestep
-    return 1;
-  }
-
-  virtual void Propagate(float time) {
-    // Propagate level set with stable timestep dt
-    // until requested time is reached
-    for (float elapsed = 0; elapsed < time;) {
-
-      // Determine timestep for stability
-      float dt = ComputeTimestep();
-
-      if (dt > time - elapsed)
-        dt = time - elapsed;
-      elapsed += dt;
-
-      // Integrate level set function in time using Euler integration
-      IntegrateEuler(dt);
+    virtual float ComputeTimestep() {
+        // Compute and return a stable timestep
+        return 1;
     }
-  }
 
-  virtual float Evaluate(size_t i, size_t j, size_t k) {
-    // Compute the rate of change (dphi/dt)
-    return 0;
-  }
+    virtual void Propagate(float time) {
+        // Propagate level set with stable timestep dt
+        // until requested time is reached
+        for (float elapsed = 0; elapsed < time;) {
+            // Determine timestep for stability
+            float dt = ComputeTimestep();
+
+            if (dt > time - elapsed) dt = time - elapsed;
+            elapsed += dt;
+
+            // Integrate level set function in time using Euler integration
+            IntegrateEuler(dt);
+        }
+    }
+
+    virtual float Evaluate(size_t i, size_t j, size_t k) {
+        // Compute the rate of change (dphi/dt)
+        return 0;
+    }
 };
-
-#endif

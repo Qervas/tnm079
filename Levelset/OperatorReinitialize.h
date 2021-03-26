@@ -9,8 +9,7 @@
  *   Andreas Sderstrm (andreas.soderstrom@itn.liu.se)
  *
  *************************************************************************************************/
-#ifndef __operatorreinitialize_h__
-#define __operatorreinitialize_h__
+#pragma once
 
 #include "Levelset/LevelSetOperator.h"
 
@@ -27,81 +26,74 @@
  */
 class OperatorReinitialize : public LevelSetOperator {
 public:
-  OperatorReinitialize(LevelSet *LS) : LevelSetOperator(LS) {}
+    OperatorReinitialize(LevelSet *LS) : LevelSetOperator(LS) {}
 
-  virtual float ComputeTimestep() {
-    // Compute and return a stable timestep
-    return 0.5 * mLS->GetDx();
-  }
-
-  virtual void Propagate(float time) {
-    // Determine timestep for stability
-    float dt = ComputeTimestep();
-
-    // Report maximum norm of gradient before reinitialization
-    std::cerr << "Maximum gradient before reinit: " << MaxNormGradient()
-              << std::endl;
-
-    // Propagate level set with stable timestep dt
-    // until requested time is reached
-    for (float elapsed = 0; elapsed < time;) {
-
-      GetGrid().Dilate();
-
-      if (dt > time - elapsed)
-        dt = time - elapsed;
-      elapsed += dt;
-
-      IntegrateEuler(dt);
-
-      GetGrid().Rebuild();
+    virtual float ComputeTimestep() {
+        // Compute and return a stable timestep
+        return 0.5 * mLS->GetDx();
     }
 
-    // Report maximum norm of gradient after reinitialization
-    std::cerr << "Maximum gradient after reinit: " << MaxNormGradient()
-              << std::endl;
-  }
+    virtual void Propagate(float time) {
+        // Determine timestep for stability
+        float dt = ComputeTimestep();
 
-  virtual float Evaluate(size_t i, size_t j, size_t k) {
-    // Compute the sign function (from central differencing)
-    float dx = mLS->GetDx();
-    float ddxc = mLS->DiffXpm(i, j, k);
-    float ddyc = mLS->DiffYpm(i, j, k);
-    float ddzc = mLS->DiffZpm(i, j, k);
-    float normgrad2 = ddxc * ddxc + ddyc * ddyc + ddzc * ddzc;
-    float val = GetGrid().GetValue(static_cast<int>(i), static_cast<int>(j),
-                                   static_cast<int>(k));
-    float sign = val / std::sqrt(val * val + normgrad2 * dx * dx);
+        // Report maximum norm of gradient before reinitialization
+        std::cerr << "Maximum gradient before reinit: " << MaxNormGradient() << std::endl;
 
-    // Compute upwind differences using Godunov's scheme
-    float ddx2, ddy2, ddz2;
-    Godunov(i, j, k, sign, ddx2, ddy2, ddz2);
+        // Propagate level set with stable timestep dt
+        // until requested time is reached
+        for (float elapsed = 0; elapsed < time;) {
+            GetGrid().Dilate();
 
-    // Compute the rate of change (dphi/dt)
-    return sign * (1 - std::sqrt(ddx2 + ddy2 + ddz2));
-  }
+            if (dt > time - elapsed) dt = time - elapsed;
+            elapsed += dt;
+
+            IntegrateEuler(dt);
+
+            GetGrid().Rebuild();
+        }
+
+        // Report maximum norm of gradient after reinitialization
+        std::cerr << "Maximum gradient after reinit: " << MaxNormGradient() << std::endl;
+    }
+
+    virtual float Evaluate(size_t i, size_t j, size_t k) {
+        // Compute the sign function (from central differencing)
+        float dx = mLS->GetDx();
+        float ddxc = mLS->DiffXpm(i, j, k);
+        float ddyc = mLS->DiffYpm(i, j, k);
+        float ddzc = mLS->DiffZpm(i, j, k);
+        float normgrad2 = ddxc * ddxc + ddyc * ddyc + ddzc * ddzc;
+        float val =
+            GetGrid().GetValue(static_cast<int>(i), static_cast<int>(j), static_cast<int>(k));
+        float sign = val / std::sqrt(val * val + normgrad2 * dx * dx);
+
+        // Compute upwind differences using Godunov's scheme
+        float ddx2, ddy2, ddz2;
+        Godunov(i, j, k, sign, ddx2, ddy2, ddz2);
+
+        // Compute the rate of change (dphi/dt)
+        return sign * (1 - std::sqrt(ddx2 + ddy2 + ddz2));
+    }
 
 protected:
-  float MaxNormGradient() {
-    float maxGrad = -(std::numeric_limits<float>::max)();
-    LevelSetGrid::Iterator iter = GetGrid().BeginNarrowBand();
-    LevelSetGrid::Iterator iend = GetGrid().EndNarrowBand();
-    while (iter != iend) {
-      size_t i = iter.GetI();
-      size_t j = iter.GetJ();
-      size_t k = iter.GetK();
+    float MaxNormGradient() {
+        float maxGrad = -(std::numeric_limits<float>::max)();
+        LevelSetGrid::Iterator iter = GetGrid().BeginNarrowBand();
+        LevelSetGrid::Iterator iend = GetGrid().EndNarrowBand();
+        while (iter != iend) {
+            size_t i = iter.GetI();
+            size_t j = iter.GetJ();
+            size_t k = iter.GetK();
 
-      float ddxc = mLS->DiffXpm(i, j, k);
-      float ddyc = mLS->DiffYpm(i, j, k);
-      float ddzc = mLS->DiffZpm(i, j, k);
-      float normgrad2 = ddxc * ddxc + ddyc * ddyc + ddzc * ddzc;
-      if (maxGrad < normgrad2)
-        maxGrad = normgrad2;
+            float ddxc = mLS->DiffXpm(i, j, k);
+            float ddyc = mLS->DiffYpm(i, j, k);
+            float ddzc = mLS->DiffZpm(i, j, k);
+            float normgrad2 = ddxc * ddxc + ddyc * ddyc + ddzc * ddzc;
+            if (maxGrad < normgrad2) maxGrad = normgrad2;
 
-      iter++;
+            iter++;
+        }
+        return std::sqrt(maxGrad);
     }
-    return std::sqrt(maxGrad);
-  }
 };
-
-#endif

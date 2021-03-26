@@ -9,8 +9,7 @@
  *   Andreas Sderstrm (andreas.soderstrom@itn.liu.se)
  *
  *************************************************************************************************/
-#ifndef __operatordilateerode_h__
-#define __operatordilateerode_h__
+#pragma once
 
 #include "Levelset/LevelSetOperator.h"
 
@@ -26,39 +25,35 @@
 //! \lab4 Implement erosion and dilation
 class OperatorDilateErode : public LevelSetOperator {
 protected:
-  //! The constant speed function
-  float mF;
+    //! The constant speed function
+    float mF;
 
 public:
-  OperatorDilateErode(LevelSet *LS, float f) : LevelSetOperator(LS), mF(f) {}
+    OperatorDilateErode(LevelSet *LS, float f) : LevelSetOperator(LS), mF(f) {}
 
-  virtual float ComputeTimestep() {
-    // Compute and return a stable timestep
-    return 1;
-  }
-
-  virtual void Propagate(float time) {
-    // Determine timestep for stability
-    float dt = ComputeTimestep();
-
-    // Propagate level set with stable timestep dt
-    // until requested time is reached
-    for (float elapsed = 0; elapsed < time;) {
-
-      if (dt > time - elapsed)
-        dt = time - elapsed;
-      elapsed += dt;
-
-      // Integrate level set function in time using Euler integration
-      IntegrateEuler(dt);
-      // IntegrateRungeKutta(dt);
+    virtual float ComputeTimestep() {
+        // Compute and return a stable timestep
+        return 1;
     }
-  }
 
-  virtual float Evaluate(size_t i, size_t j, size_t k) {
-    // Compute the rate of change (dphi/dt)
-    return 0;
-  }
+    virtual void Propagate(float time) {
+        // Determine timestep for stability
+        float dt = ComputeTimestep();
+
+        // Propagate level set with stable timestep dt
+        // until requested time is reached
+        for (float elapsed = 0; elapsed < time;) {
+            if (dt > time - elapsed) dt = time - elapsed;
+            elapsed += dt;
+
+            // Integrate level set function in time using Euler integration
+            IntegrateEuler(dt);
+            // IntegrateRungeKutta(dt);
+        }
+    }
+
+    virtual float Evaluate(size_t i, size_t j, size_t k) {
+        // Compute the rate of change (dphi/dt)
+        return 0;
+    }
 };
-
-#endif

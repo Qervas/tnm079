@@ -20,15 +20,15 @@
 /*!  \brief Quadric base class */
 class Quadric : public Implicit {
 public:
-  //! Initialize the quadric from matrix q
-  Quadric(const glm::mat4 &q);
-  virtual ~Quadric();
-  //! evaluate the quadric at world coordinates x y z
-  virtual float GetValue(float x, float y, float z) const;
-  //! calculate the gradient at world coordinates x y z
-  virtual glm::vec3 GetGradient(float x, float y, float z) const;
+    //! Initialize the quadric from matrix q
+    Quadric(const glm::mat4 &q);
+    virtual ~Quadric();
+    //! evaluate the quadric at world coordinates x y z
+    virtual float GetValue(float x, float y, float z) const;
+    //! calculate the gradient at world coordinates x y z
+    virtual glm::vec3 GetGradient(float x, float y, float z) const;
 
 protected:
-  //! The quadrics coefficent matrix
-  glm::mat4 mQuadric;
+    //! The quadrics coefficent matrix
+    glm::mat4 mQuadric;
 };

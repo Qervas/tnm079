@@ -34,7 +34,7 @@ void QuadricDecimationMesh::Initialize() {
  * \param[in,out] collapse The edge collapse object to (re-)compute,
  * DecimationMesh::EdgeCollapse
  */
-void QuadricDecimationMesh::computeCollapse(EdgeCollapse *collapse) {
+void QuadricDecimationMesh::computeCollapse(EdgeCollapse* collapse) {
     // Compute collapse->position and collapse->cost here
     // based on the quadrics at the edge endpoints
 

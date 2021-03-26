@@ -80,7 +80,7 @@ public:
     virtual size_t Genus() const;
 
     //! Calculates the number of shells
-    virtual int Shells() const;
+    virtual size_t Shells() const;
 
     //! Calculates the curvature at a vertex
     virtual float VertexCurvature(size_t vertexIndex) const;

@@ -46,8 +46,7 @@ size_t SimpleMesh::AddVertex(const glm::vec3 &v) {
     return indx;
   }
 
-  const auto indx =
-	  mVerts.size();
+  const auto indx = mVerts.size();
   mUniqueVerts[v] = indx; // op. [ ] constructs a new entry in map
   Vertex vert;
   vert.pos = v;

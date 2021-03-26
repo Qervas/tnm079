@@ -24,7 +24,7 @@ public:
     mCameraPos = v;
     mCameraUp = glm::vec3(0, 1, 0);
     mCameraFwd = glm::vec3(0, 0, -1);
-	mCameraFwd = glm::normalize(mCameraFwd);
+    mCameraFwd = glm::normalize(mCameraFwd);
     trackball(curquat, 0, 0, 0, 0);
     useCameraRotation = false;
   }
