@@ -1,6 +1,3 @@
-# Copyright Link�ping University 2010
-# Author Stefan Lindholm <stefan.lindholm@liu.se>
-
 cmake_minimum_required(VERSION 2.6.2)
 
 cmake_policy(SET CMP0043 NEW)
@@ -11,7 +8,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 project(MoA)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 ###
 ## WX

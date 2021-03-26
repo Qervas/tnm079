@@ -1,4 +1,3 @@
-
 #include <Subdivision/UniformCubicSplineSubdivisionCurve.h>
 #include <glm.hpp>
 #include <gtc/type_ptr.hpp>

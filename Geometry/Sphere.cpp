@@ -14,19 +14,18 @@
  *************************************************************************************************/
 #include <Geometry/Sphere.h>
 
-Sphere::Sphere(float r, bool euclideanDistance)
-    : mEuclideanDistance(euclideanDistance) {
-  this->radius2 = r * r;
-  this->mBox = Bbox(glm::vec3(-r, -r, -r), glm::vec3(r, r, r));
+Sphere::Sphere(float r, bool euclideanDistance) : mEuclideanDistance(euclideanDistance) {
+    this->radius2 = r * r;
+    this->mBox = Bbox(glm::vec3(-r, -r, -r), glm::vec3(r, r, r));
 }
 
 Sphere::~Sphere() {}
 
 float Sphere::GetValue(float x, float y, float z) const {
-  TransformW2O(x, y, z);
+    TransformW2O(x, y, z);
 
-  if (mEuclideanDistance)
-    return sqrt(x * x + y * y + z * z) - sqrt(radius2);
-  else
-    return (x * x + y * y + z * z - radius2);
+    if (mEuclideanDistance)
+        return sqrt(x * x + y * y + z * z) - sqrt(radius2);
+    else
+        return (x * x + y * y + z * z - radius2);
 }

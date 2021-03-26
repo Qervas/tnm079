@@ -11,32 +11,32 @@
 
 class QuadricDecimationMesh : public virtual DecimationMesh {
 public:
-  static const VisualizationMode QuadricIsoSurfaces;
+    static const VisualizationMode QuadricIsoSurfaces;
 
-  virtual std::list<VisualizationMode> GetVisualizationModes() {
-    std::list<VisualizationMode> L = DecimationMesh::GetVisualizationModes();
-    L.push_back(QuadricIsoSurfaces);
-    return L;
-  }
+    virtual std::list<VisualizationMode> GetVisualizationModes() {
+        std::list<VisualizationMode> L = DecimationMesh::GetVisualizationModes();
+        L.push_back(QuadricIsoSurfaces);
+        return L;
+    }
 
-  QuadricDecimationMesh() {}
-  virtual ~QuadricDecimationMesh() {}
+    QuadricDecimationMesh() {}
+    virtual ~QuadricDecimationMesh() {}
 
-  //! Initialize member data (error quadrics)
-  virtual void Initialize();
+    //! Initialize member data (error quadrics)
+    virtual void Initialize();
 
 protected:
-  //! Compute the cost and new position for an edge collapse
-  virtual void computeCollapse(EdgeCollapse *collapse);
-  //! Update vertex properties. Used after an edge collapse
-  virtual void updateVertexProperties(size_t ind);
-  //! Compute the quadric for a vertex
-  glm::mat4 createQuadricForVert(size_t indx) const;
-  //! Copmute the quadric for a face
-  glm::mat4 createQuadricForFace(size_t indx) const;
-  //! Render (redefined)
-  virtual void Render();
+    //! Compute the cost and new position for an edge collapse
+    virtual void computeCollapse(EdgeCollapse* collapse);
+    //! Update vertex properties. Used after an edge collapse
+    virtual void updateVertexProperties(size_t ind);
+    //! Compute the quadric for a vertex
+    glm::mat4 createQuadricForVert(size_t indx) const;
+    //! Copmute the quadric for a face
+    glm::mat4 createQuadricForFace(size_t indx) const;
+    //! Render (redefined)
+    virtual void Render();
 
-  //! The quadrics used in the decimation
-  std::vector<glm::mat4> mQuadrics;
+    //! The quadrics used in the decimation
+    std::vector<glm::mat4> mQuadrics;
 };

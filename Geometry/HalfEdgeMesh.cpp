@@ -55,8 +55,8 @@ size_t HalfEdgeMesh::AddVertex(const glm::vec3& v) {
  * Inserts a half edge pair between HalfEdgeMesh::Vertex pointed to by v1 and
  * v2. The first HalfEdgeMesh::HalfEdge (v1->v2) is the inner one, and the
  * second (v2->v1) is the outer.
- * \param [in] v1 vertex 1, glm::vec3
- * \param [in] v2 vertex 2, glm::vec3
+ * \param [in] v1 size_t index of vertex 1
+ * \param [in] v2 size_t index of vertex 2
  * \return a pair the indices to the half-edges
  */
 std::pair<size_t, size_t> HalfEdgeMesh::AddHalfEdgePair(size_t v1, size_t v2) {
@@ -183,6 +183,10 @@ void HalfEdgeMesh::Validate() {
     std::cerr << std::endl
               << "The mesh has genus " << Genus() << ", and consists of " << Shells()
               << " shells.\n";
+
+    std::cerr << "# Faces: " << std::to_string(mFaces.size()) << std::endl;
+    std::cerr << "# Edges: " << std::to_string(mEdges.size() / 2) << std::endl;
+    std::cerr << "# Vertices: " << std::to_string(mVerts.size()) << std::endl;
 }
 
 /*! \lab1 Implement the FindNeighborVertices */
@@ -340,7 +344,7 @@ float HalfEdgeMesh::Volume() const {
 }
 
 /*! \lab1 Calculate the number of shells  */
-int HalfEdgeMesh::Shells() const { return 1; }
+size_t HalfEdgeMesh::Shells() const { return 1; }
 
 /*! \lab1 Implement the genus */
 size_t HalfEdgeMesh::Genus() const {

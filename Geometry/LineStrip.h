@@ -12,8 +12,7 @@
  * Code updated in the period 2017-2018 by Jochen Jankowai
  *
  *************************************************************************************************/
-#ifndef __line_strip_h__
-#define __line_strip_h__
+#pragma once
 
 #include <Geometry/Geometry.h>
 #include <iostream>
@@ -21,23 +20,22 @@
 
 class LineStrip : public Geometry {
 protected:
-  std::vector<glm::vec3> mJoints;
+    std::vector<glm::vec3> mJoints;
 
-  // display information
-  glm::vec3 mJointColor;
-  glm::vec3 mLineColor;
-  float mJointSize;
-  float mLineWidth;
+    // display information
+    glm::vec3 mJointColor;
+    glm::vec3 mLineColor;
+    float mJointSize;
+    float mLineWidth;
 
 public:
-  LineStrip(const std::vector<glm::vec3> &joints);
+    LineStrip(const std::vector<glm::vec3> &joints);
 
-  virtual void Update() {}
+    virtual void Update() {}
 
-  virtual void Initialize() {}
+    virtual void Initialize() {}
 
-  virtual void Render();
+    virtual void Render();
 
-  virtual const char *GetTypeName() { return typeid(LineStrip).name(); }
+    virtual const char *GetTypeName() { return typeid(LineStrip).name(); }
 };
-#endif
