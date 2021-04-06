@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 
 template <typename DataType>
 Image<DataType>::Image(const std::string &filename) : Image() {
@@ -88,52 +90,20 @@ void Image<DataType>::ReadFromFile(const std::string &filename) {
 
 template <typename DataType>
 void Image<DataType>::SaveToFile(const std::string &filename) {
-    GLubyte header[] = {GLubyte(0),
-                        GLubyte(0),
-                        GLubyte(2),
-                        GLubyte(0),
-                        GLubyte(0),
-                        GLubyte(0),
-                        GLubyte(0),
-                        GLubyte(0),
-                        GLubyte(0),
-                        GLubyte(0),
-                        GLubyte(0),
-                        GLubyte(0),
-                        GLubyte(mWidth & 0x00FF),
-                        GLubyte((mWidth & 0xFF00) / 256),
-                        GLubyte(mHeight & 0x00FF),
-                        GLubyte((mHeight & 0xFF00) / 256),
-                        GLubyte(mComponents * 8),
-                        GLubyte(0)};
-
-    GLuint imageSize = mWidth * mHeight * mComponents;
-
-    FILE *file = fopen(filename.c_str(), "wb");
-
-    if (file == NULL) {
-        std::cerr << "Error when writing to file '" << filename << "'" << std::endl;
-        fclose(file);
-    }
-
     std::vector<GLubyte> data(mData.size());
 
-    // Copy member storage buffer to byte array
     std::transform(std::begin(mData), std::end(mData), std::begin(data),
                    [](const auto val) { return static_cast<GLubyte>(val * DataType{255}); });
 
-    // Flip red and blue components
-    if (mComponents > 2) {
-        for (GLuint i = 0; i < imageSize; i += mComponents) {
-            std::swap(data[i], data[i + 2]);
-        }
+    stbi_flip_vertically_on_write(1);
+
+    if (!stbi_write_png(filename.c_str(), mWidth, mHeight, mComponents, data.data(),
+                        static_cast<int>(mWidth * mComponents * sizeof(GLubyte)))) {
+        std::cerr << "Could not write PNG file." << std::endl;
+        return;
     }
 
-    fwrite(header, 1, sizeof(header), file);
-    fwrite(data.data(), 1, imageSize, file);
-    fclose(file);
-
-    std::cout << "TGA file written to '" << filename << "'" << std::endl << std::endl;
+    std::cout << "PNG file written to '" << filename << "'" << std::endl << std::endl;
 }
 
 template <typename DataType>
