@@ -3,8 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
+#include <stb_image.h>
 
 template <typename DataType>
 Image<DataType>::Image(const std::string &filename) : Image() {
@@ -28,64 +28,24 @@ void Image<DataType>::SetDimensions(GLuint width, GLuint height, GLuint componen
 
 template <typename DataType>
 void Image<DataType>::ReadFromFile(const std::string &filename) {
-    GLubyte TGAcomment[1];
-    GLubyte TGAheader[] = {0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    GLubyte TGAcompare[11];
-    GLubyte header[6];
-    int imageSize;
+    int width;
+    int height;
+    int components;
+    unsigned char *imageData = stbi_load(filename.c_str(), &width, &height, &components, 0);
 
-    FILE *file = fopen(filename.c_str(), "rb");
+    if (imageData) {
+        this->SetDimensions(width, height, components);
 
-    if (file == NULL || fread(TGAcomment, 1, sizeof(TGAcomment), file) != sizeof(TGAcomment) ||
-        fread(TGAcompare, 1, sizeof(TGAcompare), file) != sizeof(TGAcompare) ||
-        memcmp(TGAheader, TGAcompare, sizeof(TGAheader)) != 0 ||
-        fread(header, 1, sizeof(header), file) != sizeof(header)) {
-        fprintf(stderr, "\nTGA load error.\n");
-        fclose(file);
-        return;
+        const auto imageSize = mWidth * mHeight * mComponents;
+
+        std::transform(imageData, imageData + imageSize, std::begin(mData),
+                       [](const auto val) { return static_cast<DataType>(val) / DataType{255}; });
+
+        stbi_image_free(imageData);
+    } else {
+        std::cerr << "Could not read PNG file " << filename << std::endl;
+        std::cerr << stbi_failure_reason() << std::endl;
     }
-
-    char *comment = new char[TGAcomment[0]];
-    if (TGAcomment[0] != 0) {
-        fread(comment, 1, sizeof(comment), file);
-        printf("TGA comment: %s\n", comment);
-    }
-    delete[] comment;
-
-    this->SetDimensions(header[1] * 256 + header[0], header[3] * 256 + header[2], header[4] / 8);
-
-    if (mWidth <= 0 || mHeight <= 0 || mComponents < 1 || mComponents > 4) {
-        fprintf(stderr, "\nTGA load error.\n");
-        fclose(file);
-        return;
-    }
-
-    imageSize = mWidth * mHeight * mComponents;
-
-    std::vector<GLubyte> data(imageSize);
-
-    if ((int)fread(data.data(), 1, imageSize, file) != imageSize) {
-        data.clear();
-        fprintf(stderr, "\nTGA load error.\n");
-        fclose(file);
-        return;
-    }
-
-    // Copy data to member storage buffer
-    // Remember to normalize values
-    std::transform(std::begin(data), std::end(data), std::begin(mData),
-                   [](const auto val) { return static_cast<DataType>(val) / DataType{255}; });
-
-    // Flip red and blue components
-    if (mComponents > 2) {
-        for (int i = 0; i < imageSize; i += mComponents) {
-            std::swap(mData[i], mData[i + 2]);
-        }
-    }
-
-    fclose(file);
-    printf("TGA file '%s' opened [%d x %d, %i Bpp]\n\n", filename.c_str(), mWidth, mHeight,
-           mComponents);
 }
 
 template <typename DataType>
@@ -136,12 +96,8 @@ GLuint Image<DataType>::LoadTexture() {
     GLuint imageSize = mWidth * mHeight * components;
     std::vector<GLubyte> data(imageSize);
 
-    // Copy member storage buffer to byte array
-    for (unsigned int y = 0; y < mHeight; y++)
-        for (unsigned int x = 0; x < mWidth; x++)
-            for (unsigned int c = 0; c < mComponents; c++)
-                data[(components * (x + mWidth * y)) + c] = (*this)(x, y, c);
-
+    std::copy(std::begin(mData), std::end(mData), data);
+    
     GLuint texID;
 
     if (glIsTexture(mTexID) == GL_FALSE) glGenTextures(1, &mTexID);
@@ -163,22 +119,12 @@ GLuint Image<DataType>::LoadTexture() {
 
 template <typename DataType>
 DataType Image<DataType>::Max(int component) {
-    DataType m = (*this)(0, 0, component);
-    for (int y = 0; y < mHeight; y++)
-        for (int x = 0; x < mWidth; x++)
-            if ((*this)(x, y, component) > m) m = (*this)(x, y, component);
-
-    return m;
+    return *std::max_element(std::begin(mData), std::end(mData));
 }
 
 template <typename DataType>
 DataType Image<DataType>::Min(int component) {
-    DataType m = (*this)(0, 0, component);
-    for (int y = 0; y < mHeight; y++)
-        for (int x = 0; x < mWidth; x++)
-            if ((*this)(x, y, component) < m) m = (*this)(x, y, component);
-
-    return m;
+    return *std::min_element(std::begin(mData), std::end(mData));
 }
 
 template <typename DataType>
