@@ -90,3 +90,4 @@ and then choosing one of the color maps.
 - If your fluid falls through the bottom even though your boundary condition is correct, make sure you pay attention to the operator precedence when calculating the b vector, e.g., ```a/b*c != a/(b*c)```.
 - If your water magically loses volume, make sure that in the ```ExternalForces()``` method you call ```GetValue()``` on ```mVelocityField``` and not on the ```FluidSolver``` itself.
 - If your fluid starts to "crinkle", make sure you multiply the values for `A` with -1.
+- If the application crashes after a few iterations (7-8), the time step you compute in `OperatorAdvect.h` may not be stable.
