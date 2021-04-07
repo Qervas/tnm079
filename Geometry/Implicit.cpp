@@ -1,5 +1,6 @@
 #include <Geometry/Implicit.h>
 #include <gtc/type_ptr.hpp>
+#include <cmath>
 
 #ifdef __APPLE__
 #include "GLUT/glut.h"
@@ -117,7 +118,7 @@ float Implicit::ComputeVolume(float dx) const {
         }
     }
 
-    return volume * std::pow(dx, 3);
+  return volume * static_cast<float>(std::pow(dx, 3.0));
 }
 
 Bbox Implicit::GetBoundingBox() const {
