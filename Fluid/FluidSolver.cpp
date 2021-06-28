@@ -142,9 +142,9 @@ void FluidSolver::ExternalForces(float dt) {
     if (mExternalForces == NULL) return;
 
     float x, y, z;
-    for (int i = 0; i < mVoxels.GetDimX(); i++) {
-        for (int j = 0; j < mVoxels.GetDimY(); j++) {
-            for (int k = 0; k < mVoxels.GetDimZ(); k++) {
+    for (size_t i = 0; i < mVoxels.GetDimX(); i++) {
+        for (size_t j = 0; j < mVoxels.GetDimY(); j++) {
+            for (size_t k = 0; k < mVoxels.GetDimZ(); k++) {
 
                 // If we're in fluid (see FluidSolver::IsFluid()), sample the external
                 // force field (using world coordinates, see
@@ -168,9 +168,9 @@ void FluidSolver::SelfAdvection(float dt, int steps) {
     // Copy the current velocity field
     Volume<glm::vec3> velocities = mVelocityField;
 
-    for (int i = 0; i < mVoxels.GetDimX(); i++) {
-        for (int j = 0; j < mVoxels.GetDimY(); j++) {
-            for (int k = 0; k < mVoxels.GetDimZ(); k++) {
+    for (size_t i = 0; i < mVoxels.GetDimX(); i++) {
+        for (size_t j = 0; j < mVoxels.GetDimY(); j++) {
+            for (size_t k = 0; k < mVoxels.GetDimZ(); k++) {
 
                 // If we're in fluid, sample the current velocity field at (i,j,k).
                 // Then, trace a particle at initial position (i,j,k) back in time
@@ -192,9 +192,9 @@ void FluidSolver::SelfAdvection(float dt, int steps) {
 
 // Enforce the Dirichlet boundary conditions
 void FluidSolver::EnforceDirichletBoundaryCondition() {
-    for (int i = 0; i < mVoxels.GetDimX(); i++) {
-        for (int j = 0; j < mVoxels.GetDimY(); j++) {
-            for (int k = 0; k < mVoxels.GetDimZ(); k++) {
+    for (size_t i = 0; i < mVoxels.GetDimX(); i++) {
+        for (size_t j = 0; j < mVoxels.GetDimY(); j++) {
+            for (size_t k = 0; k < mVoxels.GetDimZ(); k++) {
 
                 // If we're in fluid, check the neighbors of (i,j,k) to
                 // see if it's next to a solid boundary. If so, project
@@ -224,9 +224,9 @@ void FluidSolver::Projection() {
     float dx2 = mDx * mDx;
 
     std::cerr << "Building A matrix and b vector..." << std::endl;
-    for (int i = 0; i < mVoxels.GetDimX(); i++) {
-        for (int j = 0; j < mVoxels.GetDimY(); j++) {
-            for (int k = 0; k < mVoxels.GetDimZ(); k++) {
+    for (size_t i = 0; i < mVoxels.GetDimX(); i++) {
+        for (size_t j = 0; j < mVoxels.GetDimY(); j++) {
+            for (size_t k = 0; k < mVoxels.GetDimZ(); k++) {
 
                 // If we're in fluid...
                 if (IsFluid(i, j, k)) {
@@ -272,9 +272,9 @@ void FluidSolver::Projection() {
               << " iterations" << std::endl;
 
     // Subtract the gradient of x to preserve the volume
-    for (int i = 0; i < mVoxels.GetDimX(); i++) {
-        for (int j = 0; j < mVoxels.GetDimY(); j++) {
-            for (int k = 0; k < mVoxels.GetDimZ(); k++) {
+    for (size_t i = 0; i < mVoxels.GetDimX(); i++) {
+        for (size_t j = 0; j < mVoxels.GetDimY(); j++) {
+            for (size_t k = 0; k < mVoxels.GetDimZ(); k++) {
 
                 // If we're in fluid...
                 if (IsFluid(i, j, k)) {
@@ -366,10 +366,9 @@ void FluidSolver::VelocityExtension() {
 void FluidSolver::ClassifyVoxels() {
     // Iterate the domain and classify all voxels as either
     // fluid, solid or empty
-    for (int i = 0; i < mVoxels.GetDimX(); i++) {
-        for (int j = 0; j < mVoxels.GetDimY(); j++) {
-            for (int k = 0; k < mVoxels.GetDimZ(); k++) {
-
+    for (size_t i = 0; i < mVoxels.GetDimX(); i++) {
+        for (size_t j = 0; j < mVoxels.GetDimY(); j++) {
+            for (size_t k = 0; k < mVoxels.GetDimZ(); k++) {
                 ClassifyVoxel(i, j, k);
             }
         }
@@ -395,7 +394,7 @@ void FluidSolver::ClassifyVoxel(int i, int j, int k) {
     auto iterFluid = mFluids.begin();
     auto iendFluid = mFluids.end();
     auto distance = std::numeric_limits<float>::max();
-    
+
     while (iterFluid != iendFluid) {
         distance = std::min(distance, (*iterFluid)->GetValue(x, y, z));
         iterFluid++;
