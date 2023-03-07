@@ -19,42 +19,39 @@
 #include <vector>
 
 class UniformCubicSpline : public Geometry {
-protected:
-  //! The coefficients dictating the shape
-  std::vector<glm::vec3> mCoefficients;
-  //! The control polygon is simply a LineStrip
-  LineStrip mControlPolygon;
-
-  //! Decides the length of the linear approximating segments used when drawing
-  float mDt;
-
-  int mBSplineEvaluations;
-
-  // display information
-  glm::vec3 mLineColor;
-  float mLineWidth;
-
 public:
-  UniformCubicSpline(const std::vector<glm::vec3> &joints,
-                     glm::vec3 lineColor = glm::vec3(0.0f, 1.0f,
-                                                               0.0f),
-                     float lineWidth = 2.0f, float segmentLength = 0.01f);
+    UniformCubicSpline(const std::vector<glm::vec3>& joints,
+                       glm::vec3 lineColor = glm::vec3(0.f, 1.f, 0.f),
+                       float lineWidth = 2.f, float segmentLength = 0.01f);
 
-  /*! The BSpline value is calculated from one of the four cardinal BSpline
-   * segments
-   */
-  float GetBSplineValue(size_t i, float t);
+    /*! The BSpline value is calculated from one of the four cardinal BSpline
+     * segments
+     */
+    float GetBSplineValue(size_t i, float t);
 
-  /*! Evaluate the spline as the sum of the coefficients times the bsplines */
-  glm::vec3 GetValue(float t);
+    /*! Evaluate the spline as the sum of the coefficients times the bsplines */
+    glm::vec3 GetValue(float t);
 
-  virtual void Update() {}
-  virtual void Initialize() {}
+    virtual void Update() {}
+    virtual void Initialize() {}
 
-  virtual void Render();
+    virtual void Render();
 
-  virtual const char *GetTypeName() {
-    return typeid(UniformCubicSpline).name();
-  }
+    virtual const char* GetTypeName() { return typeid(UniformCubicSpline).name(); }
+
+protected:
+    //! The coefficients dictating the shape
+    std::vector<glm::vec3> mCoefficients;
+    //! The control polygon is simply a LineStrip
+    LineStrip mControlPolygon;
+
+    //! Decides the length of the linear approximating segments used when drawing
+    float mDt;
+
+    int mBSplineEvaluations;
+
+    // display information
+    glm::vec3 mLineColor;
+    float mLineWidth;
 };
 #endif

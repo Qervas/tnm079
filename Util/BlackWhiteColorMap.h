@@ -16,10 +16,10 @@
 
 class BlackWhiteColorMap : public ColorMap {
 public:
-  BlackWhiteColorMap();
+    BlackWhiteColorMap();
 
 protected:
-  static ColorMapFactory::FactoryRegistration mFactoryRegistration;
+    static ColorMapFactory::FactoryRegistration mFactoryRegistration;
 };
 
 #endif

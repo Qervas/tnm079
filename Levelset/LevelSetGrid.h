@@ -24,9 +24,9 @@ protected:
     float mInsideConstant, mOutsideConstant;
 
 public:
-    LevelSetGrid(int dimX = 0, int dimY = 0, int dimZ = 0,
-                 float insideConstant = -(std::numeric_limits<float>::max)(),
-                 float outsideConstant = (std::numeric_limits<float>::max)())
+    LevelSetGrid(size_t dimX = 0, size_t dimY = 0, size_t dimZ = 0,
+                 float insideConstant = -std::numeric_limits<float>::max(),
+                 float outsideConstant = std::numeric_limits<float>::max())
         : mPhi(dimX, dimY, dimZ, outsideConstant)
         , mMask(dimX, dimY, dimZ)
         , mInsideConstant(insideConstant)
@@ -74,9 +74,9 @@ public:
             return (this->i != b.i || this->j != b.j || this->k != b.k);
         }
 
-        auto GetI() const { return i; }
-        auto GetJ() const { return j; }
-        auto GetK() const { return k; }
+        size_t GetI() const { return i; }
+        size_t GetJ() const { return j; }
+        size_t GetK() const { return k; }
     };
 
     Iterator BeginNarrowBand() { return Iterator(&mMask); }
@@ -89,9 +89,9 @@ public:
         return Iterator(&mMask, mMask.GetDimX(), mMask.GetDimY(), mMask.GetDimZ());
     }
 
-    inline auto GetDimX() const { return mPhi.GetDimX(); }
-    inline auto GetDimY() const { return mPhi.GetDimY(); }
-    inline auto GetDimZ() const { return mPhi.GetDimZ(); }
+    inline size_t GetDimX() const { return mPhi.GetDimX(); }
+    inline size_t GetDimY() const { return mPhi.GetDimY(); }
+    inline size_t GetDimZ() const { return mPhi.GetDimZ(); }
 
     //! Return grid dimensions as measured in number of grid cells
     glm::ivec3 GetDimensions();
@@ -124,9 +124,9 @@ public:
         Iterator iter = grid.BeginNarrowBand();
         Iterator iend = grid.EndNarrowBand();
         while (iter != iend) {
-            auto i = iter.GetI();
-            auto j = iter.GetJ();
-            auto k = iter.GetK();
+            size_t i = iter.GetI();
+            size_t j = iter.GetJ();
+            size_t k = iter.GetK();
             os << "(" << i << "," << j << "," << k << "): " << grid.GetValue(i, j, k) << std::endl;
             iter++;
         }

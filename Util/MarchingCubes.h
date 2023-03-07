@@ -17,7 +17,6 @@
 #include <glm.hpp>
 
 //! Method to triangulate a voxel
-std::vector<glm::vec3 > Triangulate(float voxelValues[8], float i, float j,
-                                        float k, float delta);
+std::vector<glm::vec3> Triangulate(float voxelValues[8], float i, float j, float k, float delta);
 
 #endif

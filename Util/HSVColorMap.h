@@ -16,10 +16,10 @@
 
 class HSVColorMap : public ColorMap {
 public:
-  HSVColorMap();
+    HSVColorMap();
 
 protected:
-  static ColorMapFactory::FactoryRegistration mFactoryRegistration;
+    static ColorMapFactory::FactoryRegistration mFactoryRegistration;
 };
 
 #endif

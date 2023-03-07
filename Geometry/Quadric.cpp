@@ -23,11 +23,11 @@ Quadric::~Quadric() {}
  * of the world-coordinates by mWorld2Obj, or transformation of the quadric
  * coefficient matrix by GetTransform() ONCE (see Section 2.2 in lab text).
  */
-float Quadric::GetValue(float x, float y, float z) const { return 0; }
+float Quadric::GetValue(float x, float y, float z) const { return 0.f; }
 
 /*!
  * Use the quadric matrix to evaluate the gradient.
  */
 glm::vec3 Quadric::GetGradient(float x, float y, float z) const {
-    return glm::vec3(0.0f, 0.0f, 0.0f);
+    return glm::vec3(0.f, 0.f, 0.f);
 }

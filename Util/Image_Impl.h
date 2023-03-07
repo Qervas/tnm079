@@ -7,13 +7,13 @@
 #include <stb_image.h>
 
 template <typename DataType>
-Image<DataType>::Image(const std::string &filename) : Image() {
+Image<DataType>::Image(const std::string& filename) : Image() {
     // Try to read the file
     this->ReadFromFile(filename);
 }
 
 template <typename DataType>
-Image<DataType>::Image(const Image &img) : Image(img.mWidth, img.mHeight, img.mComponents) {
+Image<DataType>::Image(const Image& img) : Image(img.mWidth, img.mHeight, img.mComponents) {
     std::copy(std::begin(img.mData), std::end(img.mData), std::begin(mData));
 }
 
@@ -27,11 +27,11 @@ void Image<DataType>::SetDimensions(GLuint width, GLuint height, GLuint componen
 }
 
 template <typename DataType>
-void Image<DataType>::ReadFromFile(const std::string &filename) {
+void Image<DataType>::ReadFromFile(const std::string& filename) {
     int width;
     int height;
     int components;
-    unsigned char *imageData = stbi_load(filename.c_str(), &width, &height, &components, 0);
+    unsigned char* imageData = stbi_load(filename.c_str(), &width, &height, &components, 0);
 
     if (imageData) {
         this->SetDimensions(width, height, components);
@@ -49,7 +49,7 @@ void Image<DataType>::ReadFromFile(const std::string &filename) {
 }
 
 template <typename DataType>
-void Image<DataType>::SaveToFile(const std::string &filename) {
+void Image<DataType>::SaveToFile(const std::string& filename) {
     std::vector<GLubyte> data(mData.size());
 
     std::transform(std::begin(mData), std::end(mData), std::begin(data),
@@ -97,7 +97,7 @@ GLuint Image<DataType>::LoadTexture() {
     std::vector<GLubyte> data(imageSize);
 
     std::copy(std::begin(mData), std::end(mData), data);
-    
+
     GLuint texID;
 
     if (glIsTexture(mTexID) == GL_FALSE) glGenTextures(1, &mTexID);
@@ -128,7 +128,7 @@ DataType Image<DataType>::Min(int component) {
 }
 
 template <typename DataType>
-Image<DataType> &Image<DataType>::operator=(const Image &img) {
+Image<DataType>& Image<DataType>::operator=(const Image& img) {
     if (this == &img) return *this;
 
     mWidth = img.mWidth;

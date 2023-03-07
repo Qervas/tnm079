@@ -19,121 +19,113 @@
 #include <gtc/type_ptr.hpp>
 #include <limits>
 
-ScalarCutPlane::ScalarCutPlane(const std::string &name, float dx,
-                               const Function3D<float> *function)
+ScalarCutPlane::ScalarCutPlane(const std::string& name, float dx, const Function3D<float>* function)
     : mDx(dx), mFunction(function), mTextureID(0) {
-  SetName(name);
-  Update();
+    SetName(name);
+    Update();
 }
 
 void ScalarCutPlane::Render() {
-  if (glIsTexture(mTextureID) == GL_FALSE)
-    return;
+    if (glIsTexture(mTextureID) == GL_FALSE) return;
 
-  // Apply transform
-  glPushMatrix();
-  glMultMatrixf(glm::value_ptr(mTransform));
+    // Apply transform
+    glPushMatrix();
+    glMultMatrixf(glm::value_ptr(mTransform));
 
-  glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
 
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glEnable(GL_DEPTH_TEST);
-  glDisable(GL_LIGHTING);
-  glDisable(GL_COLOR_MATERIAL);
-  glEnable(GL_TEXTURE_RECTANGLE_ARB);
-  glBindTexture(GL_TEXTURE_RECTANGLE_ARB, mTextureID);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_COLOR_MATERIAL);
+    glEnable(GL_TEXTURE_RECTANGLE_ARB);
+    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, mTextureID);
 
-  glColor4f(1, 1, 1, mOpacity);
-  glBegin(GL_QUADS);
-  glTexCoord2i(0, 0);
-  glVertex3f(0.0f, -1.0, -1.0);
+    glColor4f(1, 1, 1, mOpacity);
+    glBegin(GL_QUADS);
+    glTexCoord2i(0, 0);
+    glVertex3f(0.f, -1.0, -1.0);
 
-  glTexCoord2i(mWidth - 1, 0);
-  glVertex3f(0.0f, 1.0, -1.0);
+    glTexCoord2i(mWidth - 1, 0);
+    glVertex3f(0.f, 1.0, -1.0);
 
-  glTexCoord2i(mWidth - 1, mHeight - 1);
-  glVertex3f(0.0f, 1.0, 1.0);
+    glTexCoord2i(mWidth - 1, mHeight - 1);
+    glVertex3f(0.f, 1.0, 1.0);
 
-  glTexCoord2i(0, mHeight - 1);
-  glVertex3f(0.0f, -1.0, 1.0);
-  glEnd();
+    glTexCoord2i(0, mHeight - 1);
+    glVertex3f(0.f, -1.0, 1.0);
+    glEnd();
 
-  glDisable(GL_TEXTURE_RECTANGLE_ARB);
-  glDisable(GL_BLEND);
-  glPopAttrib();
-  glPopMatrix();
+    glDisable(GL_TEXTURE_RECTANGLE_ARB);
+    glDisable(GL_BLEND);
+    glPopAttrib();
+    glPopMatrix();
 
-  GLObject::Render();
+    GLObject::Render();
 }
 
-void ScalarCutPlane::SetTransform(const glm::mat4&transform) {
-  Geometry::SetTransform(transform);
-  Update();
+void ScalarCutPlane::SetTransform(const glm::mat4& transform) {
+    Geometry::SetTransform(transform);
+    Update();
 }
 
 void ScalarCutPlane::Update() {
-  mWidth = GLuint(Round(2.0f / mDx) + 1.0f);
-  mHeight = GLuint(Round(2.0f / mDx) + 1.0f);
-  GLfloat *image = new GLfloat[mWidth * mHeight * 3];
+    mWidth = GLuint(Round(2.f / mDx) + 1.f);
+    mHeight = GLuint(Round(2.f / mDx) + 1.f);
+    GLfloat* image = new GLfloat[mWidth * mHeight * 3];
 
-  std::cerr << "Building scalar cut plane of size " << mWidth << "x" << mHeight
-            << std::endl;
+    std::cerr << "Building scalar cut plane of size " << mWidth << "x" << mHeight << std::endl;
 
-  // Find out min/max value range
-  float x = 0;
-  float y, z;
-  std::vector<float> values;
-  values.reserve(mWidth * mHeight);
-  float minVal = std::numeric_limits<float>::max();
-  float maxVal = -std::numeric_limits<float>::max();
-  for (y = -1.0f; y < 1.0f + 0.5f * mDx; y += mDx) {
-    for (z = -1.0f; z < 1.0f + 0.5f * mDx; z += mDx) {
-      glm::vec4 vec(x, y, z, 1.0f);
-      vec = mTransform * vec;
+    // Find out min/max value range
+    float x = 0;
+    float y, z;
+    std::vector<float> values;
+    values.reserve(mWidth * mHeight);
+    float minVal = std::numeric_limits<float>::max();
+    float maxVal = -std::numeric_limits<float>::max();
+    for (y = -1.f; y < 1.f + 0.5f * mDx; y += mDx) {
+        for (z = -1.f; z < 1.f + 0.5f * mDx; z += mDx) {
+            glm::vec4 vec(x, y, z, 1.f);
+            vec = mTransform * vec;
 
-      float val = mFunction->GetValue(vec[0], vec[1], vec[2]);
-      values.push_back(val);
+            float val = mFunction->GetValue(vec[0], vec[1], vec[2]);
+            values.push_back(val);
 
-      if (minVal > val)
-        minVal = val;
-      if (maxVal < val)
-        maxVal = val;
+            if (minVal > val) minVal = val;
+            if (maxVal < val) maxVal = val;
+        }
     }
-  }
 
-  // Map the color values
-  std::cerr << "Color mapping with range [" << minVal << "," << maxVal << "]"
-            << std::endl;
-  x = 0;
-  size_t j = 0, k = 0, ind = 0;
-  for (y = -1.0f; y < 1.0f + 0.5f * mDx; y += mDx, j++) {
-    for (z = -1.0f; z < 1.0f + 0.5f * mDx; z += mDx, k++) {
-      glm::vec3 c = mColorMap->Map(values.at(ind), minVal, maxVal);
-      ind++;
+    // Map the color values
+    std::cerr << "Color mapping with range [" << minVal << "," << maxVal << "]" << std::endl;
+    x = 0;
+    size_t j = 0, k = 0, ind = 0;
+    for (y = -1.f; y < 1.f + 0.5f * mDx; y += mDx, j++) {
+        for (z = -1.f; z < 1.f + 0.5f * mDx; z += mDx, k++) {
+            glm::vec3 c = mColorMap->Map(values.at(ind), minVal, maxVal);
+            ind++;
 
-      assert(j < mWidth && k < mHeight);
-      image[3 * (j + mWidth * k)] = c[0];
-      image[3 * (j + mWidth * k) + 1] = c[1];
-      image[3 * (j + mWidth * k) + 2] = c[2];
+            assert(j < mWidth && k < mHeight);
+            image[3 * (j + mWidth * k)] = c[0];
+            image[3 * (j + mWidth * k) + 1] = c[1];
+            image[3 * (j + mWidth * k) + 2] = c[2];
+        }
+        k = 0;
     }
-    k = 0;
-  }
 
-  if (glIsTexture(mTextureID) == GL_FALSE)
-    glGenTextures(1, &mTextureID);
+    if (glIsTexture(mTextureID) == GL_FALSE) glGenTextures(1, &mTextureID);
 
-  glBindTexture(GL_TEXTURE_RECTANGLE_ARB, mTextureID);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameterf(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 3, mWidth, mHeight, 0, GL_RGB,
-               GL_FLOAT, image);
+    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, mTextureID);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 3, mWidth, mHeight, 0, GL_RGB, GL_FLOAT, image);
 
-  CheckGLError();
+    CheckGLError();
 
-  delete[] image;
+    delete[] image;
 }

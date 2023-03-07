@@ -13,11 +13,12 @@
 #include "Util/BlackWhiteColorMap.h"
 #include <glm.hpp>
 
-ColorMapFactory::FactoryRegistration
-    BlackWhiteColorMap::mFactoryRegistration("Black-White",
-                                             new BlackWhiteColorMap());
+ColorMapFactory::FactoryRegistration BlackWhiteColorMap::mFactoryRegistration(
+    "Black-White",
+    new BlackWhiteColorMap()
+);
 
 BlackWhiteColorMap::BlackWhiteColorMap() {
-  mColors.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
-  mColors.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
+    mColors.push_back(glm::vec3(0.f, 0.f, 0.f));
+    mColors.push_back(glm::vec3(1.f, 1.f, 1.f));
 }

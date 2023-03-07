@@ -104,14 +104,15 @@ float Implicit::ComputeVolume(float dx) const {
         for (float y = box.pMin[1]; y <= box.pMax[1] + 0.5f * dx; y += dx) {
             for (float z = box.pMin[2]; z <= box.pMax[2] + 0.5f * dx; z += dx) {
                 float val = GetValue(x, y, z);
-                if (val < -dx)
+                if (val < -dx) {
                     H = 1;
-                else if (val > dx)
+                } else if (val > dx) {
                     H = 0;
-                else
+                } else {
                     H = 0.5f *
-                        (1.0f + val / dx +
+                        (1.f + val / dx +
                          sin(-static_cast<float>(M_PI) * val / dx) / static_cast<float>(M_PI));
+                }
 
                 volume += H;
             }
@@ -149,10 +150,11 @@ void Implicit::Render() {
     glm::vec3 &v1 = b.pMax;
 
     if (mSelected) {
-        glLineWidth(2.0f);
+        glLineWidth(2.f);
         glColor3f(0.8f, 0.8f, 0.8f);
-    } else
+    } else {
         glColor3f(0.1f, 0.1f, 0.1f);
+    }
 
     glBegin(GL_LINE_STRIP);
     glVertex3f(v0[0], v0[1], v0[2]);
@@ -183,15 +185,16 @@ void Implicit::Render() {
     glVertex3f(v1[0], v1[1], v0[2]);
     glVertex3f(v1[0], v1[1], v1[2]);
     glEnd();
-    glLineWidth(1.0f);
+    glLineWidth(1.f);
     glPushMatrix();
     glMultMatrixf(glm::value_ptr(mTransform));
 
     Geometry *mesh = dynamic_cast<Geometry *>(mMesh);
-    if (mesh == NULL)
+    if (mesh == NULL) {
         std::cerr << "Error: implicit geometry not triangulated, add call to "
                      "triangulate()"
                   << std::endl;
+    }
     else {
         mesh->SetShowNormals(mShowNormals);
         mesh->SetWireframe(mWireframe);

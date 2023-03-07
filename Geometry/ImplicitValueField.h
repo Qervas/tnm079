@@ -20,19 +20,17 @@
 
 class ImplicitValueField : public Function3D<float> {
 protected:
-  const Implicit *mImplicit;
+    const Implicit *mImplicit;
 
 public:
-  ImplicitValueField(const Implicit *implicit) : mImplicit(implicit) {}
-  virtual ~ImplicitValueField() {}
+    ImplicitValueField(const Implicit *implicit) : mImplicit(implicit) {}
+    virtual ~ImplicitValueField() {}
 
-  //! Evaluate the function at x,y,z
-  virtual float GetValue(float x, float y, float z) const {
-    return mImplicit->GetValue(x, y, z);
-  }
+    //! Evaluate the function at x,y,z
+    virtual float GetValue(float x, float y, float z) const { return mImplicit->GetValue(x, y, z); }
 
-  //! Return a bound on the maximum value of the function
-  virtual float GetMaxValue() const { return 1; }
+    //! Return a bound on the maximum value of the function
+    virtual float GetMaxValue() const { return 1; }
 };
 
 #endif

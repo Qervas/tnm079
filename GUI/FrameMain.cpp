@@ -2,9 +2,9 @@
 
 size_t FrameMain::numScreenCaptures = 0;
 
-FrameMain::FrameMain(wxWindow *parent) : BaseFrameMain(parent) {
-    GLGridPlane *plane = new GLGridPlane("Grid");
-    plane->SetDimensions(4.0, 4.0);
+FrameMain::FrameMain(wxWindow* parent) : BaseFrameMain(parent) {
+    GLGridPlane* plane = new GLGridPlane("Grid");
+    plane->SetDimensions(4.f, 4.f);
     AddUniqueObject(plane);
 
     // GLAxis * axis = new GLAxis("axis");
@@ -68,7 +68,7 @@ FrameMain::FrameMain(wxWindow *parent) : BaseFrameMain(parent) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddUniqueObject(GLObject *object) {
+void FrameMain::AddUniqueObject(GLObject* object) {
     size_t i = 1;
     std::string name = object->GetName();
     while (!mGLViewer->AddObject(object)) {
@@ -80,15 +80,15 @@ void FrameMain::AddUniqueObject(GLObject *object) {
     mObjectList->Append(wxString(object->GetName().c_str(), wxConvUTF8));
 }
 
-void FrameMain::RemoveObject(GLObject *object) {
+void FrameMain::RemoveObject(GLObject* object) {
     mGLViewer->RemoveObject(object->GetName());
     mObjectList->Delete(mObjectList->FindString(wxString(object->GetName().c_str(), wxConvUTF8)));
 }
 
-void FrameMain::DeleteObjects(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
+void FrameMain::DeleteObjects(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
     while (!objects.empty()) {
-        GLObject *object = objects.back();
+        GLObject* object = objects.back();
         RemoveObject(object);
         DeleteDependentObjects(object);
         delete object;
@@ -98,12 +98,12 @@ void FrameMain::DeleteObjects(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::DeleteDependentObjects(GLObject *object) {
-    std::list<std::string> &objects = mDependentObjects[object->GetName()];
+void FrameMain::DeleteDependentObjects(GLObject* object) {
+    std::list<std::string>& objects = mDependentObjects[object->GetName()];
     std::list<std::string>::const_iterator iter = objects.begin();
     std::list<std::string>::const_iterator iend = objects.end();
     while (iter != iend) {
-        GLObject *dependent = mGLViewer->GetObject(*iter);
+        GLObject* dependent = mGLViewer->GetObject(*iter);
         if (dependent != NULL) {
             RemoveObject(dependent);
             delete dependent;
@@ -112,24 +112,28 @@ void FrameMain::DeleteDependentObjects(GLObject *object) {
     }
 }
 
-void FrameMain::UpdateDependentObjects(GLObject *object) {
-    std::list<std::string> &objects = mDependentObjects[object->GetName()];
+void FrameMain::UpdateDependentObjects(GLObject* object) {
+    std::list<std::string>& objects = mDependentObjects[object->GetName()];
     std::list<std::string>::const_iterator iter = objects.begin();
     std::list<std::string>::const_iterator iend = objects.end();
     while (iter != iend) {
-        Geometry *dependent = dynamic_cast<Geometry *>(mGLViewer->GetObject(*iter));
-        if (dependent != NULL) dependent->Update();
+        Geometry* dependent = dynamic_cast<Geometry*>(mGLViewer->GetObject(*iter));
+        if (dependent != NULL) {
+            dependent->Update();
+        }
         iter++;
     }
 }
 
-void FrameMain::ObjectSelected(wxCommandEvent &event) {
+void FrameMain::ObjectSelected(wxCommandEvent& event) {
     // mObjectList->SetSelection(wxNOT_FOUND);
-    for (size_t i = 0; i < mObjectList->GetCount(); i++) mObjectList->Deselect(static_cast<int>(i));
+    for (size_t i = 0; i < mObjectList->GetCount(); i++) {
+        mObjectList->Deselect(static_cast<int>(i));
+    }
 
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
         mObjectList->SetStringSelection(wxString((*iter)->GetName().c_str(), wxConvUTF8));
         iter++;
@@ -138,18 +142,19 @@ void FrameMain::ObjectSelected(wxCommandEvent &event) {
     UpdatePanels();
 }
 
-void FrameMain::SelectObjects(wxCommandEvent &event) {
+void FrameMain::SelectObjects(wxCommandEvent& event) {
     mGLViewer->DeselectAllObjects();
     wxArrayInt objects;
     int numObjects = mObjectList->GetSelections(objects);
-    for (int i = 0; i < numObjects; i++)
+    for (int i = 0; i < numObjects; i++) {
         mGLViewer->SelectObject(std::string(mObjectList->GetString(objects[i]).mb_str()));
+    }
 }
 
-void FrameMain::MoveObjectsUp(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::MoveObjectsUp(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
         mGLViewer->MoveObject((*iter)->GetName(), -1);
 
@@ -165,10 +170,10 @@ void FrameMain::MoveObjectsUp(wxCommandEvent &event) {
     ObjectSelected(event);
 }
 
-void FrameMain::MoveObjecsDown(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::MoveObjecsDown(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
         mGLViewer->MoveObject((*iter)->GetName(), 1);
 
@@ -184,33 +189,33 @@ void FrameMain::MoveObjecsDown(wxCommandEvent &event) {
     ObjectSelected(event);
 }
 
-void FrameMain::TextCtrlFocus(wxFocusEvent &event) {
-    wxTextCtrl *ctrl = dynamic_cast<wxTextCtrl *>(event.GetEventObject());
+void FrameMain::TextCtrlFocus(wxFocusEvent& event) {
+    wxTextCtrl* ctrl = dynamic_cast<wxTextCtrl*>(event.GetEventObject());
     ctrl->SetSelection(-1, -1);
 }
 
-void FrameMain::TransformObjects(wxCommandEvent &event) {
+void FrameMain::TransformObjects(wxCommandEvent& event) {
     double scaleX, scaleY, scaleZ;
     double translateX, translateY, translateZ;
     double rotateX, rotateY, rotateZ;
 
-    if (!mScaleX->GetValue().ToDouble(&scaleX)) scaleX = 1;
-    if (!mScaleY->GetValue().ToDouble(&scaleY)) scaleY = 1;
-    if (!mScaleZ->GetValue().ToDouble(&scaleZ)) scaleZ = 1;
+    if (!mScaleX->GetValue().ToDouble(&scaleX)) scaleX = 1.0;
+    if (!mScaleY->GetValue().ToDouble(&scaleY)) scaleY = 1.0;
+    if (!mScaleZ->GetValue().ToDouble(&scaleZ)) scaleZ = 1.0;
 
-    if (!mTranslateX->GetValue().ToDouble(&translateX)) translateX = 0;
-    if (!mTranslateY->GetValue().ToDouble(&translateY)) translateY = 0;
-    if (!mTranslateZ->GetValue().ToDouble(&translateZ)) translateZ = 0;
+    if (!mTranslateX->GetValue().ToDouble(&translateX)) translateX = 0.0;
+    if (!mTranslateY->GetValue().ToDouble(&translateY)) translateY = 0.0;
+    if (!mTranslateZ->GetValue().ToDouble(&translateZ)) translateZ = 0.0;
 
-    if (!mRotateX->GetValue().ToDouble(&rotateX)) rotateX = 0;
-    if (!mRotateY->GetValue().ToDouble(&rotateY)) rotateY = 0;
-    if (!mRotateZ->GetValue().ToDouble(&rotateZ)) rotateZ = 0;
+    if (!mRotateX->GetValue().ToDouble(&rotateX)) rotateX = 0.0;
+    if (!mRotateY->GetValue().ToDouble(&rotateY)) rotateY = 0.0;
+    if (!mRotateZ->GetValue().ToDouble(&rotateZ)) rotateZ = 0.0;
 
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        Geometry *object = dynamic_cast<Geometry *>(*iter);
+        Geometry* object = dynamic_cast<Geometry*>(*iter);
         if (object == NULL) {
             std::cerr << "Warning: Object '" << (*iter)->GetName()
                       << "' is not a geometry - can't be transformed" << std::endl;
@@ -226,10 +231,10 @@ void FrameMain::TransformObjects(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::VisualizeWireframe(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::VisualizeWireframe(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
         (*iter)->SetWireframe(event.IsChecked());
         iter++;
@@ -238,10 +243,10 @@ void FrameMain::VisualizeWireframe(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::VisualizeMeshNormals(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::VisualizeMeshNormals(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
         (*iter)->SetShowNormals(event.IsChecked());
         iter++;
@@ -250,23 +255,23 @@ void FrameMain::VisualizeMeshNormals(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::OpacityChanged(wxScrollEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::OpacityChanged(wxScrollEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        (*iter)->SetOpacity(event.GetInt() / 100.0f);
+        (*iter)->SetOpacity(static_cast<float>(event.GetInt()) / 100.f);
         iter++;
     }
 
     mGLViewer->Render();
 }
 
-void FrameMain::SetColormap(wxCommandEvent &event) {
-    ColorMap *map = ColorMapFactory::New(std::string(event.GetString().mb_str()));
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::SetColormap(wxCommandEvent& event) {
+    ColorMap* map = ColorMapFactory::New(std::string(event.GetString().mb_str()));
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
         (*iter)->mAutoMinMax = mAutoMinMax->IsChecked();
         double tmp1 = 0;
@@ -295,15 +300,18 @@ void FrameMain::SetColormap(wxCommandEvent &event) {
     */
 }
 
-void FrameMain::SetVisualizationMode(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::SetVisualizationMode(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     int selection = mVisualizationModeChoice->GetSelection();
-    if (selection == 0) return;
+    if (selection == 0) {
+        return;
+    }
 
-    VisualizationModeData *mode =
-        dynamic_cast<VisualizationModeData *>(mVisualizationModeChoice->GetClientObject(selection));
+    VisualizationModeData* mode =
+        dynamic_cast<VisualizationModeData*>(mVisualizationModeChoice->GetClientObject(selection));
+
     while (iter != iend) {
         (*iter)->SetVisualizationMode(mode->GetVisualizationMode());
         iter++;
@@ -313,39 +321,41 @@ void FrameMain::SetVisualizationMode(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::ScaleChanged(wxCommandEvent &event) {
+void FrameMain::ScaleChanged(wxCommandEvent& event) {
     if (mUniformScaling->IsChecked()) {
         mScaleY->SetValue(mScaleX->GetValue());
         mScaleZ->SetValue(mScaleX->GetValue());
     }
 }
 
-void FrameMain::ToggleUniformScaling(wxCommandEvent &event) {
+void FrameMain::ToggleUniformScaling(wxCommandEvent& event) {
     mScaleY->Enable(!mUniformScaling->IsChecked());
     mScaleZ->Enable(!mUniformScaling->IsChecked());
 }
 
-void FrameMain::ToggleAutoMinMax(wxCommandEvent &event) {
+void FrameMain::ToggleAutoMinMax(wxCommandEvent& event) {
     mMin->Enable(!mAutoMinMax->IsChecked());
     mMax->Enable(!mAutoMinMax->IsChecked());
 }
 
-void FrameMain::SaveMesh(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::SaveMesh(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
         // Try to fetch a mesh...
-        Mesh *mesh = dynamic_cast<Mesh *>(*iter);
+        Mesh* mesh = dynamic_cast<Mesh*>(*iter);
 #ifdef LAB4
         if (mesh == NULL) {
-            Implicit *impl = dynamic_cast<Implicit *>(*iter);
-            if (impl != NULL) mesh = impl->GetMesh();
+            Implicit* impl = dynamic_cast<Implicit*>(*iter);
+            if (impl != NULL) {
+                mesh = impl->GetMesh();
+            }
         }
 #endif  // Lab4
 
         if (mesh != NULL) {
-            wxFileDialog *dialog = new wxFileDialog(
+            wxFileDialog* dialog = new wxFileDialog(
                 this,
                 _T("Save mesh '") + wxString(mesh->GetName().c_str(), wxConvUTF8) + _T("' as"),
                 _T("."), wxString(mesh->GetName().c_str(), wxConvUTF8) + _T(".obj"),
@@ -360,7 +370,7 @@ void FrameMain::SaveMesh(wxCommandEvent &event) {
     }
 }
 
-void FrameMain::CaptureScreen(wxCommandEvent &event) {
+void FrameMain::CaptureScreen(wxCommandEvent& event) {
     // Bug in windows. ShowModal doesn't work.
     /*
   wxTextEntryDialog filenameDialog(this, _T("Filename"), _T("Enter filename"),
@@ -378,20 +388,23 @@ void FrameMain::CaptureScreen(wxCommandEvent &event) {
   if (!magn.ToDouble(&mag)) return;
   mGLViewer->ScreenCapture(std::string(filename.mb_str()), mag);
   }*/
-    wxFileDialog *dialog = new wxFileDialog(this, _T("Save as"), _T("."), _T("MoA_ScreenCapture(" + std::to_string(numScreenCaptures++) + ").png"),
-                                            _T("PNG (*.png)|*.png"), wxFD_SAVE, wxDefaultPosition);
+    wxFileDialog* dialog =
+        new wxFileDialog(this, _T("Save as"), _T("."),
+                         _T("MoA_ScreenCapture(" + std::to_string(numScreenCaptures++) + ").png"),
+                         _T("PNG (*.png)|*.png"), wxFD_SAVE, wxDefaultPosition);
+
     if (dialog->ShowModal() == wxID_OK) {
         wxString filename = dialog->GetPath();
         mGLViewer->ScreenCapture(std::string(filename.mb_str()), 1.0);
     }
 }
 
-void FrameMain::Dilate(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::Dilate(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        Geometry *object = dynamic_cast<Geometry *>(*iter);
+        Geometry* object = dynamic_cast<Geometry*>(*iter);
         if (object == NULL) {
             std::cerr << "Warning: Object '" << (*iter)->GetName()
                       << "' is not a geometry - can't be transformed" << std::endl;
@@ -405,12 +418,12 @@ void FrameMain::Dilate(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::Erode(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::Erode(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        Geometry *object = dynamic_cast<Geometry *>(*iter);
+        Geometry* object = dynamic_cast<Geometry*>(*iter);
         if (object == NULL) {
             std::cerr << "Warning: Object '" << (*iter)->GetName()
                       << "' is not a geometry - can't be transformed" << std::endl;
@@ -424,12 +437,12 @@ void FrameMain::Erode(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::Smooth(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::Smooth(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        Geometry *object = dynamic_cast<Geometry *>(*iter);
+        Geometry* object = dynamic_cast<Geometry*>(*iter);
         if (object == NULL) {
             std::cerr << "Warning: Object '" << (*iter)->GetName()
                       << "' is not a geometry - can't be transformed" << std::endl;
@@ -469,17 +482,18 @@ void FrameMain::UpdatePanels() {
     HideAllPanels();
 
     // Clear the visualization mode choice box
-    while (mVisualizationModeChoice->GetCount() > 1)
+    while (mVisualizationModeChoice->GetCount() > 1) {
         mVisualizationModeChoice->Delete(mVisualizationModeChoice->GetCount() - 1);
+    }
 
     // Get selected objects
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
         // Activate all panels connected to this class
-        std::list<wxWindow *>::iterator panelIter = mPanelSwitches[(*iter)->GetTypeName()].begin();
-        std::list<wxWindow *>::iterator panelIend = mPanelSwitches[(*iter)->GetTypeName()].end();
+        std::list<wxWindow*>::iterator panelIter = mPanelSwitches[(*iter)->GetTypeName()].begin();
+        std::list<wxWindow*>::iterator panelIend = mPanelSwitches[(*iter)->GetTypeName()].end();
         while (panelIter != panelIend) {
             (*panelIter)->Show();
             panelIter++;
@@ -495,7 +509,7 @@ void FrameMain::UpdatePanels() {
             modeIter++;
         }
 
-        mVisualizeOpacity->SetValue((*iter)->GetOpacity() * 100);
+        mVisualizeOpacity->SetValue(static_cast<int>((*iter)->GetOpacity()) * 100);
         iter++;
     }
 
@@ -504,8 +518,8 @@ void FrameMain::UpdatePanels() {
 
 #ifdef LAB1
 
-void FrameMain::AddObjectSimpleMesh(wxCommandEvent &event) {
-    wxFileDialog *dialog = new wxFileDialog(this);
+void FrameMain::AddObjectSimpleMesh(wxCommandEvent& event) {
+    wxFileDialog* dialog = new wxFileDialog(this);
     if (dialog->ShowModal() == wxID_OK) {
         wxString path = dialog->GetPath();
         AddMesh<SimpleMesh>(path);
@@ -515,8 +529,8 @@ void FrameMain::AddObjectSimpleMesh(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectHalfEdgeMesh(wxCommandEvent &event) {
-    wxFileDialog *dialog = new wxFileDialog(this);
+void FrameMain::AddObjectHalfEdgeMesh(wxCommandEvent& event) {
+    wxFileDialog* dialog = new wxFileDialog(this);
     if (dialog->ShowModal() == wxID_OK) {
         wxString path = dialog->GetPath();
         AddMesh<HalfEdgeMesh>(path);
@@ -529,8 +543,8 @@ void FrameMain::AddObjectHalfEdgeMesh(wxCommandEvent &event) {
 
 #ifdef LAB2
 
-void FrameMain::AddObjectSimpleDecimationMesh(wxCommandEvent &event) {
-    wxFileDialog *dialog = new wxFileDialog(this);
+void FrameMain::AddObjectSimpleDecimationMesh(wxCommandEvent& event) {
+    wxFileDialog* dialog = new wxFileDialog(this);
     if (dialog->ShowModal() == wxID_OK) {
         wxString path = dialog->GetPath();
         AddMesh<SimpleDecimationMesh>(path);
@@ -539,8 +553,8 @@ void FrameMain::AddObjectSimpleDecimationMesh(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectQuadricDecimationMesh(wxCommandEvent &event) {
-    wxFileDialog *dialog = new wxFileDialog(this);
+void FrameMain::AddObjectQuadricDecimationMesh(wxCommandEvent& event) {
+    wxFileDialog* dialog = new wxFileDialog(this);
     if (dialog->ShowModal() == wxID_OK) {
         wxString path = dialog->GetPath();
         AddMesh<QuadricDecimationMesh>(path);
@@ -549,23 +563,24 @@ void FrameMain::AddObjectQuadricDecimationMesh(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::DecimateObjects(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::DecimateObjects(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        DecimationMesh *mesh = dynamic_cast<DecimationMesh *>(*iter);
-        if (mesh == NULL)
+        DecimationMesh* mesh = dynamic_cast<DecimationMesh*>(*iter);
+        if (mesh == NULL) {
             std::cerr << "Warning: Object '" << (*iter)->GetName()
                       << "' is not a decimation mesh - can't be decimated" << std::endl;
-        else {
+        } else {
             /*mesh->decimate();*/
             long targetFaces;
             if (m_DecimationTargetTxtBox->GetValue().ToLong(&targetFaces)) {
                 std::cout << "Target Decimation Faces: " << targetFaces << std::endl;
                 mesh->decimate(targetFaces);
-            } else
+            } else {
                 std::cout << "Decimating one edge" << std::endl;
+            }
             mesh->decimate();
         }
 
@@ -579,7 +594,7 @@ void FrameMain::DecimateObjects(wxCommandEvent &event) {
 
 #ifdef LAB3
 
-void FrameMain::AddObjectCubicSpline(wxCommandEvent &event) {
+void FrameMain::AddObjectCubicSpline(wxCommandEvent& event) {
     std::vector<glm::vec3> c;
     c.push_back(glm::vec3(-0.8f, 1.0f, 0.5f));
     c.push_back(glm::vec3(-0.7f, 0.8f, 0.5f));
@@ -590,13 +605,13 @@ void FrameMain::AddObjectCubicSpline(wxCommandEvent &event) {
     c.push_back(glm::vec3(0.4f, 0.5f, 0.5f));
     c.push_back(glm::vec3(0.5f, 1.0f, 0.5f));
 
-    UniformCubicSpline *curve = new UniformCubicSpline(c, glm::vec3(1.0f, 0.0f, 0.0f));
+    UniformCubicSpline* curve = new UniformCubicSpline(c, glm::vec3(1.f, 0.f, 0.f));
     curve->SetName("Cubic spline");
     AddUniqueObject(curve);
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectSubdivisionCurve(wxCommandEvent &event) {
+void FrameMain::AddObjectSubdivisionCurve(wxCommandEvent& event) {
     std::vector<glm::vec3> c;
     c.push_back(glm::vec3(-0.8f, 1.0f, 0.5f));
     c.push_back(glm::vec3(-0.7f, 0.8f, 0.5f));
@@ -607,14 +622,14 @@ void FrameMain::AddObjectSubdivisionCurve(wxCommandEvent &event) {
     c.push_back(glm::vec3(0.4f, 0.5f, 0.5f));
     c.push_back(glm::vec3(0.5f, 1.0f, 0.5f));
 
-    UniformCubicSplineSubdivisionCurve *curve = new UniformCubicSplineSubdivisionCurve(c);
+    UniformCubicSplineSubdivisionCurve* curve = new UniformCubicSplineSubdivisionCurve(c);
     curve->SetName("Subdivision curve");
     AddUniqueObject(curve);
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectLoopSubdivisionMesh(wxCommandEvent &event) {
-    wxFileDialog *dialog = new wxFileDialog(this);
+void FrameMain::AddObjectLoopSubdivisionMesh(wxCommandEvent& event) {
+    wxFileDialog* dialog = new wxFileDialog(this);
     if (dialog->ShowModal() == wxID_OK) {
         wxString path = dialog->GetPath();
         AddMesh<LoopSubdivisionMesh>(path);
@@ -623,8 +638,8 @@ void FrameMain::AddObjectLoopSubdivisionMesh(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectStrangeSubdivisionMesh(wxCommandEvent &event) {
-    wxFileDialog *dialog = new wxFileDialog(this);
+void FrameMain::AddObjectStrangeSubdivisionMesh(wxCommandEvent& event) {
+    wxFileDialog* dialog = new wxFileDialog(this);
     if (dialog->ShowModal() == wxID_OK) {
         wxString path = dialog->GetPath();
         AddMesh<StrangeSubdivisionMesh>(path);
@@ -633,16 +648,16 @@ void FrameMain::AddObjectStrangeSubdivisionMesh(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::SubdivideObjects(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::SubdivideObjects(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        Subdivision *subdiv = dynamic_cast<Subdivision *>(*iter);
-        if (subdiv == NULL)
+        Subdivision* subdiv = dynamic_cast<Subdivision*>(*iter);
+        if (subdiv == NULL) {
             std::cerr << "Warning: Object '" << (*iter)->GetName()
                       << "' is not a subdivision object - can't be subdivided" << std::endl;
-        else {
+        } else {
             std::cout << "Subdividing" << std::endl;
             subdiv->Subdivide();
         }
@@ -657,8 +672,8 @@ void FrameMain::SubdivideObjects(wxCommandEvent &event) {
 
 #ifdef LAB4
 
-void FrameMain::AddObjectImplicitSphere(wxCommandEvent &event) {
-    Sphere *sphere = new Sphere(1);
+void FrameMain::AddObjectImplicitSphere(wxCommandEvent& event) {
+    Sphere* sphere = new Sphere(1);
     sphere->SetMeshSampling(GetMeshSampling());
     sphere->SetDifferentialScale(GetDifferentialScale());
     sphere->Triangulate<SimpleMesh>();
@@ -670,8 +685,8 @@ void FrameMain::AddObjectImplicitSphere(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectImplicitMesh(wxCommandEvent &event) {
-    wxFileDialog *dialog = new wxFileDialog(this);
+void FrameMain::AddObjectImplicitMesh(wxCommandEvent& event) {
+    wxFileDialog* dialog = new wxFileDialog(this);
     if (dialog->ShowModal() == wxID_OK) {
         wxString path = dialog->GetPath();
         wxString filename = path.AfterLast('/');
@@ -681,7 +696,7 @@ void FrameMain::AddObjectImplicitMesh(wxCommandEvent &event) {
 
         if (suffix == _T("obj")) {
             // Create new mesh
-            SimpleMesh *mesh = new SimpleMesh();
+            SimpleMesh* mesh = new SimpleMesh();
 
             // Load mesh
             std::ifstream infile;
@@ -690,7 +705,7 @@ void FrameMain::AddObjectImplicitMesh(wxCommandEvent &event) {
             objIO.Load(mesh, infile);
 
             // Create new implicit mesh with loaded mesh as argument
-            ImplicitMesh *implicitMesh = new ImplicitMesh(mesh);
+            ImplicitMesh* implicitMesh = new ImplicitMesh(mesh);
             implicitMesh->SetDifferentialScale(GetDifferentialScale());
             implicitMesh->SetMeshSampling(GetMeshSampling());
             implicitMesh->Triangulate<SimpleMesh>();
@@ -705,11 +720,11 @@ void FrameMain::AddObjectImplicitMesh(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectQuadricPlane(wxCommandEvent &event) {
+void FrameMain::AddObjectQuadricPlane(wxCommandEvent& event) {
     glm::mat4 M{1.0f};
     // Construct the quadric matrix here
 
-    Quadric *Q = new Quadric(M);
+    Quadric* Q = new Quadric(M);
     Q->SetBoundingBox(Bbox(-1, 1));
     Q->SetMeshSampling(GetMeshSampling());
     Q->SetDifferentialScale(GetDifferentialScale());
@@ -719,11 +734,11 @@ void FrameMain::AddObjectQuadricPlane(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectQuadricCylinder(wxCommandEvent &event) {
+void FrameMain::AddObjectQuadricCylinder(wxCommandEvent& event) {
     glm::mat4 M{1.0f};
     // Construct the quadric matrix here
 
-    Quadric *Q = new Quadric(M);
+    Quadric* Q = new Quadric(M);
     Q->SetBoundingBox(Bbox(-1, 1));
     Q->SetMeshSampling(GetMeshSampling());
     Q->SetDifferentialScale(GetDifferentialScale());
@@ -733,11 +748,11 @@ void FrameMain::AddObjectQuadricCylinder(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectQuadricEllipsoid(wxCommandEvent &event) {
+void FrameMain::AddObjectQuadricEllipsoid(wxCommandEvent& event) {
     glm::mat4 M{1.0f};
     // Construct the quadric matrix here
 
-    Quadric *Q = new Quadric(M);
+    Quadric* Q = new Quadric(M);
     Q->SetBoundingBox(Bbox(-1, 1));
     Q->SetMeshSampling(GetMeshSampling());
     Q->SetDifferentialScale(GetDifferentialScale());
@@ -747,11 +762,11 @@ void FrameMain::AddObjectQuadricEllipsoid(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectQuadricCone(wxCommandEvent &event) {
+void FrameMain::AddObjectQuadricCone(wxCommandEvent& event) {
     glm::mat4 M{1.0f};
     // Construct the quadric matrix here
 
-    Quadric *Q = new Quadric(M);
+    Quadric* Q = new Quadric(M);
     Q->SetBoundingBox(Bbox(-1, 1));
     Q->SetMeshSampling(GetMeshSampling());
     Q->SetDifferentialScale(GetDifferentialScale());
@@ -761,11 +776,11 @@ void FrameMain::AddObjectQuadricCone(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectQuadricParaboloid(wxCommandEvent &event) {
+void FrameMain::AddObjectQuadricParaboloid(wxCommandEvent& event) {
     glm::mat4 M{1.0f};
     // Construct the quadric matrix here
 
-    Quadric *Q = new Quadric(M);
+    Quadric* Q = new Quadric(M);
     Q->SetBoundingBox(Bbox(-2, 2));
     Q->SetMeshSampling(GetMeshSampling());
     Q->SetDifferentialScale(GetDifferentialScale());
@@ -775,11 +790,11 @@ void FrameMain::AddObjectQuadricParaboloid(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectQuadricHyperboloid(wxCommandEvent &event) {
+void FrameMain::AddObjectQuadricHyperboloid(wxCommandEvent& event) {
     glm::mat4 M{1.0f};
     // Construct the quadric matrix here
 
-    Quadric *Q = new Quadric(M);
+    Quadric* Q = new Quadric(M);
     Q->SetBoundingBox(Bbox(-2, 2));
     Q->SetMeshSampling(GetMeshSampling());
     Q->SetDifferentialScale(GetDifferentialScale());
@@ -789,26 +804,26 @@ void FrameMain::AddObjectQuadricHyperboloid(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectScalarCutPlane(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::AddObjectScalarCutPlane(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        Implicit *impl = dynamic_cast<Implicit *>(*iter);
+        Implicit* impl = dynamic_cast<Implicit*>(*iter);
         if (impl != NULL) {
-            ImplicitValueField *field = new ImplicitValueField(impl);
-            ScalarCutPlane *plane = new ScalarCutPlane("Scalar cut plane", 0.005f, field);
+            ImplicitValueField* field = new ImplicitValueField(impl);
+            ScalarCutPlane* plane = new ScalarCutPlane("Scalar cut plane", 0.005f, field);
             AddUniqueObject(plane);
 
             // Scale cut plane to fill the bounding box
-            const Bbox &b = impl->GetBoundingBox();
+            const Bbox& b = impl->GetBoundingBox();
             float x = b.pMax[0] - b.pMin[0];
             float y = b.pMax[1] - b.pMin[1];
             float z = b.pMax[2] - b.pMin[2];
             float scale = x;
             if (scale < y) scale = y;
             if (scale < z) scale = z;
-            plane->Scale(scale * 0.5);
+            plane->Scale(scale * 0.5f);
 
             mDependentObjects[impl->GetName()].push_back(plane->GetName());
         }
@@ -818,26 +833,30 @@ void FrameMain::AddObjectScalarCutPlane(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddObjectVectorCutPlane(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::AddObjectVectorCutPlane(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        Implicit *impl = dynamic_cast<Implicit *>(*iter);
+        Implicit* impl = dynamic_cast<Implicit*>(*iter);
         if (impl != NULL) {
-            ImplicitGradientField *field = new ImplicitGradientField(impl);
-            VectorCutPlane *plane = new VectorCutPlane("Vector cut plane", 0.1f, field);
+            ImplicitGradientField* field = new ImplicitGradientField(impl);
+            VectorCutPlane* plane = new VectorCutPlane("Vector cut plane", 0.1f, field);
             AddUniqueObject(plane);
 
             // Scale cut plane to fill the bounding box
-            const Bbox &b = impl->GetBoundingBox();
+            const Bbox& b = impl->GetBoundingBox();
             float x = b.pMax[0] - b.pMin[0];
             float y = b.pMax[1] - b.pMin[1];
             float z = b.pMax[2] - b.pMin[2];
             float scale = x;
-            if (scale < y) scale = y;
-            if (scale < z) scale = z;
-            plane->Scale(scale * 0.5);
+            if (scale < y) {
+                scale = y;
+            }
+            if (scale < z) {
+                scale = z;
+            }
+            plane->Scale(scale * 0.5f);
 
             mDependentObjects[impl->GetName()].push_back(plane->GetName());
         }
@@ -847,8 +866,8 @@ void FrameMain::AddObjectVectorCutPlane(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::Union(wxCommandEvent &event) {
-    Implicit *impl = CSG<::Union, ::BlendedUnion>("U");
+void FrameMain::Union(wxCommandEvent& event) {
+    Implicit* impl = CSG<::Union, ::BlendedUnion>("U");
     impl->SetMeshSampling(GetMeshSampling());
     impl->SetDifferentialScale(GetDifferentialScale());
     impl->Triangulate<SimpleMesh>();
@@ -857,8 +876,8 @@ void FrameMain::Union(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::Intersection(wxCommandEvent &event) {
-    Implicit *impl = CSG<::Intersection, ::BlendedIntersection>("A");
+void FrameMain::Intersection(wxCommandEvent& event) {
+    Implicit* impl = CSG<::Intersection, ::BlendedIntersection>("A");
     impl->SetMeshSampling(GetMeshSampling());
     impl->SetDifferentialScale(GetDifferentialScale());
     impl->Triangulate<SimpleMesh>();
@@ -867,8 +886,8 @@ void FrameMain::Intersection(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::Difference(wxCommandEvent &event) {
-    Implicit *impl = CSG<::Difference, ::BlendedDifference>("-");
+void FrameMain::Difference(wxCommandEvent& event) {
+    Implicit* impl = CSG<::Difference, ::BlendedDifference>("-");
     impl->SetMeshSampling(GetMeshSampling());
     impl->SetDifferentialScale(GetDifferentialScale());
     impl->Triangulate<SimpleMesh>();
@@ -877,17 +896,17 @@ void FrameMain::Difference(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::SwitchBlending(wxCommandEvent &event) {
+void FrameMain::SwitchBlending(wxCommandEvent& event) {
     mBlendLabel->Enable(event.IsChecked());
     mBlendParameter->Enable(event.IsChecked());
 }
 
-void FrameMain::ResampleImplicit(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::ResampleImplicit(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        Implicit *impl = dynamic_cast<Implicit *>(*iter);
+        Implicit* impl = dynamic_cast<Implicit*>(*iter);
         if (impl != NULL) {
             impl->SetMeshSampling(GetMeshSampling());
             impl->Update();
@@ -898,12 +917,12 @@ void FrameMain::ResampleImplicit(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::DifferentialScaleChanged(wxScrollEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::DifferentialScaleChanged(wxScrollEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        Implicit *impl = dynamic_cast<Implicit *>(*iter);
+        Implicit* impl = dynamic_cast<Implicit*>(*iter);
         if (impl != NULL) {
             impl->SetDifferentialScale(GetDifferentialScale());
             impl->Update();
@@ -933,8 +952,8 @@ double FrameMain::GetDifferentialScale() {
 
 #ifdef LAB5
 
-void FrameMain::LoadLevelset(wxCommandEvent &event) {
-    wxFileDialog *dialog = new wxFileDialog(this);
+void FrameMain::LoadLevelset(wxCommandEvent& event) {
+    wxFileDialog* dialog = new wxFileDialog(this);
     if (dialog->ShowModal() == wxID_OK) {
         wxString path = dialog->GetPath();
 
@@ -942,7 +961,7 @@ void FrameMain::LoadLevelset(wxCommandEvent &event) {
         Volume<float> vol;
         vol.Load(std::string(path.mb_str()));
 
-        LevelSet *LS = new LevelSet(0.05f, vol);
+        LevelSet* LS = new LevelSet(0.05f, vol);
         // Center and scale the level set to convienient size
         Bbox box = LS->GetBoundingBox();
         glm::vec3 extent = box.pMax - box.pMin;
@@ -967,12 +986,12 @@ void FrameMain::LoadLevelset(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::ConvertToLevelset(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::ConvertToLevelset(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        Implicit *impl = dynamic_cast<Implicit *>(*iter);
+        Implicit* impl = dynamic_cast<Implicit*>(*iter);
         if (impl != NULL) {
             // Get the bounding box and increase it by 0.2
             // in all directions
@@ -981,7 +1000,7 @@ void FrameMain::ConvertToLevelset(wxCommandEvent &event) {
             b.pMin -= pad;
             b.pMax += pad;
 
-            LevelSet *LS = new LevelSet(0.05f, *impl, b);
+            LevelSet* LS = new LevelSet(0.05f, *impl, b);
             LS->SetMeshSampling(GetMeshSampling());
             LS->Triangulate<SimpleMesh>();
             LS->SetName(impl->GetName() + " (levelset)");
@@ -1002,15 +1021,15 @@ void FrameMain::ConvertToLevelset(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddTemplate1(wxCommandEvent &event) {
+void FrameMain::AddTemplate1(wxCommandEvent& event) {
     // Create solid cube
-    Cube *cube1 = new Cube();
+    Cube* cube1 = new Cube();
     cube1->Scale(1.3f, 1.6f, 0.8f);
 
-    Cube *cube2 = new Cube();
+    Cube* cube2 = new Cube();
     cube2->Scale(1.5f, 1.8f, 1.0f);
 
-    ::Difference *box = new ::Difference(cube2, cube1);
+    ::Difference* box = new ::Difference(cube2, cube1);
 
     box->SetName("Solid cube");
     box->SetMeshSampling(GetMeshSampling());
@@ -1020,19 +1039,19 @@ void FrameMain::AddTemplate1(wxCommandEvent &event) {
     AddUniqueObject(box);
 
     // Create fluid-like level set
-    Cube *cube3 = new Cube();
+    Cube* cube3 = new Cube();
     cube3->Scale(0.3f, 1.4f, 0.6f);
 
-    Cube *cube4 = new Cube();
+    Cube* cube4 = new Cube();
     cube4->Translate(0.0f, -0.6f, 0.0f);
     cube4->Scale(1.25f, 0.2f, 0.75f);
 
-    ::Union *fluid = new ::Union(cube3, cube4);
+    ::Union* fluid = new ::Union(cube3, cube4);
 
     // Setup bounding box
     Bbox b(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
-    LevelSet *LS = new LevelSet(0.025f, *fluid, b);
+    LevelSet* LS = new LevelSet(0.025f, *fluid, b);
     OperatorReinitializeFastMarching oper(LS);
     oper.Propagate(1);  // time doesn't matter
     LS->SetNarrowBandWidth(16);
@@ -1045,16 +1064,16 @@ void FrameMain::AddTemplate1(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::AddTemplate2(wxCommandEvent &event) {}
+void FrameMain::AddTemplate2(wxCommandEvent& event) {}
 
-void FrameMain::AddTemplate3(wxCommandEvent &event) {}
+void FrameMain::AddTemplate3(wxCommandEvent& event) {}
 
-void FrameMain::LevelsetReinitialize(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::LevelsetReinitialize(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        LevelSet *LS = dynamic_cast<LevelSet *>(*iter);
+        LevelSet* LS = dynamic_cast<LevelSet*>(*iter);
         if (LS != NULL) {
             if (mReinitializeFastMarching->IsChecked()) {
                 OperatorReinitializeFastMarching oper(LS);
@@ -1081,12 +1100,12 @@ void FrameMain::LevelsetReinitialize(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::LevelsetAdvect(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::LevelsetAdvect(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        LevelSet *LS = dynamic_cast<LevelSet *>(*iter);
+        LevelSet* LS = dynamic_cast<LevelSet*>(*iter);
         if (LS != NULL) {
             long int iterations = GetIterations();
             // ConstantVectorField field(glm::vec3(-1, -1, -1));
@@ -1106,12 +1125,12 @@ void FrameMain::LevelsetAdvect(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::LevelsetDilate(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::LevelsetDilate(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        LevelSet *LS = dynamic_cast<LevelSet *>(*iter);
+        LevelSet* LS = dynamic_cast<LevelSet*>(*iter);
         if (LS != NULL) {
             long int iterations = GetIterations();
             OperatorDilateErode oper(LS, 1);
@@ -1129,12 +1148,12 @@ void FrameMain::LevelsetDilate(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::LevelsetErode(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::LevelsetErode(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        LevelSet *LS = dynamic_cast<LevelSet *>(*iter);
+        LevelSet* LS = dynamic_cast<LevelSet*>(*iter);
         if (LS != NULL) {
             long int iterations = GetIterations();
             OperatorDilateErode oper(LS, -1);
@@ -1152,12 +1171,12 @@ void FrameMain::LevelsetErode(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::LevelsetSmooth(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::LevelsetSmooth(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        LevelSet *LS = dynamic_cast<LevelSet *>(*iter);
+        LevelSet* LS = dynamic_cast<LevelSet*>(*iter);
         if (LS != NULL) {
             long int iterations = GetIterations();
             OperatorMeanCurvatureFlow oper(LS, 1);
@@ -1175,15 +1194,15 @@ void FrameMain::LevelsetSmooth(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::LevelsetMorph(wxCommandEvent &event) {
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+void FrameMain::LevelsetMorph(wxCommandEvent& event) {
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
 
     // Find first levelset in the selected list
-    LevelSet *LS = NULL;
+    LevelSet* LS = NULL;
     while (iter != iend) {
-        LS = dynamic_cast<LevelSet *>(*iter);
+        LS = dynamic_cast<LevelSet*>(*iter);
         iter++;
         if (LS != NULL) break;
     }
@@ -1199,7 +1218,7 @@ void FrameMain::LevelsetMorph(wxCommandEvent &event) {
     // Else, search for the second implicit and do morph
     iter = objects.begin();
     while (iter != iend) {
-        Implicit *impl = dynamic_cast<Implicit *>(*iter);
+        Implicit* impl = dynamic_cast<Implicit*>(*iter);
         if (impl != NULL && impl != LS) {
             // Set the bounding box to the union of the operands
             LS->SetBoundingBox(Bbox::BoxUnion(LS->GetBoundingBox(), impl->GetBoundingBox()));
@@ -1223,18 +1242,18 @@ void FrameMain::LevelsetMorph(wxCommandEvent &event) {
               << std::endl;
 }
 
-void FrameMain::EnableNarrowband(wxCommandEvent &event) {
+void FrameMain::EnableNarrowband(wxCommandEvent& event) {
     long int width;
     if (!mNarrowBandWidth->GetValue().ToLong(&width)) {
         width = 16;
         mNarrowBandWidth->SetValue(_T("16"));
     }
 
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        LevelSet *LS = dynamic_cast<LevelSet *>(*iter);
+        LevelSet* LS = dynamic_cast<LevelSet*>(*iter);
         if (LS != NULL) {
             LS->SetNarrowBandWidth(width);
             LS->Triangulate<SimpleMesh>();
@@ -1276,35 +1295,37 @@ void FrameMain::InitializeFluidSolver() {
     }
 }
 
-void FrameMain::FluidSetSolid(wxCommandEvent &event) {
+void FrameMain::FluidSetSolid(wxCommandEvent& event) {
     InitializeFluidSolver();
 
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        Implicit *impl = dynamic_cast<Implicit *>(*iter);
-        if (impl != NULL) mFluidSolver->AddSolid(impl);
-
+        Implicit* impl = dynamic_cast<Implicit*>(*iter);
+        if (impl != NULL) {
+            mFluidSolver->AddSolid(impl);
+        }
         iter++;
     }
 }
 
-void FrameMain::FluidSetFluid(wxCommandEvent &event) {
+void FrameMain::FluidSetFluid(wxCommandEvent& event) {
     InitializeFluidSolver();
 
-    std::list<GLObject *> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject *>::iterator iter = objects.begin();
-    std::list<GLObject *>::iterator iend = objects.end();
+    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
+    std::list<GLObject*>::iterator iter = objects.begin();
+    std::list<GLObject*>::iterator iend = objects.end();
     while (iter != iend) {
-        LevelSet *LS = dynamic_cast<LevelSet *>(*iter);
-        if (LS != NULL) mFluidSolver->AddFluid(LS);
-
+        LevelSet* LS = dynamic_cast<LevelSet*>(*iter);
+        if (LS != NULL) {
+            mFluidSolver->AddFluid(LS);
+        }
         iter++;
     }
 }
 
-void FrameMain::FluidSolve(wxCommandEvent &event) {
+void FrameMain::FluidSolve(wxCommandEvent& event) {
     if (mFluidSolver == NULL) {
         std::cerr << "Error: Fluid solver not initialized - add solid or fluid" << std::endl;
         return;
@@ -1324,7 +1345,10 @@ void FrameMain::FluidSolve(wxCommandEvent &event) {
         }
 
         // If only one dt is requested
-        if (time == 0) time = mFluidSolver->ComputeTimestep();
+        // @TODO: Dangerous check, should be fixed
+        if (time == 0) {
+            time = mFluidSolver->ComputeTimestep();
+        }
 
         std::cerr << "Solving for fluid velocity field (time = " << time << ")..." << std::endl;
         mFluidSolver->Solve(time);
@@ -1333,14 +1357,16 @@ void FrameMain::FluidSolve(wxCommandEvent &event) {
         std::list<std::string>::iterator iterObject = mFluidSolverDependentObjects.begin();
         std::list<std::string>::iterator iendObject = mFluidSolverDependentObjects.end();
         while (iterObject != iendObject) {
-            Geometry *object = dynamic_cast<Geometry *>(mGLViewer->GetObject(*iterObject));
-            if (object != NULL) object->Update();
+            Geometry* object = dynamic_cast<Geometry*>(mGLViewer->GetObject(*iterObject));
+            if (object != NULL) {
+                object->Update();
+            }
             iterObject++;
         }
 
         // Iterate the fluid levelsets and advect them
-        std::set<LevelSet *>::iterator iter = mFluidSolver->GetFluids().begin();
-        std::set<LevelSet *>::iterator iend = mFluidSolver->GetFluids().end();
+        std::set<LevelSet*>::iterator iter = mFluidSolver->GetFluids().begin();
+        std::set<LevelSet*>::iterator iend = mFluidSolver->GetFluids().end();
         while (iter != iend) {
             std::cerr << "Advecting '" << (*iter)->GetName() << "'" << std::endl;
             OperatorAdvect oper(*iter, mFluidSolver);
@@ -1356,7 +1382,7 @@ void FrameMain::FluidSolve(wxCommandEvent &event) {
             mGLViewer->Render();
 
             if (mFluidRecord->IsChecked()) {
-                SimpleMesh *mesh = dynamic_cast<SimpleMesh *>((*iter)->GetMesh());
+                SimpleMesh* mesh = dynamic_cast<SimpleMesh*>((*iter)->GetMesh());
                 if (mesh == NULL)
                     std::cerr << "Error: Levelset needs to be triangulated with "
                                  "SimpleMesh for recording"
@@ -1378,13 +1404,13 @@ void FrameMain::FluidSolve(wxCommandEvent &event) {
     }
 }
 
-void FrameMain::FluidVisualizeVelocities(wxCommandEvent &event) {
+void FrameMain::FluidVisualizeVelocities(wxCommandEvent& event) {
     if (mFluidSolver != NULL) {
-        VectorCutPlane *plane = new VectorCutPlane("Vector cut plane", 0.05f, mFluidSolver);
+        VectorCutPlane* plane = new VectorCutPlane("Vector cut plane", 0.05f, mFluidSolver);
         AddUniqueObject(plane);
 
         // Scale cut plane to fill the bounding box
-        const Bbox &b = mFluidSolver->GetBoundingBox();
+        const Bbox& b = mFluidSolver->GetBoundingBox();
         float x = b.pMax[0] - b.pMin[0];
         float y = b.pMax[1] - b.pMin[1];
         float z = b.pMax[2] - b.pMin[2];
@@ -1398,9 +1424,9 @@ void FrameMain::FluidVisualizeVelocities(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::FluidVisualizeVoxelsClassification(wxCommandEvent &event) {
+void FrameMain::FluidVisualizeVoxelsClassification(wxCommandEvent& event) {
     if (mFluidSolver != NULL) {
-        FluidVoxelCutPlane *plane = new FluidVoxelCutPlane("Vector cut plane", mFluidSolver);
+        FluidVoxelCutPlane* plane = new FluidVoxelCutPlane("Vector cut plane", mFluidSolver);
         plane->SetOpacity(0.4f);
         AddUniqueObject(plane);
 
@@ -1419,8 +1445,8 @@ void FrameMain::FluidVisualizeVoxelsClassification(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::PlaySimulation(wxCommandEvent &event) {
-    GLObject *obj = mGLViewer->RemoveObject("Play Simulation");
+void FrameMain::PlaySimulation(wxCommandEvent& event) {
+    GLObject* obj = mGLViewer->RemoveObject("Play Simulation");
 
     std::cout << "Fluid Playback: " << obj << std::endl;
 
@@ -1435,11 +1461,18 @@ void FrameMain::PlaySimulation(wxCommandEvent &event) {
     mGLViewer->Render();
 }
 
-void FrameMain::SaveSimulationFrames(wxCommandEvent &event) {
+void FrameMain::SaveSimulationFrames(wxCommandEvent& event) {
     wxString filename;
-    wxFileDialog *dialog =
-        new wxFileDialog(this, _T("Save mesh sequence as"), _T("."), _T("fluid.obj"),
-                         _T("OBJ (*.obj)|*.obj"), wxFD_SAVE, wxDefaultPosition);
+    wxFileDialog* dialog = new wxFileDialog(
+        this,
+        _T("Save mesh sequence as"),
+        _T("."),
+        _T("fluid.obj"),
+        _T("OBJ (*.obj)|*.obj"),
+        wxFD_SAVE,
+        wxDefaultPosition
+    );
+
     if (dialog->ShowModal() == wxID_OK) {
         filename = dialog->GetPath();
 
@@ -1464,11 +1497,11 @@ void FrameMain::SaveSimulationFrames(wxCommandEvent &event) {
     }
 }
 
-void FrameMain::FluidPlayback(wxScrollEvent &event) {
+void FrameMain::FluidPlayback(wxScrollEvent& event) {
     mGLViewer->RemoveObject("Fluid playback");
 
     if (event.GetPosition() > 0) {
-        SimpleMesh &mesh = mFluidSequence.at(event.GetPosition() - 1);
+        SimpleMesh& mesh = mFluidSequence.at(event.GetPosition() - 1);
         mesh.SetName("Fluid playback");
         mGLViewer->AddObject(&mesh);
     }

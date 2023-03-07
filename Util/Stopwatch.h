@@ -25,79 +25,76 @@
 
 //-----------------------------------------------------------------------------
 inline static double seconds(bool highPrecision) {
-  // High precision routine (wraps around after ~72 hours)
-  if (highPrecision) {
+    // High precision routine (wraps around after ~72 hours)
+    if (highPrecision) {
 #ifdef __linux
-    struct timeval tv;
-    struct timezone tz;
-    gettimeofday(&tv, &tz);
-    return (double)(tv.tv_usec) * 1.0e-6 + (double)(tv.tv_sec);
+        struct timeval tv;
+        struct timezone tz;
+        gettimeofday(&tv, &tz);
+        return (double)(tv.tv_usec) * 1.0e-6 + (double)(tv.tv_sec);
 #else
-    const double secs_per_tick = 1.0 / CLOCKS_PER_SEC;
-    return ((double)clock()) * secs_per_tick;
+        const double secs_per_tick = 1.0 / CLOCKS_PER_SEC;
+        return ((double)clock()) * secs_per_tick;
 #endif
-  } else {
-    // Low precision routine (counts seconds)
-    return (double)(time(NULL));
-  }
+    } else {
+        // Low precision routine (counts seconds)
+        return (double)(time(NULL));
+    }
 }
 
 //-----------------------------------------------------------------------------
 class Stopwatch {
 private:
-  bool mHighPrecision;
-  int running_;
-  double start_time_;
-  double total_;
+    bool mHighPrecision;
+    int running_;
+    double start_time_;
+    double total_;
 
 public:
-  inline Stopwatch();
+    inline Stopwatch();
 
-  inline void highPrecision(bool p) { mHighPrecision = p; }
-  inline void start();
-  inline double stop();
-  inline double read();
-  inline void resume(bool setStartTime = true);
-  inline int running();
+    inline void highPrecision(bool p) { mHighPrecision = p; }
+    inline void start();
+    inline double stop();
+    inline double read();
+    inline void resume(bool setStartTime = true);
+    inline int running();
 };
 
 //-----------------------------------------------------------------------------
-inline Stopwatch::Stopwatch()
-    : mHighPrecision(true), running_(0), start_time_(0), total_(0) {}
+inline Stopwatch::Stopwatch() : mHighPrecision(true), running_(0), start_time_(0), total_(0) {}
 
 //-----------------------------------------------------------------------------
 inline void Stopwatch::start() {
-  running_ = 1;
-  total_ = 0;
-  start_time_ = seconds(mHighPrecision);
+    running_ = 1;
+    total_ = 0;
+    start_time_ = seconds(mHighPrecision);
 }
 
 //-----------------------------------------------------------------------------
 inline double Stopwatch::stop() {
-  if (running_) {
-    total_ += (seconds(mHighPrecision) - start_time_);
-    running_ = 0;
-  }
-  return total_;
+    if (running_) {
+        total_ += (seconds(mHighPrecision) - start_time_);
+        running_ = 0;
+    }
+    return total_;
 }
 
 //-----------------------------------------------------------------------------
 inline void Stopwatch::resume(bool setStartTime) {
-  if (!running_) {
-    {
-      start_time_ = seconds(mHighPrecision);
+    if (!running_) {
+        { start_time_ = seconds(mHighPrecision); }
+        running_ = 1;
     }
-    running_ = 1;
-  }
 }
 
 //-----------------------------------------------------------------------------
 inline double Stopwatch::read() {
-  if (running_) {
-    stop();
-    resume(false);
-  }
-  return total_;
+    if (running_) {
+        stop();
+        resume(false);
+    }
+    return total_;
 }
 
 #endif

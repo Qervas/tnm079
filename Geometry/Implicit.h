@@ -91,7 +91,9 @@ public:
     virtual void SetColorMap(ColorMap *colormap);
 
     virtual bool save(std::ostream &os) {
-        if (mMesh != NULL) return mMesh->save(os);
+        if (mMesh != NULL) {
+            return mMesh->save(os);
+        }
         return os.good();
     }
 
@@ -136,9 +138,9 @@ void Implicit::Triangulate() {
 
     // Loop over bounding box
     std::cerr << "Triangulating [";
-    for (float i = pmin[0]; i < pmax[0] - 0.5 * mMeshSampling; i += mMeshSampling) {
-        for (float j = pmin[1]; j < pmax[1] - 0.5 * mMeshSampling; j += mMeshSampling) {
-            for (float k = pmin[2]; k < pmax[2] - 0.5 * mMeshSampling; k += mMeshSampling) {
+    for (float i = pmin[0]; i < pmax[0] - 0.5f * mMeshSampling; i += mMeshSampling) {
+        for (float j = pmin[1]; j < pmax[1] - 0.5f * mMeshSampling; j += mMeshSampling) {
+            for (float k = pmin[2]; k < pmax[2] - 0.5f * mMeshSampling; k += mMeshSampling) {
                 float voxelValues[8] = {
                     GetValue(i, j, k),
                     GetValue(i + mMeshSampling, j, k),
@@ -147,21 +149,25 @@ void Implicit::Triangulate() {
                     GetValue(i, j, k + mMeshSampling),
                     GetValue(i + mMeshSampling, j, k + mMeshSampling),
                     GetValue(i + mMeshSampling, j + mMeshSampling, k + mMeshSampling),
-                    GetValue(i, j + mMeshSampling, k + mMeshSampling)};
+                    GetValue(i, j + mMeshSampling, k + mMeshSampling)
+                };
                 std::vector<glm::vec3> tris = ::Triangulate(voxelValues, i, j, k, mMeshSampling);
                 for (size_t n = 0; n < tris.size(); n += 3) {
                     std::vector<glm::vec3> verts;
                     std::copy(tris.begin() + n, tris.begin() + n + 3, std::back_inserter(verts));
 
                     // Transform to local coordinates
-                    for (size_t v = 0; v < 3; v++)
+                    for (size_t v = 0; v < 3; v++) {
                         TransformW2O(verts[v][0], verts[v][1], verts[v][2]);
+                    }
 
                     mMesh->AddFace(verts);
                 }
 
                 currentSample++;
-                if (currentSample % reportFreq == 0) std::cerr << "=";
+                if (currentSample % reportFreq == 0) {
+                    std::cerr << "=";
+                }
             }
         }
     }

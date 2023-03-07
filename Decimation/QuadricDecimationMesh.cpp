@@ -17,10 +17,10 @@ void QuadricDecimationMesh::Initialize() {
 
         glm::vec3 v0 = mVerts[i].pos;
         glm::vec4 v(v0[0], v0[1], v0[2], 1);
-        auto m = mQuadrics.back();
+        glm::mat4 m = mQuadrics.back();
 
         // TODO CHECK
-        auto error = glm::dot(v, (m * v));
+        float error = glm::dot(v, (m * v));
         // std::cerr << std::scientific << std::setprecision(2) << error << " ";
     }
     std::cerr << std::setprecision(width) << std::fixed;  // reset stream precision
@@ -51,7 +51,9 @@ void QuadricDecimationMesh::updateVertexProperties(size_t ind) {
  * \param[in] indx vertex index, points into HalfEdgeMesh::mVerts
  */
 glm::mat4 QuadricDecimationMesh::createQuadricForVert(size_t indx) const {
-    glm::mat4 Q({0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},
+    glm::mat4 Q({0.0f, 0.0f, 0.0f, 0.0f},
+                {0.0f, 0.0f, 0.0f, 0.0f},
+                {0.0f, 0.0f, 0.0f, 0.0f},
                 {0.0f, 0.0f, 0.0f, 0.0f});
 
     // The quadric for a vertex is the sum of all the quadrics for the adjacent

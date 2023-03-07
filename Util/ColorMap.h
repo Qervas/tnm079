@@ -17,16 +17,15 @@
 
 class ColorMap {
 public:
-  ColorMap() {}
-  virtual ~ColorMap() {}
+    ColorMap() {}
+    virtual ~ColorMap() {}
 
-  virtual glm::vec3 Map(float val, float low, float high) const;
-  virtual glm::vec3 Map(const glm::vec3 &val, float low,
-                             float high) const;
+    virtual glm::vec3 Map(float val, float low, float high) const;
+    virtual glm::vec3 Map(const glm::vec3& val, float low, float high) const;
 
 protected:
-  // A vector containing the colors to be interpolated
-  std::vector<glm::vec3 > mColors;
+    // A vector containing the colors to be interpolated
+    std::vector<glm::vec3> mColors;
 };
 
 #endif

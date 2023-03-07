@@ -19,6 +19,15 @@
 #include <vector>
 
 class LineStrip : public Geometry {
+public:
+    LineStrip(const std::vector<glm::vec3> &joints);
+
+    virtual void Update() {}
+    virtual void Initialize() {}
+    virtual void Render();
+
+    virtual const char *GetTypeName() { return typeid(LineStrip).name(); }
+
 protected:
     std::vector<glm::vec3> mJoints;
 
@@ -27,15 +36,4 @@ protected:
     glm::vec3 mLineColor;
     float mJointSize;
     float mLineWidth;
-
-public:
-    LineStrip(const std::vector<glm::vec3> &joints);
-
-    virtual void Update() {}
-
-    virtual void Initialize() {}
-
-    virtual void Render();
-
-    virtual const char *GetTypeName() { return typeid(LineStrip).name(); }
 };

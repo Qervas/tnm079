@@ -21,31 +21,28 @@
 #include <vector>
 
 class UniformCubicSplineSubdivisionCurve : public Subdivision, public Geometry {
-protected:
-  //! The coefficients dictating the shape
-  std::vector<glm::vec3> mCoefficients;
-  //! The control polygon is simply a LineStrip
-  LineStrip mControlPolygon;
-
-  // display information
-  glm::vec3 mLineColor;
-  float mLineWidth;
-
 public:
-  UniformCubicSplineSubdivisionCurve(
-      const std::vector<glm::vec3> &joints,
-      glm::vec3 lineColor = glm::vec3(0.f, 1.f, 0.2f),
-      float lineWidth = 2.0f);
+    UniformCubicSplineSubdivisionCurve(const std::vector<glm::vec3>& joints,
+                                       glm::vec3 lineColor = glm::vec3(0.f, 1.f, 0.2f),
+                                       float lineWidth = 2.f);
 
-  virtual void Update() {}
-  virtual void Initialize() {}
+    virtual void Update() {}
+    virtual void Initialize() {}
 
-  virtual void Subdivide();
+    virtual void Subdivide();
 
-  virtual void Render();
+    virtual void Render();
 
-  virtual const char *GetTypeName() {
-    return typeid(UniformCubicSplineSubdivisionCurve).name();
-  }
+    virtual const char* GetTypeName() { return typeid(UniformCubicSplineSubdivisionCurve).name(); }
+
+protected:
+    //! The coefficients dictating the shape
+    std::vector<glm::vec3> mCoefficients;
+    //! The control polygon is simply a LineStrip
+    LineStrip mControlPolygon;
+
+    // display information
+    glm::vec3 mLineColor;
+    float mLineWidth;
 };
 #endif

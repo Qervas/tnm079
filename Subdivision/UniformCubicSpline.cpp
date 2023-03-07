@@ -2,7 +2,7 @@
 #include <glm.hpp>
 #include <gtc/type_ptr.hpp>
 
-UniformCubicSpline::UniformCubicSpline(const std::vector<glm::vec3> &joints, glm::vec3 lineColor,
+UniformCubicSpline::UniformCubicSpline(const std::vector<glm::vec3>& joints, glm::vec3 lineColor,
                                        float lineWidth, float segmentLength)
     : mCoefficients(joints), mControlPolygon(joints) {
     this->mLineColor = lineColor;
@@ -18,27 +18,27 @@ float UniformCubicSpline::GetBSplineValue(size_t i, float t) {
 
     // Find the offset from spline i
     t = t - (float)i;
-    if (std::abs(t) >= 2.0f) {
+    if (std::abs(t) >= 2.f) {
         // if outside of support return zero
-        return 0.0f;
-    } else if (0.0f <= t && t < 1.0f) {
+        return 0.f;
+    } else if (0.f <= t && t < 1.f) {
         // get the fractional part
         float ft = t;
-        return 1.0f / 6.0f * (3.0f * ft * ft * ft - 6.0f * ft * ft + 4.0f);
-    } else if (1.0f <= t && t < 2.0f) {
+        return 1.f / 6.f * (3.f * ft * ft * ft - 6.f * ft * ft + 4.f);
+    } else if (1.f <= t && t < 2.f) {
         // get the fractional part
-        float ft = t - 1.0f;
-        return 1.0f / 6.0f * (-ft * ft * ft + 3.0f * ft * ft - 3.0f * ft + 1.0f);
-    } else if (-1.0f <= t && t < 0.0f) {
+        float ft = t - 1.f;
+        return 1.f / 6.f * (-ft * ft * ft + 3.f * ft * ft - 3.f * ft + 1.f);
+    } else if (-1.f <= t && t < 0.f) {
         // get the fractional part
-        float ft = t + 1.0f;
-        return 1.0f / 6.0f * (-3.0f * ft * ft * ft + 3.0f * ft * ft + 3.0f * ft + 1.0f);
+        float ft = t + 1.f;
+        return 1.f / 6.f * (-3.f * ft * ft * ft + 3.f * ft * ft + 3.f * ft + 1.f);
     } else if (-2 < t && t < -1) {
         // get the fractional part
-        float ft = t + 2.0f;
-        return 1.0f / 6.0f * (ft * ft * ft);
+        float ft = t + 2.f;
+        return 1.f / 6.f * (ft * ft * ft);
     }
-    return 0.0f;
+    return 0.f;
 }
 
 /*! Evaluate the spline as the sum of the coefficients times the bsplines */

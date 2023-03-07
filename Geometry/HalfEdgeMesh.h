@@ -67,7 +67,7 @@ public:
     EdgeIterator GetEdgeIterator(size_t i) { return EdgeIterator(this, i); }
     const EdgeIterator GetEdgeIterator(size_t i) const { return EdgeIterator(this, i); }
 
-    //! Adds a triangle to the mesh.
+    //! Adds a triangle to the mesh
     virtual bool AddFace(const std::vector<glm::vec3> &verts);
 
     //! Calculates the area of the mesh

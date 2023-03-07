@@ -19,60 +19,49 @@ Cube::Cube() {
     glm::vec3 highP(1.1f, 1.1f, 1.1f);
     SetBoundingBox(Bbox(lowP, highP));
 
-    glm::mat4 matrix{0};
-
-    /*matrix(0, 0) = 0.0f;
-    matrix(1, 1) = 0.0f;
-    matrix(2, 2) = 0.0f;
-    matrix(3, 3) = 0.0f;*/
-
-    /*matrix(0, 3) = 0.0f;
-    matrix(1, 3) = 0.5f;
-    matrix(2, 3) = 0.0f;*/
-
-    matrix[3][1] = 0.5f;
+    glm::mat4 matrix{0.f};
 
     // Plane 1
+    matrix[3][1] = 0.5f;
     Quadric *q = new Quadric(matrix);
-    q->Translate(0.0f, 0.5f, 0.0f);
+    q->Translate(0.f, 0.5f, 0.f);
     q->SetBoundingBox(Bbox(lowP, highP));
     mPlanes.push_back(q);
 
     // Plane 2
-
     matrix[3][1] = -0.5f;
     q = new Quadric(matrix);
-    q->Translate(0.0f, -0.5f, 0.0f);
+    q->Translate(0.f, -0.5f, 0.f);
     q->SetBoundingBox(Bbox(lowP, highP));
     mPlanes.push_back(q);
 
     // Plane 3
     matrix[3][0] = 0.5f;
-    matrix[3][1] = 0.0f;
+    matrix[3][1] = 0.f;
     q = new Quadric(matrix);
-    q->Translate(0.5f, 0.0f, 0.0f);
+    q->Translate(0.5f, 0.f, 0.f);
     q->SetBoundingBox(Bbox(lowP, highP));
     mPlanes.push_back(q);
 
     // Plane 4
     matrix[3][0] = -0.5f;
     q = new Quadric(matrix);
-    q->Translate(-0.5f, 0.0f, 0.0f);
+    q->Translate(-0.5f, 0.f, 0.f);
     q->SetBoundingBox(Bbox(lowP, highP));
     mPlanes.push_back(q);
 
     // Plane 5
-    matrix[3][0] = 0.0f;
+    matrix[3][0] = 0.f;
     matrix[3][2] = 0.5f;
     q = new Quadric(matrix);
-    q->Translate(0.0f, 0.0f, 0.5f);
+    q->Translate(0.f, 0.f, 0.5f);
     q->SetBoundingBox(Bbox(lowP, highP));
     mPlanes.push_back(q);
 
     // Plane 6
     matrix[3][2] = -0.5f;
     q = new Quadric(matrix);
-    q->Translate(0.0f, 0.0f, -0.5f);
+    q->Translate(0.f, 0.f, -0.5f);
     q->SetBoundingBox(Bbox(lowP, highP));
     mPlanes.push_back(q);
 }

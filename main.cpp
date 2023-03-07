@@ -10,9 +10,9 @@ Console con;
 
 class wxWidgetsApp : public wxApp {
 public:
-  wxWidgetsApp();
-  virtual ~wxWidgetsApp();
-  virtual bool OnInit();
+    wxWidgetsApp();
+    virtual ~wxWidgetsApp();
+    virtual bool OnInit();
 };
 
 DECLARE_APP(wxWidgetsApp)
@@ -24,8 +24,8 @@ wxWidgetsApp::wxWidgetsApp() {}
 wxWidgetsApp::~wxWidgetsApp() {}
 
 bool wxWidgetsApp::OnInit() {
-  FrameMain *frame = new FrameMain((wxWindow *)NULL);
-  frame->Show();
-  SetTopWindow(frame);
-  return true;
+    FrameMain* frame = new FrameMain((wxWindow*)NULL);
+    frame->Show();
+    SetTopWindow(frame);
+    return true;
 }

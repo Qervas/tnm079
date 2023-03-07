@@ -18,14 +18,14 @@ const LevelSet::VisualizationMode LevelSet::NarrowBand = NewVisualizationMode("N
 
 LevelSet::LevelSet(float dx) : mDx(dx) {}
 
-LevelSet::LevelSet(float dx, const Implicit &impl) : mDx(dx) {
+LevelSet::LevelSet(float dx, const Implicit& impl) : mDx(dx) {
     // Get the bounding box (in world space) from the implicit
     // function to initialize the level set's bounding box.
     Bbox b = impl.GetBoundingBox();
     SetBoundingBox(b);
 
     // Loop over volume and sample the implicit function
-    int i = 0, j = 0, k = 0;
+    size_t i = 0, j = 0, k = 0;
     for (float x = mBox.pMin[0]; x < mBox.pMax[0] + 0.5f * mDx; x += mDx, i++) {
         for (float y = mBox.pMin[1]; y < mBox.pMax[1] + 0.5f * mDx; y += mDx, j++) {
             for (float z = mBox.pMin[2]; z < mBox.pMax[2] + 0.5f * mDx; z += mDx, k++) {
@@ -40,7 +40,7 @@ LevelSet::LevelSet(float dx, const Implicit &impl) : mDx(dx) {
 /*! Assigns the level-set from a volume. Sets the dimensions of the bounding box
  * to match the dimensions of the grid scaled by dx
  */
-LevelSet::LevelSet(float dx, const Volume<float> &vol) : mDx(dx) {
+LevelSet::LevelSet(float dx, const Volume<float>& vol) : mDx(dx) {
     // Get the bounding box (in world space) from the size of the grid
     Bbox b(glm::vec3(0, 0, 0), glm::vec3((vol.GetDimX() - 1) * mDx, (vol.GetDimY() - 1) * mDx,
                                          (vol.GetDimZ() - 1) * mDx));
@@ -56,7 +56,7 @@ LevelSet::LevelSet(float dx, const Volume<float> &vol) : mDx(dx) {
     }
 }
 
-LevelSet::LevelSet(float dx, const Implicit &impl, const Bbox &box) : mDx(dx) {
+LevelSet::LevelSet(float dx, const Implicit& impl, const Bbox& box) : mDx(dx) {
     SetBoundingBox(box);
 
     // Loop over volume and sample the implicit function
@@ -77,9 +77,9 @@ float LevelSet::GetValue(float x, float y, float z) const {
     // while grid coordinates are written as (i,j,k)
     TransformWorldToGrid(x, y, z);
 
-    auto i = static_cast<size_t>(x);
-    auto j = static_cast<size_t>(y);
-    auto k = static_cast<size_t>(z);
+    size_t i = static_cast<size_t>(x);
+    size_t j = static_cast<size_t>(y);
+    size_t k = static_cast<size_t>(z);
 
     float bx = x - static_cast<float>(i);
     float by = y - static_cast<float>(j);
@@ -89,9 +89,9 @@ float LevelSet::GetValue(float x, float y, float z) const {
     j = glm::clamp(j, size_t{0}, mGrid.GetDimY() - 1);
     k = glm::clamp(k, size_t{0}, mGrid.GetDimZ() - 1);
 
-    bx = glm::clamp(bx, 0.0f, 1.0f);
-    by = glm::clamp(by, 0.0f, 1.0f);
-    bz = glm::clamp(bz, 0.0f, 1.0f);
+    bx = glm::clamp(bx, 0.f, 1.f);
+    by = glm::clamp(by, 0.f, 1.f);
+    bz = glm::clamp(bz, 0.f, 1.f);
 
     if (i == mGrid.GetDimX() - 1) {
         i--;
@@ -132,13 +132,13 @@ float LevelSet::GetCurvature(float x, float y, float z) const {
     return Implicit::GetCurvature(x, y, z);
 }
 
-void LevelSet::SetBoundingBox(const Bbox &b) {
+void LevelSet::SetBoundingBox(const Bbox& b) {
     // Loop over existing grid to find the maximum and minimum values
     // stored. These are used to initialize the new grid with decent values.
     LevelSetGrid::Iterator iter = mGrid.BeginNarrowBand();
     LevelSetGrid::Iterator iend = mGrid.EndNarrowBand();
-    float maxVal = -(std::numeric_limits<float>::max)();
-    float minVal = (std::numeric_limits<float>::max)();
+    float maxVal = -std::numeric_limits<float>::max();
+    float minVal = std::numeric_limits<float>::max();
     while (iter != iend) {
         size_t i = iter.GetI();
         size_t j = iter.GetJ();
@@ -152,9 +152,9 @@ void LevelSet::SetBoundingBox(const Bbox &b) {
 
     // Create a new grid with requested size
     glm::vec3 extent = b.pMax - b.pMin;
-    int dimX = (int)Round(extent[0] / mDx) + 1;
-    int dimY = (int)Round(extent[1] / mDx) + 1;
-    int dimZ = (int)Round(extent[2] / mDx) + 1;
+    size_t dimX = (size_t)Round(extent[0] / mDx) + 1;
+    size_t dimY = (size_t)Round(extent[1] / mDx) + 1;
+    size_t dimZ = (size_t)Round(extent[2] / mDx) + 1;
     LevelSetGrid grid(dimX, dimY, dimZ, minVal, maxVal);
 
     // Copy all old values to new grid
@@ -177,9 +177,9 @@ void LevelSet::SetBoundingBox(const Bbox &b) {
         }
 
         // Compute the new grid point (l,m,n)
-        int l = (int)Round((x - b.pMin[0]) / mDx);
-        int m = (int)Round((y - b.pMin[1]) / mDx);
-        int n = (int)Round((z - b.pMin[2]) / mDx);
+        size_t l = (size_t)Round((x - b.pMin[0]) / mDx);
+        size_t m = (size_t)Round((y - b.pMin[1]) / mDx);
+        size_t n = (size_t)Round((z - b.pMin[2]) / mDx);
 
         grid.SetValue(l, m, n, mGrid.GetValue(i, j, k));
         iter++;
@@ -329,20 +329,20 @@ void LevelSet::Render() {
             iter++;
         }
         glEnd();
-        glPointSize(1.0f);
+        glPointSize(1.f);
     }
 
     Implicit::Render();
 }
 
-void LevelSet::TransformWorldToGrid(float &i, float &j, float &k) const {
+void LevelSet::TransformWorldToGrid(float& i, float& j, float& k) const {
     TransformW2O(i, j, k);
     i = (i - mBox.pMin[0]) / mDx;
     j = (j - mBox.pMin[1]) / mDx;
     k = (k - mBox.pMin[2]) / mDx;
 }
 
-void LevelSet::TransformGridToWorld(float &x, float &y, float &z) const {
+void LevelSet::TransformGridToWorld(float& x, float& y, float& z) const {
     x = x * mDx + mBox.pMin[0];
     y = y * mDx + mBox.pMin[1];
     z = z * mDx + mBox.pMin[2];

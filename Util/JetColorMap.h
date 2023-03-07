@@ -16,10 +16,10 @@
 
 class JetColorMap : public ColorMap {
 public:
-  JetColorMap();
+    JetColorMap();
 
 protected:
-  static ColorMapFactory::FactoryRegistration mFactoryRegistration;
+    static ColorMapFactory::FactoryRegistration mFactoryRegistration;
 };
 
 #endif

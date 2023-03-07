@@ -17,12 +17,12 @@
 
 class IsoContourColorMap : public ColorMap {
 public:
-  IsoContourColorMap();
+    IsoContourColorMap();
 
-  virtual glm::vec3 Map(float val, float low, float high) const;
+    virtual glm::vec3 Map(float val, float low, float high) const;
 
 protected:
-  static ColorMapFactory::FactoryRegistration mFactoryRegistration;
+    static ColorMapFactory::FactoryRegistration mFactoryRegistration;
 };
 
 #endif

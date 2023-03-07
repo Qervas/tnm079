@@ -40,7 +40,7 @@ public:
         mBox = Bbox::BoxIntersection(l->GetBoundingBox(), r->GetBoundingBox());
     }
 
-    virtual float GetValue(float x, float y, float z) const { return 0; }
+    virtual float GetValue(float x, float y, float z) const { return 0.f; }
 };
 
 /*! \brief Difference boolean operation */
@@ -48,7 +48,7 @@ class Difference : public CSG_Operator {
 public:
     Difference(Implicit *l, Implicit *r) : CSG_Operator(l, r) { mBox = l->GetBoundingBox(); }
 
-    virtual float GetValue(float x, float y, float z) const { return 0; }
+    virtual float GetValue(float x, float y, float z) const { return 0.f; }
 };
 
 /*! \brief BlendedUnion boolean operation */
@@ -58,7 +58,7 @@ public:
         mBox = Bbox::BoxUnion(l->GetBoundingBox(), r->GetBoundingBox());
     }
 
-    virtual float GetValue(float x, float y, float z) const { return 0; }
+    virtual float GetValue(float x, float y, float z) const { return 0.f; }
 
 protected:
     int mBlend;
@@ -71,7 +71,7 @@ public:
         mBox = Bbox::BoxUnion(l->GetBoundingBox(), r->GetBoundingBox());
     }
 
-    virtual float GetValue(float x, float y, float z) const { return 0; }
+    virtual float GetValue(float x, float y, float z) const { return 0.f; }
 
 protected:
     int mBlend;
@@ -84,7 +84,7 @@ public:
         mBox = l->GetBoundingBox();
     }
 
-    virtual float GetValue(float x, float y, float z) const { return 0; }
+    virtual float GetValue(float x, float y, float z) const { return 0.f; }
 
 protected:
     int mBlend;

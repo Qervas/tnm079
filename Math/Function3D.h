@@ -15,13 +15,14 @@
 /*! \brief Base class for functions in R3
  * A Function3D can be evaluated anywhere in space.
  */
-template <class T> class Function3D {
+template <class T>
+class Function3D {
 public:
-  //! Evaluate the function at x,y,z
-  virtual T GetValue(float x, float y, float z) const = 0;
-  //! Return a bound on the maximum value of the function
-  virtual T GetMaxValue() const = 0;
-  virtual ~Function3D() {}
+    //! Evaluate the function at x,y,z
+    virtual T GetValue(float x, float y, float z) const = 0;
+    //! Return a bound on the maximum value of the function
+    virtual T GetMaxValue() const = 0;
+    virtual ~Function3D() {}
 };
 
 #endif

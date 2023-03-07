@@ -47,10 +47,9 @@ void DecimationMesh::Initialize() {
         collapse->halfEdge = i * 2;
 
         // Check if the collapse is valid
-        if (!isValidCollapse(collapse))
+        if (!isValidCollapse(collapse)) {
             delete collapse;
-
-        else {
+        } else {
             mHalfEdge2EdgeCollapse[i * 2] = collapse;
             mHalfEdge2EdgeCollapse[i * 2 + 1] = collapse;
 
@@ -128,8 +127,9 @@ void DecimationMesh::Update() {
                   << maxCurvature << "]" << std::endl;
         iter = mFaces.begin();
         while (iter != iend) {
-            if (!isFaceCollapsed(iter - mFaces.begin()))
+            if (!isFaceCollapsed(iter - mFaces.begin())) {
                 (*iter).color = mColorMap->Map((*iter).curvature, minCurvature, maxCurvature);
+            }
             iter++;
         }
     }
@@ -137,12 +137,15 @@ void DecimationMesh::Update() {
 
 bool DecimationMesh::decimate(size_t targetFaces) {
     // We can't collapse down to less than two faces
-    if (targetFaces < 2) targetFaces = 2;
+    if (targetFaces < 2) {
+        targetFaces = 2;
+    }
 
     // Keep collapsing one edge at a time until the target is reached
     // or the heap is empty (when we have no possible collapses left)
-    while (mFaces.size() - mNumCollapsedFaces > targetFaces && !mHeap.isEmpty()) decimate();
-
+    while (mFaces.size() - mNumCollapsedFaces > targetFaces && !mHeap.isEmpty()) {
+        decimate();
+    }
     // Return true if target is reached
     std::cout << "Collapsed mesh to " << mFaces.size() - mNumCollapsedFaces << " faces"
               << std::endl;
@@ -151,11 +154,14 @@ bool DecimationMesh::decimate(size_t targetFaces) {
 
 bool DecimationMesh::decimate() {
     EdgeCollapse *collapse = static_cast<EdgeCollapse *>(mHeap.pop());
-    if (collapse == NULL) return false;
-
+    if (collapse == NULL) {
+        return false;
+    }
     // Stop the collapse when we only have two triangles left
     // (the smallest entity representable)
-    if (mFaces.size() - mNumCollapsedFaces == 2) return false;
+    if (mFaces.size() - mNumCollapsedFaces == 2) {
+        return false;
+    }
 
     size_t e1 = collapse->halfEdge;
     size_t e2 = mEdges[e1].pair;
@@ -192,16 +198,19 @@ bool DecimationMesh::decimate() {
     } while (edge != mVerts[v1].edge);
 
     // Make sure v2 points to a valid edge
-    while (mEdges[mVerts[v2].edge].face == f1 || mEdges[mVerts[v2].edge].face == f2)
+    while (mEdges[mVerts[v2].edge].face == f1 || mEdges[mVerts[v2].edge].face == f2) {
         mVerts[v2].edge = mEdges[mEdges[mVerts[v2].edge].pair].next;
+    }
 
     // Make sure v3 points to a valid edge
-    while (mEdges[mVerts[v3].edge].face == f1)
+    while (mEdges[mVerts[v3].edge].face == f1) {
         mVerts[v3].edge = mEdges[mEdges[mVerts[v3].edge].pair].next;
+    }
 
     // Make sure v4 points to a valid edge
-    while (mEdges[mVerts[v4].edge].face == f2)
+    while (mEdges[mVerts[v4].edge].face == f2) {
         mVerts[v4].edge = mEdges[mEdges[mVerts[v4].edge].pair].next;
+    }
 
     // Redirect pair pointers
     mEdges[mEdges[mEdges[e1].next].pair].pair = mEdges[mEdges[e1].prev].pair;
@@ -215,19 +224,23 @@ bool DecimationMesh::decimate() {
 
     // One edge collapse further removes 2 additional collapse
     // candidates from the heap
-    if (mHalfEdge2EdgeCollapse[mEdges[e1].prev] != NULL)
+    if (mHalfEdge2EdgeCollapse[mEdges[e1].prev] != NULL) {
         delete mHeap.remove(mHalfEdge2EdgeCollapse[mEdges[e1].prev]);
+    }
     mHalfEdge2EdgeCollapse[mEdges[mEdges[e1].prev].pair] = mHalfEdge2EdgeCollapse[mEdges[e1].next];
 
-    if (mHalfEdge2EdgeCollapse[mEdges[e2].next] != NULL)
+    if (mHalfEdge2EdgeCollapse[mEdges[e2].next] != NULL) {
         delete mHeap.remove(mHalfEdge2EdgeCollapse[mEdges[e2].next]);
+    }
     mHalfEdge2EdgeCollapse[mEdges[mEdges[e2].next].pair] = mHalfEdge2EdgeCollapse[mEdges[e2].prev];
 
     // Make sure the edge collapses point to valid edges
-    if (mHalfEdge2EdgeCollapse[mEdges[e1].next] != NULL)
+    if (mHalfEdge2EdgeCollapse[mEdges[e1].next] != NULL) {
         mHalfEdge2EdgeCollapse[mEdges[e1].next]->halfEdge = mEdges[mEdges[e1].prev].pair;
-    if (mHalfEdge2EdgeCollapse[mEdges[e2].prev] != NULL)
+    }
+    if (mHalfEdge2EdgeCollapse[mEdges[e2].prev] != NULL) {
         mHalfEdge2EdgeCollapse[mEdges[e2].prev]->halfEdge = mEdges[mEdges[e2].next].pair;
+    }
 
     delete collapse;
 
@@ -356,7 +369,9 @@ bool DecimationMesh::isValidCollapse(EdgeCollapse *collapse) {
     edge = mVerts[v1].edge;
     do {
         size_t ind = mEdges[mEdges[edge].pair].vert;
-        if (find(neighbors.begin(), neighbors.end(), ind) != neighbors.end()) return false;
+        if (find(neighbors.begin(), neighbors.end(), ind) != neighbors.end()) {
+            return false;
+        }
 
         edge = mEdges[mEdges[edge].pair].next;
     } while (edge != mVerts[v1].edge);
@@ -383,10 +398,10 @@ void DecimationMesh::Render() {
     if (mWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // Draw geometry
-    const auto numTriangles = mFaces.size();
-    for (size_t i = 0; i < numTriangles; i++) {
-
-        if (isFaceCollapsed(i)) continue;
+    for (size_t i = 0; i < mFaces.size(); i++) {
+        if (isFaceCollapsed(i)) {
+            continue;
+        }
 
         // Render without notations
         Face &f = mFaces[i];
@@ -479,10 +494,11 @@ void DecimationMesh::Render() {
         glEnd();
     }
 
-    if (mWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    if (mWireframe) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 
     if (mVisualizationMode == CollapseCost) {
-
         float minCost = std::numeric_limits<float>::max();
         float maxCost = -std::numeric_limits<float>::max();
         std::vector<HalfEdge>::const_iterator iter = mEdges.begin();
@@ -501,7 +517,7 @@ void DecimationMesh::Render() {
 
         GLfloat lineWidth;
         glGetFloatv(GL_LINE_WIDTH, &lineWidth);
-        glLineWidth(5.0f);
+        glLineWidth(5.f);
         glDisable(GL_LIGHTING);
         glEnable(GL_LINE_SMOOTH);
         glBegin(GL_LINES);
@@ -509,15 +525,16 @@ void DecimationMesh::Render() {
         while (iter != iend) {
             size_t ind = iter - mEdges.begin();
             if (!isEdgeCollapsed(ind)) {
-
                 const Vertex &v1 = v(e(ind).vert);
                 const Vertex &v2 = v(e(e(ind).pair).vert);
 
                 EdgeCollapse *collapse = mHalfEdge2EdgeCollapse.at(ind);
-                if (collapse == NULL)
+                if (collapse == NULL) {
                     glColor3f(1, 1, 1);
-                else
+                }
+                else {
                     glColor3fv(glm::value_ptr(mColorMap->Map(collapse->cost, minCost, maxCost)));
+                }
 
                 glVertex3fv(glm::value_ptr(v1.pos));
                 glVertex3fv(glm::value_ptr(v2.pos));
@@ -539,5 +556,7 @@ void DecimationMesh::Render() {
 
 void DecimationMesh::drawText(const glm::vec3 &pos, const char *str) {
     glRasterPos3f(pos[0], pos[1], pos[2]);
-    for (size_t i = 0; str[i] != '\n'; i++) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
+    for (size_t i = 0; str[i] != '\n'; i++) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
+    }
 }

@@ -128,8 +128,10 @@ void HalfEdgeMesh::Validate() {
             (*iterEdge).pair == EdgeState::Uninitialized ||
             (*iterEdge).prev == EdgeState::Uninitialized ||
             (*iterEdge).vert == EdgeState::Uninitialized)
+        {
             std::cerr << "HalfEdge " << iterEdge - mEdges.begin() << " not properly initialized"
                       << std::endl;
+        }
 
         iterEdge++;
     }
@@ -138,9 +140,10 @@ void HalfEdgeMesh::Validate() {
     std::vector<Face>::iterator iterTri = mFaces.begin();
     std::vector<Face>::iterator iterTriEnd = mFaces.end();
     while (iterTri != iterTriEnd) {
-        if ((*iterTri).edge == EdgeState::Uninitialized)
+        if ((*iterTri).edge == EdgeState::Uninitialized) {
             std::cerr << "Tri " << iterTri - mFaces.begin() << " not properly initialized"
                       << std::endl;
+        }
 
         iterTri++;
     }
@@ -149,9 +152,10 @@ void HalfEdgeMesh::Validate() {
     std::vector<Vertex>::iterator iterVertex = mVerts.begin();
     std::vector<Vertex>::iterator iterVertexEnd = mVerts.end();
     while (iterVertex != iterVertexEnd) {
-        if ((*iterVertex).edge == EdgeState::Uninitialized)
+        if ((*iterVertex).edge == EdgeState::Uninitialized) {
             std::cerr << "Vertex " << iterVertex - mVerts.begin() << " not properly initialized"
                       << std::endl;
+        }
 
         iterVertex++;
     }
@@ -168,8 +172,9 @@ void HalfEdgeMesh::Validate() {
         if (foundFaces.empty() || foundVerts.empty()) emptyCount++;
         std::set<size_t> uniqueFaces(foundFaces.begin(), foundFaces.end());
         std::set<size_t> uniqueVerts(foundVerts.begin(), foundVerts.end());
-        if (foundFaces.size() != uniqueFaces.size() || foundVerts.size() != uniqueVerts.size())
+        if (foundFaces.size() != uniqueFaces.size() || foundVerts.size() != uniqueVerts.size()) {
             problemVerts.push_back(iterVertex - mVerts.begin());
+        }
         iterVertex++;
     }
     std::cerr << std::endl << "Done: " << emptyCount << " isolated vertices found" << std::endl;
@@ -231,7 +236,7 @@ float HalfEdgeMesh::FaceCurvature(size_t faceIndex) const {
     const auto& v2 = v(it.Next().GetEdgeVertexIndex());
     const auto& v3 = v(it.Next().GetEdgeVertexIndex());
 
-    return (v1.curvature + v2.curvature + v3.curvature) / 3.0f;
+    return (v1.curvature + v2.curvature + v3.curvature) / 3.f;
 }
 
 glm::vec3 HalfEdgeMesh::FaceNormal(size_t faceIndex) const {
@@ -248,8 +253,7 @@ glm::vec3 HalfEdgeMesh::FaceNormal(size_t faceIndex) const {
 }
 
 glm::vec3 HalfEdgeMesh::VertexNormal(size_t vertexIndex) const {
-
-    glm::vec3 n(0.0f, 0.0f, 0.0f);
+    glm::vec3 n(0.f, 0.f, 0.f);
 
     // Add your code here
     return n;
@@ -302,8 +306,9 @@ void HalfEdgeMesh::Update() {
                   << maxCurvature << "]" << std::endl;
         iter = mVerts.begin();
         while (iter != iend) {
-            if (mColorMap != nullptr)
+            if (mColorMap != nullptr) {
                 (*iter).color = mColorMap->Map((*iter).curvature, minCurvature, maxCurvature);
+            }
             iter++;
         }
     } else if (mVisualizationMode == CurvatureFace) {
@@ -320,8 +325,9 @@ void HalfEdgeMesh::Update() {
                   << maxCurvature << "]" << std::endl;
         iter = mFaces.begin();
         while (iter != iend) {
-            if (mColorMap != nullptr)
+            if (mColorMap != nullptr) {
                 (*iter).color = mColorMap->Map((*iter).curvature, minCurvature, maxCurvature);
+            }
             iter++;
         }
     }
@@ -400,13 +406,14 @@ void HalfEdgeMesh::Render() {
     // Load transform into modelview matrix
     glMultMatrixf(glm::value_ptr(mTransform));
 
-    if (mWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (mWireframe) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
 
     // Draw geometry
     glBegin(GL_TRIANGLES);
     const auto numTriangles = GetNumFaces();
     for (size_t i = 0; i < numTriangles; i++) {
-
         auto& face = f(i);
 
         auto* edge = &e(face.edge);
@@ -448,7 +455,6 @@ void HalfEdgeMesh::Render() {
         glBegin(GL_LINES);
         const auto numTriangles = GetNumFaces();
         for (size_t i = 0; i < numTriangles; i++) {
-
             auto& face = f(i);
 
             auto* edge = &e(face.edge);
@@ -461,14 +467,14 @@ void HalfEdgeMesh::Render() {
 
             auto& v3 = v(edge->vert);
 
-            auto faceStart = (v1.pos + v2.pos + v3.pos) / 3.0f;
+            auto faceStart = (v1.pos + v2.pos + v3.pos) / 3.f;
             auto faceEnd = faceStart + face.normal * 0.1f;
 
-            glColor3f(1.0f, 0.0f, 0.0f);  // Red for face normal
+            glColor3f(1.f, 0.f, 0.f);  // Red for face normal
             glVertex3fv(glm::value_ptr(faceStart));
             glVertex3fv(glm::value_ptr(faceEnd));
 
-            glColor3f(0.0f, 1.0f, 0.0f);  // Vertex normals in Green
+            glColor3f(0.f, 1.f, 0.f);  // Vertex normals in Green
             glVertex3fv(glm::value_ptr(v1.pos));
             glVertex3fv(glm::value_ptr((v1.pos + v1.normal * 0.1f)));
             glVertex3fv(glm::value_ptr(v2.pos));

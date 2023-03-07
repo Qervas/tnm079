@@ -10,13 +10,13 @@
 
 //! Load a vector from an istream
 template <typename T>
-void Load(std::istream &is, glm::tvec3<T> &v) {
+void Load(std::istream& is, glm::tvec3<T>& v) {
     is >> v[0] >> v[1] >> v[2];
 }
 
 //! Constructor from std::string object
 template <typename T>
-glm::tvec3<T> vec3(std::string &str) {
+glm::tvec3<T> vec3(std::string& str) {
     glm::tvec3<T> v;
 
     std::stringstream s;
@@ -28,7 +28,7 @@ glm::tvec3<T> vec3(std::string &str) {
 
 template <typename T>
 struct glm_vec3_comparator {
-    bool operator()(const glm::tvec3<T> &a, const glm::tvec3<T> &b) const {
+    bool operator()(const glm::tvec3<T>& a, const glm::tvec3<T>& b) const {
         if (a[0] < b[0])
             return true;
         else if (a[0] > b[0])
@@ -45,7 +45,7 @@ struct glm_vec3_comparator {
 };
 
 /*! Stable computation of cotangents */
-inline float Cotangent(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c) {
+inline float Cotangent(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) {
     const glm::vec3 ba = a - b;
     const glm::vec3 bc = c - b;
 
@@ -64,7 +64,7 @@ inline float Cotangent(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &
  * \param[in] R matrix to store the resulting Cholesky Factor in
  * \return true if the factorization was successful, false otherwise
  */
-inline bool CholeskyFactorization(const glm::mat4 &A, glm::mat4 &R) {
+inline bool CholeskyFactorization(const glm::mat4& A, glm::mat4& R) {
     static const int N = 4;
 
     bool success = true;
@@ -151,7 +151,7 @@ inline float Round(float d) { return std::floor(d + 0.5f); }
 //! Test to see if host has big endian byte order
 inline bool IsBigEndian() {
     short int word = 0x001;
-    char *byte = (char *)&word;
+    char* byte = (char*)&word;
     return (byte[0] ? false : true);
 }
 
@@ -162,7 +162,7 @@ inline uint32_t EndianSwap(uint32_t x) {
 
 //! Byte swap array, only works for 32bit types
 template <typename T>
-inline void EndianSwap(T *data, size_t num) {
+inline void EndianSwap(T* data, size_t num) {
     if (sizeof(T) == sizeof(uint32_t)) {
         auto tmpPtr = reinterpret_cast<uint32_t*>(data);
         std::transform(tmpPtr, tmpPtr + num, tmpPtr, [](const auto x) {

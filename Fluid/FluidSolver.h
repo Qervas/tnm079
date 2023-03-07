@@ -110,7 +110,9 @@ std::vector<Real> operator-(const std::vector<Real> &v1, const std::vector<Real>
 
     const size_t size = v1.size();
     std::vector<Real> v(size);
-    for (size_t i = 0; i < size; i++) v[i] = v1[i] - v2[i];
+    for (size_t i = 0; i < size; i++) {
+        v[i] = v1[i] - v2[i];
+    }
 
     return v;
 }
@@ -121,7 +123,9 @@ std::vector<Real> operator+(const std::vector<Real> &v1, const std::vector<Real>
 
     const size_t size = v1.size();
     std::vector<Real> v(size);
-    for (size_t i = 0; i < size; i++) v[i] = v1[i] + v2[i];
+    for (size_t i = 0; i < size; i++) {
+        v[i] = v1[i] + v2[i];
+    }
 
     return v;
 }
@@ -130,7 +134,9 @@ template <typename Real>
 std::vector<Real> operator*(Real r, const std::vector<Real> &v1) {
     const size_t size = v1.size();
     std::vector<Real> v(size);
-    for (size_t i = 0; i < size; i++) v[i] = v1[i] * r;
+    for (size_t i = 0; i < size; i++) {
+        v[i] = v1[i] * r;
+    }
 
     return v;
 }

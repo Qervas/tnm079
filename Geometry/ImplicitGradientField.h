@@ -32,7 +32,7 @@ public:
     }
 
     //! Return a bound on the maximum value of the function
-    virtual glm::vec3 GetMaxValue() const { return glm::vec3(1.0f, 1.0f, 1.0f); }
+    virtual glm::vec3 GetMaxValue() const { return glm::vec3(1.f, 1.f, 1.f); }
 };
 
 #endif

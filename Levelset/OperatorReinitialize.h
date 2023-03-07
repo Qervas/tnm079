@@ -26,11 +26,11 @@
  */
 class OperatorReinitialize : public LevelSetOperator {
 public:
-    OperatorReinitialize(LevelSet *LS) : LevelSetOperator(LS) {}
+    OperatorReinitialize(LevelSet* LS) : LevelSetOperator(LS) {}
 
     virtual float ComputeTimestep() {
         // Compute and return a stable timestep
-        return 0.5 * mLS->GetDx();
+        return 0.5f * mLS->GetDx();
     }
 
     virtual void Propagate(float time) {
@@ -42,10 +42,12 @@ public:
 
         // Propagate level set with stable timestep dt
         // until requested time is reached
-        for (float elapsed = 0; elapsed < time;) {
+        for (float elapsed = 0.f; elapsed < time;) {
             GetGrid().Dilate();
 
-            if (dt > time - elapsed) dt = time - elapsed;
+            if (dt > time - elapsed) {
+                dt = time - elapsed;
+            }
             elapsed += dt;
 
             IntegrateEuler(dt);
@@ -64,8 +66,7 @@ public:
         float ddyc = mLS->DiffYpm(i, j, k);
         float ddzc = mLS->DiffZpm(i, j, k);
         float normgrad2 = ddxc * ddxc + ddyc * ddyc + ddzc * ddzc;
-        float val =
-            GetGrid().GetValue(static_cast<int>(i), static_cast<int>(j), static_cast<int>(k));
+        float val = GetGrid().GetValue(i, j, k);
         float sign = val / std::sqrt(val * val + normgrad2 * dx * dx);
 
         // Compute upwind differences using Godunov's scheme
@@ -78,7 +79,7 @@ public:
 
 protected:
     float MaxNormGradient() {
-        float maxGrad = -(std::numeric_limits<float>::max)();
+        float maxGrad = -std::numeric_limits<float>::max();
         LevelSetGrid::Iterator iter = GetGrid().BeginNarrowBand();
         LevelSetGrid::Iterator iend = GetGrid().EndNarrowBand();
         while (iter != iend) {
@@ -90,7 +91,9 @@ protected:
             float ddyc = mLS->DiffYpm(i, j, k);
             float ddzc = mLS->DiffZpm(i, j, k);
             float normgrad2 = ddxc * ddxc + ddyc * ddyc + ddzc * ddzc;
-            if (maxGrad < normgrad2) maxGrad = normgrad2;
+            if (maxGrad < normgrad2) {
+                maxGrad = normgrad2;
+            }
 
             iter++;
         }

@@ -46,13 +46,13 @@ glm::vec3 FluidSolver::GetValue(float x, float y, float z) const {
 }
 
 glm::vec3 FluidSolver::GetMaxValue() const {
-    glm::vec3 maxVal(0.0f, 0.0f, 0.0f);
+    glm::vec3 maxVal(0.f, 0.f, 0.f);
     for (size_t i = 0; i < mVoxels.GetDimX(); i++) {
         for (size_t j = 0; j < mVoxels.GetDimY(); j++) {
             for (size_t k = 0; k < mVoxels.GetDimZ(); k++) {
-
-                if (glm::l1Norm(maxVal) < glm::l1Norm(mVelocityField.GetValue(i, j, k)))
+                if (glm::l1Norm(maxVal) < glm::l1Norm(mVelocityField.GetValue(i, j, k))) {
                     maxVal = mVelocityField.GetValue(i, j, k);
+                }
             }
         }
     }
@@ -63,8 +63,7 @@ glm::vec3 FluidSolver::GetMaxValue() const {
 int FluidSolver::Solve(float time) {
     // Propagate the solution until requested time is reached
     int iterations = 0;
-    for (float elapsed = 0; elapsed < time;) {
-
+    for (float elapsed = 0.f; elapsed < time;) {
         // Determine timestep for stability
         float dt = ComputeTimestep();
         std::cerr << "Propagating solution with dt = " << dt << std::endl;
@@ -73,7 +72,7 @@ int FluidSolver::Solve(float time) {
         elapsed += dt;
 
         // Compute current volume
-        mCurrentVolume = 0;
+        mCurrentVolume = 0.f;
         std::set<LevelSet *>::const_iterator iter = mFluids.begin();
         std::set<LevelSet *>::const_iterator iend = mFluids.end();
         while (iter != iend) {
@@ -125,7 +124,9 @@ int FluidSolver::Solve(float time) {
 // Compute a stable timestep given the external forces
 float FluidSolver::ComputeTimestep() {
     // If there are no external forces the system is unconditionally stable
-    if (mExternalForces == NULL) return std::numeric_limits<float>::max();
+    if (mExternalForces == NULL) {
+        return std::numeric_limits<float>::max();
+    }
 
     // Get the max value from the vector field
     glm::vec3 maxVal = mExternalForces->GetMaxValue();
@@ -133,9 +134,9 @@ float FluidSolver::ComputeTimestep() {
     return 0.7f * mDx / glm::length(maxVal);
 }
 
-float FluidSolver::ComputePotentialEnergy() { return 0.0f; }
+float FluidSolver::ComputePotentialEnergy() { return 0.f; }
 
-float FluidSolver::ComputeKineticEnergy() { return 0.0f; }
+float FluidSolver::ComputeKineticEnergy() { return 0.f; }
 
 // Add the external forces
 void FluidSolver::ExternalForces(float dt) {
@@ -155,9 +156,9 @@ void FluidSolver::ExternalForces(float dt) {
 
                 // OBS: DELETE FOLLOWING LINE, IT'S JUST HERE TO SUPPRESS A WARNING FOR UNUSED
                 // VARIABLES
-                x = 1.0f;
-                y = 1.0f;
-                z = 1.0f;
+                x = 1.f;
+                y = 1.f;
+                z = 1.f;
             }
         }
     }
@@ -300,7 +301,7 @@ void FluidSolver::Projection() {
 // Extent the velocities to "air"
 void FluidSolver::VelocityExtension() {
     auto iterations = 0;
-    auto narrowbandWidth = 0.0f;
+    auto narrowbandWidth = 0.f;
     auto dt = 0.7f;
     std::set<LevelSet *>::const_iterator iter = mFluids.begin();
     std::set<LevelSet *>::const_iterator iend = mFluids.end();
@@ -347,12 +348,12 @@ void FluidSolver::VelocityExtension() {
                     glm::vec3 kp = mVelocityField.GetValue(i, j, k + 1);
                     glm::vec3 km = mVelocityField.GetValue(i, j, k - 1);
 
-                    glm::vec3 v0 = v - dt * (std::max(0.0f, normal[0]) * (v - im) +
-                                             std::min(0.0f, normal[0]) * (ip - v) +
-                                             std::max(0.0f, normal[1]) * (v - jm) +
-                                             std::min(0.0f, normal[1]) * (jp - v) +
-                                             std::max(0.0f, normal[2]) * (v - km) +
-                                             std::min(0.0f, normal[2]) * (kp - v));
+                    glm::vec3 v0 = v - dt * (std::max(0.f, normal[0]) * (v - im) +
+                                             std::min(0.f, normal[0]) * (ip - v) +
+                                             std::max(0.f, normal[1]) * (v - jm) +
+                                             std::min(0.f, normal[1]) * (jp - v) +
+                                             std::max(0.f, normal[2]) * (v - km) +
+                                             std::min(0.f, normal[2]) * (kp - v));
 
                     velocities.SetValue(i, j, k, v0);
                 }

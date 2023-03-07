@@ -16,10 +16,10 @@
 
 class GreenRedColorMap : public ColorMap {
 public:
-  GreenRedColorMap();
+    GreenRedColorMap();
 
 protected:
-  static ColorMapFactory::FactoryRegistration mFactoryRegistration;
+    static ColorMapFactory::FactoryRegistration mFactoryRegistration;
 };
 
 #endif

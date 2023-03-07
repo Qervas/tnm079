@@ -48,6 +48,8 @@ void ImplicitMesh::Initialize() {
     mData = new Volume<float>(static_cast<size_t>(ceil(dim[0])), static_cast<size_t>(ceil(dim[1])),
                               static_cast<size_t>(ceil(dim[2])));
 
+    const float halfStep = 0.5f * mMeshSampling;
+
     // Setup progress bar
     size_t totalSamples = mData->GetDimX() * mData->GetDimY() * mData->GetDimZ();
     size_t currentSample = 0;
@@ -57,13 +59,11 @@ void ImplicitMesh::Initialize() {
     std::cerr << "Computing distances to mesh [";
     size_t i, j, k;
     i = 0;
-    for (float x = mBox.pMin[0]; x < mBox.pMax[0] - 0.5 * mMeshSampling; x += mMeshSampling, i++) {
+    for (float x = mBox.pMin[0]; x < mBox.pMax[0] - halfStep; x += mMeshSampling, i++) {
         j = 0;
-        for (float y = mBox.pMin[1]; y < mBox.pMax[1] - 0.5 * mMeshSampling;
-             y += mMeshSampling, j++) {
+        for (float y = mBox.pMin[1]; y < mBox.pMax[1] - halfStep; y += mMeshSampling, j++) {
             k = 0;
-            for (float z = mBox.pMin[2]; z < mBox.pMax[2] - 0.5 * mMeshSampling;
-                 z += mMeshSampling, k++) {
+            for (float z = mBox.pMin[2]; z < mBox.pMax[2] - halfStep; z += mMeshSampling, k++) {
                 mData->SetValue(i, j, k, DistanceToPoint(x, y, z, *mSourceMesh));
 
                 currentSample++;
@@ -80,19 +80,20 @@ void ImplicitMesh::Initialize() {
     std::cerr << "Determining inside/outside [";
     i = 0;
     currentSample = 0;
-    for (float x = mBox.pMin[0]; x < mBox.pMax[0] - 0.5f * mMeshSampling; x += mMeshSampling, i++) {
+    for (float x = mBox.pMin[0]; x < mBox.pMax[0] - halfStep; x += mMeshSampling, i++) {
         j = 0;
-        for (float y = mBox.pMin[1]; y < mBox.pMax[1] - 0.5f * mMeshSampling;
-             y += mMeshSampling, j++) {
+        for (float y = mBox.pMin[1]; y < mBox.pMax[1] - halfStep; y += mMeshSampling, j++) {
             k = 0;
-            for (float z = mBox.pMin[2]; z < mBox.pMax[2] - 0.5f * mMeshSampling;
-                 z += mMeshSampling, k++) {
+            for (float z = mBox.pMin[2]; z < mBox.pMax[2] - halfStep; z += mMeshSampling, k++) {
                 float distance = DistanceToPoint(x, y, z, dilatedMesh);
-                if (mData->GetValue(i, j, k) - distance < 0)
+                if (mData->GetValue(i, j, k) - distance < 0) {
                     mData->SetValue(i, j, k, -mData->GetValue(i, j, k));
+                }
 
                 currentSample++;
-                if (currentSample % reportFreq == 0) std::cerr << "=";
+                if (currentSample % reportFreq == 0) {
+                    std::cerr << "=";
+                }
             }
         }
     }
@@ -167,20 +168,20 @@ std::pair<float, bool> ImplicitMesh::DistanceSquared(const glm::vec3 &p, const g
                 if (fB0 < 0.0) {
                     fT = 0.0;
                     if (-fB0 >= fA00) {
-                        fS = 1.0f;
-                        fSqrDistance = fA00 + (2.0f) * fB0 + fC;
+                        fS = 1.f;
+                        fSqrDistance = fA00 + (2.f) * fB0 + fC;
                     } else {
                         fS = -fB0 / fA00;
                         fSqrDistance = fB0 * fS + fC;
                     }
                 } else {
-                    fS = 0.0f;
-                    if (fB1 >= 0.0f) {
-                        fT = 0.0f;
+                    fS = 0.f;
+                    if (fB1 >= 0.f) {
+                        fT = 0.f;
                         fSqrDistance = fC;
                     } else if (-fB1 >= fA11) {
-                        fT = 1.0f;
-                        fSqrDistance = fA11 + (2.0f) * fB1 + fC;
+                        fT = 1.f;
+                        fSqrDistance = fA11 + (2.f) * fB1 + fC;
                     } else {
                         fT = -fB1 / fA11;
                         fSqrDistance = fB1 * fT + fC;
@@ -188,27 +189,27 @@ std::pair<float, bool> ImplicitMesh::DistanceSquared(const glm::vec3 &p, const g
                 }
             } else  // region 3
             {
-                fS = 0.0f;
-                if (fB1 >= 0.0f) {
-                    fT = 0.0f;
+                fS = 0.f;
+                if (fB1 >= 0.f) {
+                    fT = 0.f;
                     fSqrDistance = fC;
                 } else if (-fB1 >= fA11) {
-                    fT = 1.0f;
-                    fSqrDistance = fA11 + (2.0f) * fB1 + fC;
+                    fT = 1.f;
+                    fSqrDistance = fA11 + (2.f) * fB1 + fC;
                 } else {
                     fT = -fB1 / fA11;
                     fSqrDistance = fB1 * fT + fC;
                 }
             }
-        } else if (fT < 0.0f)  // region 5
+        } else if (fT < 0.f)  // region 5
         {
-            fT = 0.0f;
-            if (fB0 >= 0.0f) {
-                fS = 0.0f;
+            fT = 0.f;
+            if (fB0 >= 0.f) {
+                fS = 0.f;
                 fSqrDistance = fC;
             } else if (-fB0 >= fA00) {
-                fS = 1.0f;
-                fSqrDistance = fA00 + (2.0f) * fB0 + fC;
+                fS = 1.f;
+                fSqrDistance = fA00 + (2.f) * fB0 + fC;
             } else {
                 fS = -fB0 / fA00;
                 fSqrDistance = fB0 * fS + fC;
@@ -216,69 +217,69 @@ std::pair<float, bool> ImplicitMesh::DistanceSquared(const glm::vec3 &p, const g
         } else  // region 0
         {
             // minimum at interior point
-            auto fInvDet = (1.0f) / fDet;
+            auto fInvDet = (1.f) / fDet;
             fS *= fInvDet;
             fT *= fInvDet;
-            fSqrDistance = fS * (fA00 * fS + fA01 * fT + (2.0f) * fB0) +
-                           fT * (fA01 * fS + fA11 * fT + (2.0f) * fB1) + fC;
+            fSqrDistance = fS * (fA00 * fS + fA01 * fT + (2.f) * fB0) +
+                           fT * (fA01 * fS + fA11 * fT + (2.f) * fB1) + fC;
         }
     } else {
         float fTmp0, fTmp1, fNumer, fDenom;
 
-        if (fS < 0.0f)  // region 2
+        if (fS < 0.f)  // region 2
         {
             fTmp0 = fA01 + fB0;
             fTmp1 = fA11 + fB1;
             if (fTmp1 > fTmp0) {
                 fNumer = fTmp1 - fTmp0;
-                fDenom = fA00 - 2.0f * fA01 + fA11;
+                fDenom = fA00 - 2.f * fA01 + fA11;
                 if (fNumer >= fDenom) {
-                    fS = 1.0f;
-                    fT = 0.0f;
-                    fSqrDistance = fA00 + (2.0f) * fB0 + fC;
+                    fS = 1.f;
+                    fT = 0.f;
+                    fSqrDistance = fA00 + (2.f) * fB0 + fC;
                 } else {
                     fS = fNumer / fDenom;
-                    fT = 1.0f - fS;
-                    fSqrDistance = fS * (fA00 * fS + fA01 * fT + 2.0f * fB0) +
-                                   fT * (fA01 * fS + fA11 * fT + (2.0f) * fB1) + fC;
+                    fT = 1.f - fS;
+                    fSqrDistance = fS * (fA00 * fS + fA01 * fT + 2.f * fB0) +
+                                   fT * (fA01 * fS + fA11 * fT + (2.f) * fB1) + fC;
                 }
             } else {
-                fS = 0.0f;
-                if (fTmp1 <= 0.0f) {
-                    fT = 1.0f;
-                    fSqrDistance = fA11 + (2.0f) * fB1 + fC;
-                } else if (fB1 >= 0.0f) {
-                    fT = 0.0f;
+                fS = 0.f;
+                if (fTmp1 <= 0.f) {
+                    fT = 1.f;
+                    fSqrDistance = fA11 + (2.f) * fB1 + fC;
+                } else if (fB1 >= 0.f) {
+                    fT = 0.f;
                     fSqrDistance = fC;
                 } else {
                     fT = -fB1 / fA11;
                     fSqrDistance = fB1 * fT + fC;
                 }
             }
-        } else if (fT < 0.0f)  // region 6
+        } else if (fT < 0.f)  // region 6
         {
             fTmp0 = fA01 + fB1;
             fTmp1 = fA00 + fB0;
             if (fTmp1 > fTmp0) {
                 fNumer = fTmp1 - fTmp0;
-                fDenom = fA00 - (2.0f) * fA01 + fA11;
+                fDenom = fA00 - (2.f) * fA01 + fA11;
                 if (fNumer >= fDenom) {
-                    fT = 1.0f;
-                    fS = 0.0f;
-                    fSqrDistance = fA11 + (2.0f) * fB1 + fC;
+                    fT = 1.f;
+                    fS = 0.f;
+                    fSqrDistance = fA11 + (2.f) * fB1 + fC;
                 } else {
                     fT = fNumer / fDenom;
-                    fS = 1.0f - fT;
-                    fSqrDistance = fS * (fA00 * fS + fA01 * fT + (2.0f) * fB0) +
-                                   fT * (fA01 * fS + fA11 * fT + (2.0f) * fB1) + fC;
+                    fS = 1.f - fT;
+                    fSqrDistance = fS * (fA00 * fS + fA01 * fT + (2.f) * fB0) +
+                                   fT * (fA01 * fS + fA11 * fT + (2.f) * fB1) + fC;
                 }
             } else {
-                fT = 0.0f;
-                if (fTmp1 <= 0.0f) {
-                    fS = 1.0f;
-                    fSqrDistance = fA00 + (2.0f) * fB0 + fC;
-                } else if (fB0 >= 0.0f) {
-                    fS = 0.0f;
+                fT = 0.f;
+                if (fTmp1 <= 0.f) {
+                    fS = 1.f;
+                    fSqrDistance = fA00 + (2.f) * fB0 + fC;
+                } else if (fB0 >= 0.f) {
+                    fS = 0.f;
                     fSqrDistance = fC;
                 } else {
                     fS = -fB0 / fA00;
@@ -288,29 +289,29 @@ std::pair<float, bool> ImplicitMesh::DistanceSquared(const glm::vec3 &p, const g
         } else  // region 1
         {
             fNumer = fA11 + fB1 - fA01 - fB0;
-            if (fNumer <= 0.0f) {
-                fS = 0.0f;
-                fT = 1.0f;
-                fSqrDistance = fA11 + (2.0f) * fB1 + fC;
+            if (fNumer <= 0.f) {
+                fS = 0.f;
+                fT = 1.f;
+                fSqrDistance = fA11 + (2.f) * fB1 + fC;
             } else {
-                fDenom = fA00 - 2.0f * fA01 + fA11;
+                fDenom = fA00 - 2.f * fA01 + fA11;
                 if (fNumer >= fDenom) {
-                    fS = 1.0f;
-                    fT = 0.0f;
-                    fSqrDistance = fA00 + (2.0f) * fB0 + fC;
+                    fS = 1.f;
+                    fT = 0.f;
+                    fSqrDistance = fA00 + (2.f) * fB0 + fC;
                 } else {
                     fS = fNumer / fDenom;
-                    fT = 1.0f - fS;
-                    fSqrDistance = fS * (fA00 * fS + fA01 * fT + (2.0f) * fB0) +
-                                   fT * (fA01 * fS + fA11 * fT + (2.0f) * fB1) + fC;
+                    fT = 1.f - fS;
+                    fSqrDistance = fS * (fA00 * fS + fA01 * fT + (2.f) * fB0) +
+                                   fT * (fA01 * fS + fA11 * fT + (2.f) * fB1) + fC;
                 }
             }
         }
     }
 
     // account for numerical round-off error
-    if (fSqrDistance < 0.0f) {
-        fSqrDistance = 0.0f;
+    if (fSqrDistance < 0.f) {
+        fSqrDistance = 0.f;
     }
 
     //    Could be used for fun stuff...
@@ -318,7 +319,9 @@ std::pair<float, bool> ImplicitMesh::DistanceSquared(const glm::vec3 &p, const g
     //    float u = fs,v fT, w = std::max<float>(0.0, 1-u-v);
 
     bool outside = true;
-    if (glm::dot(kDiff, glm::cross(kEdge0, kEdge1)) < 0) outside = false;
+    if (glm::dot(kDiff, glm::cross(kEdge0, kEdge1)) < 0) {
+        outside = false;
+    }
 
     return {fSqrDistance, outside};
 }

@@ -7,10 +7,10 @@
 
 class Subdivision {
 public:
-  Subdivision() {}
-  virtual ~Subdivision() {}
+    Subdivision() {}
+    virtual ~Subdivision() {}
 
-  virtual void Subdivide() = 0;
+    virtual void Subdivide() = 0;
 };
 
 #endif

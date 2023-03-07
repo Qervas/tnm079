@@ -15,62 +15,59 @@ extern const wxEventType wxEVT_GL_OBJECT_SELECTED;
 class GLViewer : public wxGLCanvas {
 
 public:
-  GLViewer(wxWindow *parent, int *args);
+    GLViewer(wxWindow* parent, int* args);
 
-  void Resized(wxSizeEvent &evt);
+    void Resized(wxSizeEvent& evt);
 
-  int GetWidth();
-  int GetHeight();
+    int GetWidth();
+    int GetHeight();
 
-  void Render(bool swapBuffers = true);
+    void Render(bool swapBuffers = true);
 
-  void ScreenCapture(const std::string &filename, float magnification = 1);
+    void ScreenCapture(const std::string& filename, float magnification = 1.f);
 
-  bool AddObject(GLObject *object);
-  GLObject *RemoveObject(const std::string &name);
-  GLObject *RemoveObject(size_t i);
-  void MoveObject(const std::string &name, int shift);
-  std::list<GLObject *> GetObjects();
-  GLObject *GetObject(const std::string &name);
-  GLObject *GetObject(size_t i);
-  void ReplaceObject(GLObject *oldObject, GLObject *newObject);
+    bool AddObject(GLObject* object);
+    GLObject* RemoveObject(const std::string& name);
+    GLObject* RemoveObject(size_t i);
+    void MoveObject(const std::string& name, int shift);
+    std::list<GLObject*> GetObjects();
+    GLObject* GetObject(const std::string& name);
+    GLObject* GetObject(size_t i);
+    void ReplaceObject(GLObject* oldObject, GLObject* newObject);
 
-  static GLCamera &GetCamera() { return mCamera; }
+    static GLCamera& GetCamera() { return mCamera; }
 
-  void DeselectAllObjects();
-  void DeselectObject(const std::string &name);
-  void SelectObject(const std::string &name);
-  std::list<GLObject *> GetSelectedObjects();
-
-  void SetLighting(bool lighting);
+    void DeselectAllObjects();
+    void DeselectObject(const std::string& name);
+    void SelectObject(const std::string& name);
+    std::list<GLObject*> GetSelectedObjects();
 
 protected:
-  static GLCamera mCamera;
-  std::list<GLObject *> mObjects;
+    static GLCamera mCamera;
+    std::list<GLObject*> mObjects;
 
-  long mMouseDown[2];
-  long mMousePrevious[2];
-  bool mLighting;
+    long mMouseDown[2];
+    long mMousePrevious[2];
 
-  GLuint mSelectBuffer[512];
-  GLObject *PickObject(long x, long y);
+    GLuint mSelectBuffer[512];
+    GLObject* PickObject(long x, long y);
 
-  void InitGL();
-  void SetupView();
-  bool mIsInitialized;
+    void InitGL();
+    void SetupView();
+    bool mIsInitialized;
 
-  // events
-  void MouseMoved(wxMouseEvent &event);
-  void MouseDown(wxMouseEvent &event);
-  void MouseWheelMoved(wxMouseEvent &event);
-  void MouseReleased(wxMouseEvent &event);
-  void RightClick(wxMouseEvent &event);
-  void MouseLeftWindow(wxMouseEvent &event);
-  void OnPaint(wxPaintEvent &event);
-  void OnEraseBackground(wxEraseEvent &event) {}
-  void KeyPressed(wxKeyEvent &event);
+    // Events
+    void MouseMoved(wxMouseEvent& event);
+    void MouseDown(wxMouseEvent& event);
+    void MouseWheelMoved(wxMouseEvent& event);
+    void MouseReleased(wxMouseEvent& event);
+    void RightClick(wxMouseEvent& event);
+    void MouseLeftWindow(wxMouseEvent& event);
+    void OnPaint(wxPaintEvent& event);
+    void OnEraseBackground(wxEraseEvent& event) {}
+    void KeyPressed(wxKeyEvent& event);
 
-  DECLARE_EVENT_TABLE()
+    DECLARE_EVENT_TABLE()
 };
 
 #endif

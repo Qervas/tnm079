@@ -84,24 +84,25 @@ public:
         return i * mPremult + j * mDimZ + k;
     }
 
-    void ComputeIndices(size_t ind, int &i, int &j, int &k) const {
+    void ComputeIndices(size_t ind, int& i, int& j, int& k) const {
         i = i / mPremult;
         j = (i % mPremult) / mDimZ;
         k = (i % mPremult) % mDimZ;
     }
 
     //! Sets the value at i,j,k to val
-    void SetValue(size_t i, size_t j, size_t k, const T &val) {
+    void SetValue(size_t i, size_t j, size_t k, const T& val) {
         assert(i < mDimX && i >= 0 && j < mDimY && j >= 0 && k < mDimZ && k >= 0);
-        mData.at(i * mPremult + j * mDimZ + k) = val;  // .at() does bound checking, throws exception
-                                                       // mData[i*premult + j*dimZ + k] = val;
+        mData.at(i * mPremult + j * mDimZ + k) =
+            val;  // .at() does bound checking, throws exception
+                  // mData[i*premult + j*dimZ + k] = val;
     }
 
     //! Load a volume from binary stream is
-    void Load(std::istream &is) {
-        is.read((char *)&mDimX, sizeof(mDimX));
-        is.read((char *)&mDimY, sizeof(mDimY));
-        is.read((char *)&mDimZ, sizeof(mDimZ));
+    void Load(std::istream& is) {
+        is.read((char*)&mDimX, sizeof(mDimX));
+        is.read((char*)&mDimY, sizeof(mDimY));
+        is.read((char*)&mDimZ, sizeof(mDimZ));
 
         if (IsBigEndian()) {
             mDimX = EndianSwap(mDimX);
@@ -114,14 +115,14 @@ public:
         std::vector<T>(mData).swap(mData);    // shrink to fit (if needed)
         mPremult = mDimY * mDimZ;
 
-        is.read((char *)&mData.at(0), sizeof(T) * mDimX * mDimY * mDimZ);
+        is.read((char*)&mData.at(0), sizeof(T) * mDimX * mDimY * mDimZ);
         if (IsBigEndian()) {
             EndianSwap(&mData.at(0), mData.size());
         }
     }
 
-    void Load(const std::string &path) {
-        FILE *file;
+    void Load(const std::string& path) {
+        FILE* file;
         if ((file = fopen(path.c_str(), "rb")) != NULL) {
             int w;
             fscanf(file, "%d \n", &w);
@@ -148,15 +149,15 @@ public:
     }
 
     //! Save volume to binary stream os
-    void Save(std::ostream &os) const {
+    void Save(std::ostream& os) const {
         int x = static_cast<int>(mDimX);
         int y = static_cast<int>(mDimX);
         int z = static_cast<int>(mDimX);
 
-        os.write((const char *)&x, sizeof(x));
-        os.write((const char *)&y, sizeof(y));
-        os.write((const char *)&z, sizeof(z));
+        os.write((const char*)&x, sizeof(x));
+        os.write((const char*)&y, sizeof(y));
+        os.write((const char*)&z, sizeof(z));
 
-        os.write((const char *)mData.data(), sizeof(T) * x * y * z);
+        os.write((const char*)mData.data(), sizeof(T) * x * y * z);
     }
 };
