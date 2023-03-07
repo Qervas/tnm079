@@ -140,9 +140,9 @@ void LevelSet::SetBoundingBox(const Bbox &b) {
     float maxVal = -(std::numeric_limits<float>::max)();
     float minVal = (std::numeric_limits<float>::max)();
     while (iter != iend) {
-        int i = iter.GetI();
-        int j = iter.GetJ();
-        int k = iter.GetK();
+        size_t i = iter.GetI();
+        size_t j = iter.GetJ();
+        size_t k = iter.GetK();
 
         float val = mGrid.GetValue(i, j, k);
         if (maxVal < val) maxVal = val;
@@ -160,9 +160,9 @@ void LevelSet::SetBoundingBox(const Bbox &b) {
     // Copy all old values to new grid
     iter = mGrid.BeginNarrowBand();
     while (iter != iend) {
-        int i = iter.GetI();
-        int j = iter.GetJ();
-        int k = iter.GetK();
+        size_t i = iter.GetI();
+        size_t j = iter.GetJ();
+        size_t k = iter.GetK();
 
         // Get the (x,y,z) coordinates of grid point (i,j,k)
         float x = i * mDx + mBox.pMin[0];

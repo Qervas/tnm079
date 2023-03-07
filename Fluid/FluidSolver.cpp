@@ -375,7 +375,7 @@ void FluidSolver::ClassifyVoxels() {
     }
 }
 
-void FluidSolver::ClassifyVoxel(int i, int j, int k) {
+void FluidSolver::ClassifyVoxel(size_t i, size_t j, size_t k) {
     // Transform grid to world coordinates
     float x, y, z;
     TransformGridToWorld(i, j, k, x, y, z);

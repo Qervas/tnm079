@@ -75,9 +75,9 @@ protected:
     bool IsFluid(size_t i, size_t j, size_t k) const;
 
     void ClassifyVoxels();
-    void ClassifyVoxel(int i, int j, int k);
+    void ClassifyVoxel(size_t i, size_t j, size_t k);
 
-    inline void TransformGridToWorld(int i, int j, int k, float &x, float &y, float &z) {
+    inline void TransformGridToWorld(size_t i, size_t j, size_t k, float &x, float &y, float &z) {
         x = mBox.pMin[0] + i * mDx;
         y = mBox.pMin[1] + j * mDx;
         z = mBox.pMin[2] + k * mDx;
