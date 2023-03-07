@@ -30,7 +30,7 @@
 
 class ImplicitMesh : public Implicit {
 public:
-    ImplicitMesh(SimpleMesh *mesh);
+    ImplicitMesh(SimpleMesh* mesh);
     virtual ~ImplicitMesh();
 
     virtual void Initialize();
@@ -50,15 +50,15 @@ public:
     }
 
 protected:
-    SimpleMesh *mSourceMesh;
-    Volume<float> *mData;
+    SimpleMesh* mSourceMesh;
+    Volume<float>* mData;
 
     //! Computes the closest distance from a point in space to the mesh
-    float DistanceToPoint(float x, float y, float z, const SimpleMesh &mesh) const;
+    float DistanceToPoint(float x, float y, float z, const SimpleMesh& mesh) const;
 
     // Computes the closest distance between a triangle and a point in space.
-    static std::pair<float, bool> DistanceSquared(const glm::vec3 &p, const glm::vec3 &v1,
-                                                  const glm::vec3 &v2, const glm::vec3 &v3);
+    static std::pair<float, bool> DistanceSquared(const glm::vec3& p, const glm::vec3& v1,
+                                                  const glm::vec3& v2, const glm::vec3& v3);
 };
 
 #endif

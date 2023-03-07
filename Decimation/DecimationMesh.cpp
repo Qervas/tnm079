@@ -41,7 +41,7 @@ void DecimationMesh::Initialize() {
     // for each pair
     auto numCollapses = mEdges.size() / 2;
     for (size_t i = 0; i < numCollapses; i++) {
-        EdgeCollapse *collapse = new EdgeCollapse();
+        EdgeCollapse* collapse = new EdgeCollapse();
 
         // Connect the edge collapse with the half-edge pair
         collapse->halfEdge = i * 2;
@@ -153,7 +153,7 @@ bool DecimationMesh::decimate(size_t targetFaces) {
 }
 
 bool DecimationMesh::decimate() {
-    EdgeCollapse *collapse = static_cast<EdgeCollapse *>(mHeap.pop());
+    EdgeCollapse* collapse = static_cast<EdgeCollapse*>(mHeap.pop());
     if (collapse == NULL) {
         return false;
     }
@@ -299,18 +299,18 @@ void DecimationMesh::updateVertexProperties(size_t ind) {
 
     const auto numCandidates = neighborFaces.size();
     for (size_t i = 0; i < numCandidates; i++) {
-        Face &triangle = mFaces[neighborFaces[i]];
+        Face& triangle = mFaces[neighborFaces[i]];
 
         // Calculate face normal
-        HalfEdge *edge = &mEdges[triangle.edge];
+        HalfEdge* edge = &mEdges[triangle.edge];
 
-        glm::vec3 &p0 = mVerts[edge->vert].pos;
+        glm::vec3& p0 = mVerts[edge->vert].pos;
         edge = &mEdges[edge->next];
 
-        glm::vec3 &p1 = mVerts[edge->vert].pos;
+        glm::vec3& p1 = mVerts[edge->vert].pos;
         edge = &mEdges[edge->next];
 
-        glm::vec3 &p2 = mVerts[edge->vert].pos;
+        glm::vec3& p2 = mVerts[edge->vert].pos;
 
         glm::vec3 v1 = p1 - p0;
         glm::vec3 v2 = p2 - p0;
@@ -325,15 +325,15 @@ void DecimationMesh::updateVertexProperties(size_t ind) {
 }
 
 void DecimationMesh::updateFaceProperties(size_t ind) {
-    HalfEdge *edge = &mEdges[mFaces[ind].edge];
+    HalfEdge* edge = &mEdges[mFaces[ind].edge];
 
-    glm::vec3 &p0 = mVerts[edge->vert].pos;
+    glm::vec3& p0 = mVerts[edge->vert].pos;
     edge = &mEdges[edge->next];
 
-    glm::vec3 &p1 = mVerts[edge->vert].pos;
+    glm::vec3& p1 = mVerts[edge->vert].pos;
     edge = &mEdges[edge->next];
 
-    glm::vec3 &p2 = mVerts[edge->vert].pos;
+    glm::vec3& p2 = mVerts[edge->vert].pos;
 
     // Calculate face normal
     glm::vec3 v1 = p1 - p0;
@@ -344,7 +344,7 @@ void DecimationMesh::updateFaceProperties(size_t ind) {
     mFaces[ind].normal = n;
 }
 
-bool DecimationMesh::isValidCollapse(EdgeCollapse *collapse) {
+bool DecimationMesh::isValidCollapse(EdgeCollapse* collapse) {
     size_t e1 = collapse->halfEdge;
     size_t e2 = mEdges[e1].pair;
 
@@ -404,17 +404,17 @@ void DecimationMesh::Render() {
         }
 
         // Render without notations
-        Face &f = mFaces[i];
+        Face& f = mFaces[i];
 
-        HalfEdge *edge = &mEdges[f.edge];
+        HalfEdge* edge = &mEdges[f.edge];
 
-        Vertex &v1 = mVerts[edge->vert];
+        Vertex& v1 = mVerts[edge->vert];
         edge = &mEdges[edge->next];
 
-        Vertex &v2 = mVerts[edge->vert];
+        Vertex& v2 = mVerts[edge->vert];
         edge = &mEdges[edge->next];
 
-        Vertex &v3 = mVerts[edge->vert];
+        Vertex& v3 = mVerts[edge->vert];
 
         // Render with notations
         //  Uncomment this block, and comment the block above
@@ -504,7 +504,7 @@ void DecimationMesh::Render() {
         std::vector<HalfEdge>::const_iterator iter = mEdges.begin();
         std::vector<HalfEdge>::const_iterator iend = mEdges.end();
         while (iter != iend) {
-            EdgeCollapse *collapse = mHalfEdge2EdgeCollapse.at(iter - mEdges.begin());
+            EdgeCollapse* collapse = mHalfEdge2EdgeCollapse.at(iter - mEdges.begin());
             if (collapse != NULL) {
                 if (minCost > collapse->cost) minCost = collapse->cost;
                 if (maxCost < collapse->cost) maxCost = collapse->cost;
@@ -525,14 +525,13 @@ void DecimationMesh::Render() {
         while (iter != iend) {
             size_t ind = iter - mEdges.begin();
             if (!isEdgeCollapsed(ind)) {
-                const Vertex &v1 = v(e(ind).vert);
-                const Vertex &v2 = v(e(e(ind).pair).vert);
+                const Vertex& v1 = v(e(ind).vert);
+                const Vertex& v2 = v(e(e(ind).pair).vert);
 
-                EdgeCollapse *collapse = mHalfEdge2EdgeCollapse.at(ind);
+                EdgeCollapse* collapse = mHalfEdge2EdgeCollapse.at(ind);
                 if (collapse == NULL) {
                     glColor3f(1, 1, 1);
-                }
-                else {
+                } else {
                     glColor3fv(glm::value_ptr(mColorMap->Map(collapse->cost, minCost, maxCost)));
                 }
 
@@ -554,7 +553,7 @@ void DecimationMesh::Render() {
     GLObject::Render();
 }
 
-void DecimationMesh::drawText(const glm::vec3 &pos, const char *str) {
+void DecimationMesh::drawText(const glm::vec3& pos, const char* str) {
     glRasterPos3f(pos[0], pos[1], pos[2]);
     for (size_t i = 0; str[i] != '\n'; i++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);

@@ -54,7 +54,8 @@ public:
         float lastquat[4];
         trackball(lastquat, x1, y1, x2, y2);  // calculates a reasonable quaternion
                                               // using the start and end points
-        add_quats(lastquat, curquat, curquat);  // Quats can be accumulated for a smooth rotation effect
+        add_quats(lastquat, curquat,
+                  curquat);  // Quats can be accumulated for a smooth rotation effect
     }
 
     glm::vec3 GetPosition() const { return mCameraPos; }
@@ -74,11 +75,8 @@ public:
 
     void Render() {
         glm::vec3 lookAtPos = mCameraPos + mCameraFwd;
-        gluLookAt(
-            mCameraPos[0], mCameraPos[1], mCameraPos[2],
-            lookAtPos[0], lookAtPos[1], lookAtPos[2],
-            mCameraUp[0], mCameraUp[1], mCameraUp[2]
-        );
+        gluLookAt(mCameraPos[0], mCameraPos[1], mCameraPos[2], lookAtPos[0], lookAtPos[1],
+                  lookAtPos[2], mCameraUp[0], mCameraUp[1], mCameraUp[2]);
         GLfloat m[4][4];
         build_rotmatrix(m, curquat);  // using trackball to compute the equivalent rotation matrix
         glMultMatrixf(&m[0][0]);

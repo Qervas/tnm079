@@ -227,7 +227,7 @@ GLObject* GLViewer::RemoveObject(size_t i) {
     if (i >= mObjects.size()) return NULL;
 
     std::list<GLObject*>::iterator iter = mObjects.begin();
-    for (size_t j = 0; j < i; j++) ++iter; // TODO: use std::advance or iter + steps
+    for (size_t j = 0; j < i; j++) ++iter;  // TODO: use std::advance or iter + steps
 
     GLObject* object = *iter;
     mObjects.erase(iter);

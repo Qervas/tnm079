@@ -23,7 +23,7 @@ public:
     virtual ~SimpleDecimationMesh() {}
 
 protected:
-    virtual void computeCollapse(EdgeCollapse *collapse);
+    virtual void computeCollapse(EdgeCollapse* collapse);
 };
 
 #endif

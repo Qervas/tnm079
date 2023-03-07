@@ -24,7 +24,7 @@ SimpleMesh::SimpleMesh() {}
 SimpleMesh::~SimpleMesh() {}
 
 //-----------------------------------------------------------------------------
-bool SimpleMesh::AddFace(const std::vector<glm::vec3> &verts) {
+bool SimpleMesh::AddFace(const std::vector<glm::vec3>& verts) {
     const size_t ind1 = AddVertex(verts.at(0));
     const size_t ind2 = AddVertex(verts.at(1));
     const size_t ind3 = AddVertex(verts.at(2));
@@ -38,7 +38,7 @@ bool SimpleMesh::AddFace(const std::vector<glm::vec3> &verts) {
 }
 
 //-----------------------------------------------------------------------------
-size_t SimpleMesh::AddVertex(const glm::vec3 &v) {
+size_t SimpleMesh::AddVertex(const glm::vec3& v) {
     std::map<glm::vec3, size_t>::iterator it = mUniqueVerts.find(v);
     if (it != mUniqueVerts.end()) {
         const auto indx = it->second;
@@ -56,7 +56,7 @@ size_t SimpleMesh::AddVertex(const glm::vec3 &v) {
 
 //-----------------------------------------------------------------------------
 glm::vec3 SimpleMesh::FaceNormal(size_t faceIndex) const {
-    const Face &tri = mFaces.at(faceIndex);
+    const Face& tri = mFaces.at(faceIndex);
     glm::vec3 e1 = mVerts.at(tri.v2).pos - mVerts.at(tri.v1).pos;
     glm::vec3 e2 = mVerts.at(tri.v3).pos - mVerts.at(tri.v1).pos;
     return glm::normalize(glm::cross(e1, e2));
@@ -68,7 +68,7 @@ glm::vec3 SimpleMesh::VertexNormal(size_t vertexIndex) const {
     glm::vec3 n(0.f, 0.f, 0.f);
 
     for (size_t i = 0; i < neighborFaces.size(); i++) {
-        const Face &triangle = mFaces.at(neighborFaces.at(i));
+        const Face& triangle = mFaces.at(neighborFaces.at(i));
 
         // NB Assumes face normals already calculated
         n += triangle.normal;
@@ -83,7 +83,7 @@ float SimpleMesh::VertexCurvature(size_t vertexIndex) const {
     assert(oneRing.size() != 0);
 
     size_t curr, next;
-    const glm::vec3 &vi = mVerts.at(vertexIndex).pos;
+    const glm::vec3& vi = mVerts.at(vertexIndex).pos;
     float angleSum = 0.f;
     float area = 0.f;
     for (size_t i = 0; i < oneRing.size(); i++) {
@@ -97,8 +97,8 @@ float SimpleMesh::VertexCurvature(size_t vertexIndex) const {
 
         // find vertices in 1-ring according to figure 5 in lab text
         // next - beta
-        const glm::vec3 &nextPos = mVerts.at(next).pos;
-        const glm::vec3 &vj = mVerts.at(curr).pos;
+        const glm::vec3& nextPos = mVerts.at(next).pos;
+        const glm::vec3& vj = mVerts.at(curr).pos;
 
         // compute angle and area
         angleSum += acos(glm::dot(vj - vi, nextPos - vi) /
@@ -110,7 +110,7 @@ float SimpleMesh::VertexCurvature(size_t vertexIndex) const {
 
 float SimpleMesh::FaceCurvature(size_t faceIndex) const {
     // NB Assumes vertex curvature already computed
-    const Face &tri = mFaces.at(faceIndex);
+    const Face& tri = mFaces.at(faceIndex);
     return (mVerts.at(tri.v1).curvature + mVerts.at(tri.v2).curvature +
             mVerts.at(tri.v3).curvature) /
            3.f;
@@ -162,10 +162,7 @@ std::vector<size_t> SimpleMesh::FindNeighborFaces(size_t vertexIndex) const {
     std::vector<Face>::const_iterator iter = mFaces.begin();
     std::vector<Face>::const_iterator iend = mFaces.end();
     while (iter != iend) {
-        if (iter->v1 == vertexIndex ||
-            iter->v2 == vertexIndex ||
-            iter->v3 == vertexIndex)
-        {
+        if (iter->v1 == vertexIndex || iter->v2 == vertexIndex || iter->v3 == vertexIndex) {
             foundFaces.push_back(iter - mFaces.begin());
         }
         iter++;
@@ -360,29 +357,29 @@ void SimpleMesh::Render() {
     glBegin(GL_TRIANGLES);
     const auto numFaces = mFaces.size();
     for (size_t i = 0; i < numFaces; i++) {
-        Face &triangle = mFaces[i];
+        Face& triangle = mFaces[i];
 
-        glm::vec3 &p0 = mVerts[triangle.v1].pos;
-        glm::vec3 &p1 = mVerts[triangle.v2].pos;
-        glm::vec3 &p2 = mVerts[triangle.v3].pos;
+        glm::vec3& p0 = mVerts[triangle.v1].pos;
+        glm::vec3& p1 = mVerts[triangle.v2].pos;
+        glm::vec3& p2 = mVerts[triangle.v3].pos;
 
         if (mVisualizationMode == CurvatureVertex) {
-            glm::vec3 &c1 = mVerts.at(triangle.v1).color;
+            glm::vec3& c1 = mVerts.at(triangle.v1).color;
             glColor4f(c1[0], c1[1], c1[2], mOpacity);
             glNormal3fv(glm::value_ptr(mVerts.at(triangle.v1).normal));
             glVertex3fv(glm::value_ptr(p0));
 
-            glm::vec3 &c2 = mVerts.at(triangle.v2).color;
+            glm::vec3& c2 = mVerts.at(triangle.v2).color;
             glColor4f(c2[0], c2[1], c2[2], mOpacity);
             glNormal3fv(glm::value_ptr(mVerts.at(triangle.v2).normal));
             glVertex3fv(glm::value_ptr(p1));
 
-            glm::vec3 &c3 = mVerts.at(triangle.v3).color;
+            glm::vec3& c3 = mVerts.at(triangle.v3).color;
             glColor4f(c3[0], c3[1], c3[2], mOpacity);
             glNormal3fv(glm::value_ptr(mVerts.at(triangle.v3).normal));
             glVertex3fv(glm::value_ptr(p2));
         } else {
-            glm::vec3 &color = triangle.color;
+            glm::vec3& color = triangle.color;
             glColor4f(color[0], color[1], color[2], mOpacity);
             glNormal3fv(glm::value_ptr(triangle.normal));
 
@@ -398,11 +395,11 @@ void SimpleMesh::Render() {
         glDisable(GL_LIGHTING);
         glBegin(GL_LINES);
         for (size_t i = 0; i < mFaces.size(); i++) {
-            Face &face = mFaces.at(i);
+            Face& face = mFaces.at(i);
 
-            Vertex &v1 = mVerts.at(face.v1);
-            Vertex &v2 = mVerts.at(face.v2);
-            Vertex &v3 = mVerts.at(face.v3);
+            Vertex& v1 = mVerts.at(face.v1);
+            Vertex& v2 = mVerts.at(face.v2);
+            Vertex& v3 = mVerts.at(face.v3);
 
             glm::vec3 faceStart = (v1.pos + v2.pos + v3.pos) / 3.f;
             glm::vec3 faceEnd = faceStart + face.normal * 0.1f;

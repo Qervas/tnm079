@@ -1,7 +1,7 @@
 #include <GUI/FluidVoxelCutPlane.h>
 #include <gtc/type_ptr.hpp>
 
-FluidVoxelCutPlane::FluidVoxelCutPlane(const std::string &name, const FluidSolver *solver)
+FluidVoxelCutPlane::FluidVoxelCutPlane(const std::string& name, const FluidSolver* solver)
     : mSolver(solver) {
     Bbox box = mSolver->GetBoundingBox();
     /*mDx = (box.pMax[0] - box.pMin[0]) / (float)mSolver->mVoxels.GetDimX();*/
@@ -11,7 +11,7 @@ FluidVoxelCutPlane::FluidVoxelCutPlane(const std::string &name, const FluidSolve
     Update();
 }
 
-void FluidVoxelCutPlane::SetTransform(const glm::mat4 &transform) {
+void FluidVoxelCutPlane::SetTransform(const glm::mat4& transform) {
     Geometry::SetTransform(transform);
     Update();
 }

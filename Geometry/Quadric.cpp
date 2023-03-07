@@ -14,7 +14,7 @@
  *************************************************************************************************/
 #include <Geometry/Quadric.h>
 
-Quadric::Quadric(const glm::mat4 &q) : mQuadric(q) {}
+Quadric::Quadric(const glm::mat4& q) : mQuadric(q) {}
 
 Quadric::~Quadric() {}
 
@@ -23,7 +23,9 @@ Quadric::~Quadric() {}
  * of the world-coordinates by mWorld2Obj, or transformation of the quadric
  * coefficient matrix by GetTransform() ONCE (see Section 2.2 in lab text).
  */
-float Quadric::GetValue(float x, float y, float z) const { return 0.f; }
+float Quadric::GetValue(float x, float y, float z) const {
+    return 0.f;
+}
 
 /*!
  * Use the quadric matrix to evaluate the gradient.

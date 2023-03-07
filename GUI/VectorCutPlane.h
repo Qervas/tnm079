@@ -25,8 +25,7 @@ protected:
     std::vector<glm::vec3> mVectors;
 
 public:
-    VectorCutPlane(const std::string& name, float dx,
-        const Function3D<glm::vec3>* function);
+    VectorCutPlane(const std::string& name, float dx, const Function3D<glm::vec3>* function);
 
     virtual const char* GetTypeName() { return typeid(VectorCutPlane).name(); }
 

@@ -28,7 +28,7 @@
 
 struct MyEdge {
     MyEdge(size_t a, size_t b) : a(std::min(a, b)), b(std::max(a, b)) {}
-    bool operator<(const MyEdge &eb) const {
+    bool operator<(const MyEdge& eb) const {
         if (a < eb.a) {
             return true;
         } else if (a == eb.a) {
@@ -63,7 +63,7 @@ protected:
     std::map<glm::vec3, size_t, glm_vec3_comparator<float>> mUniqueVerts;
 
     //! Adds a vertex to the mesh
-    virtual size_t AddVertex(const glm::vec3 &v) override;
+    virtual size_t AddVertex(const glm::vec3& v) override;
 
     // Given a vertex, find all triangles that includes this vertex
     virtual std::vector<size_t> FindNeighborFaces(size_t vertexIndex) const;
@@ -86,13 +86,13 @@ public:
     virtual void Initialize();
 
     //! Adds a triangle to the mesh.
-    virtual bool AddFace(const std::vector<glm::vec3> &verts);
+    virtual bool AddFace(const std::vector<glm::vec3>& verts);
 
     //! Access to internal vertex data
-    const std::vector<Vertex> &GetVerts() const { return mVerts; }
-    const std::vector<Face> &GetFaces() const { return mFaces; }
-    std::vector<Vertex> &GetVerts() { return mVerts; }
-    std::vector<Face> &GetFaces() { return mFaces; }
+    const std::vector<Vertex>& GetVerts() const { return mVerts; }
+    const std::vector<Face>& GetFaces() const { return mFaces; }
+    std::vector<Vertex>& GetVerts() { return mVerts; }
+    std::vector<Face>& GetFaces() { return mFaces; }
 
     virtual void Dilate(float amount);
     virtual void Erode(float amount);
@@ -102,7 +102,7 @@ public:
 
     virtual void Render();
 
-    virtual bool save(std::ostream &os) {
+    virtual bool save(std::ostream& os) {
         os << "# SimpleMesh obj streamer\n# M&A 2008\n\n";
         os << "# Vertices\n";
         for (size_t i = 0; i < mVerts.size(); i++) {

@@ -33,18 +33,18 @@ public:
 
     virtual void Render() override;
 
-    virtual const char *GetTypeName() { return typeid(DecimationMesh).name(); }
+    virtual const char* GetTypeName() { return typeid(DecimationMesh).name(); }
 
 protected:
     virtual void updateVertexProperties(size_t ind);
 
     virtual void updateFaceProperties(size_t ind);
 
-    virtual void computeCollapse(EdgeCollapse *collapse) = 0;
+    virtual void computeCollapse(EdgeCollapse* collapse) = 0;
 
     virtual void Cleanup();
 
-    bool isValidCollapse(EdgeCollapse *collapse);
+    bool isValidCollapse(EdgeCollapse* collapse);
 
     inline bool isVertexCollapsed(size_t ind) { return mCollapsedVerts[ind]; }
     inline bool isEdgeCollapsed(size_t ind) { return mCollapsedEdges[ind]; }
@@ -79,14 +79,14 @@ protected:
     size_t mNumCollapsedFaces;
 
     //! Utility mapping between half edges and collapses
-    std::vector<EdgeCollapse *> mHalfEdge2EdgeCollapse;
+    std::vector<EdgeCollapse*> mHalfEdge2EdgeCollapse;
 
     //! The heap that stores the edge collapses
     Heap mHeap;
 
-    void drawText(const glm::vec3 &pos, const char *str);
+    void drawText(const glm::vec3& pos, const char* str);
 
-    virtual bool save(std::ostream &os) {
+    virtual bool save(std::ostream& os) {
         os << "# DecimationMesh obj streamer\n# M&A 2008\n\n";
         os << "# Vertices\n";
         for (size_t i = 0; i < GetNumVerts(); i++) {

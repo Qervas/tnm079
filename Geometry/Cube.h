@@ -26,7 +26,7 @@ public:
     virtual float GetValue(float x, float y, float z) const;
 
 private:
-    std::vector<Quadric *> mPlanes;
+    std::vector<Quadric*> mPlanes;
 };
 
 #endif

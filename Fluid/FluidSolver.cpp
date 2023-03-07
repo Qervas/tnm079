@@ -1,12 +1,12 @@
 #include <Fluid/FluidSolver.h>
 #include <gtx/norm.hpp>
 
-void FluidSolver::AddSolid(Implicit *impl) {
+void FluidSolver::AddSolid(Implicit* impl) {
     mSolids.insert(impl);
     std::cerr << "'" << impl->GetName() << "' added as a solid" << std::endl;
 }
 
-void FluidSolver::AddFluid(LevelSet *LS) {
+void FluidSolver::AddFluid(LevelSet* LS) {
     if (mFluids.find(LS) != mFluids.end()) {
         std::cerr << "'" << LS->GetName() << "' already added as a fluid" << std::endl;
         return;
@@ -73,8 +73,8 @@ int FluidSolver::Solve(float time) {
 
         // Compute current volume
         mCurrentVolume = 0.f;
-        std::set<LevelSet *>::const_iterator iter = mFluids.begin();
-        std::set<LevelSet *>::const_iterator iend = mFluids.end();
+        std::set<LevelSet*>::const_iterator iter = mFluids.begin();
+        std::set<LevelSet*>::const_iterator iend = mFluids.end();
         while (iter != iend) {
             mCurrentVolume += (*iter)->ComputeVolume((*iter)->GetDx());
             iter++;
@@ -303,8 +303,8 @@ void FluidSolver::VelocityExtension() {
     auto iterations = 0;
     auto narrowbandWidth = 0.f;
     auto dt = 0.7f;
-    std::set<LevelSet *>::const_iterator iter = mFluids.begin();
-    std::set<LevelSet *>::const_iterator iend = mFluids.end();
+    std::set<LevelSet*>::const_iterator iter = mFluids.begin();
+    std::set<LevelSet*>::const_iterator iend = mFluids.end();
     while (iter != iend) {
         iterations = std::max(iterations, (int)((*iter)->GetNarrowBandWidth() * 0.5f / dt));
         narrowbandWidth =

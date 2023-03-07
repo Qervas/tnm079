@@ -51,9 +51,7 @@ void QuadricDecimationMesh::updateVertexProperties(size_t ind) {
  * \param[in] indx vertex index, points into HalfEdgeMesh::mVerts
  */
 glm::mat4 QuadricDecimationMesh::createQuadricForVert(size_t indx) const {
-    glm::mat4 Q({0.0f, 0.0f, 0.0f, 0.0f},
-                {0.0f, 0.0f, 0.0f, 0.0f},
-                {0.0f, 0.0f, 0.0f, 0.0f},
+    glm::mat4 Q({0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},
                 {0.0f, 0.0f, 0.0f, 0.0f});
 
     // The quadric for a vertex is the sum of all the quadrics for the adjacent

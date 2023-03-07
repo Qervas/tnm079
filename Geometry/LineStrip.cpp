@@ -16,7 +16,7 @@
 #include <glm.hpp>
 #include <gtc/type_ptr.hpp>
 
-LineStrip::LineStrip(const std::vector<glm::vec3> &joints) : mJoints(joints) {
+LineStrip::LineStrip(const std::vector<glm::vec3>& joints) : mJoints(joints) {
     mJointColor = glm::vec3(1.f, 0.f, 0.f);
     mLineColor = glm::vec3(0.f, 0.f, 1.f);
     mLineWidth = 3.f;

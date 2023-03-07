@@ -23,8 +23,8 @@ Implicit::~Implicit() {
 void Implicit::Update() {
     if (mVisualizationMode == Curvature) {
         if (typeid(*mMesh) == typeid(SimpleMesh)) {
-            SimpleMesh *ptr = static_cast<SimpleMesh *>(mMesh);
-            std::vector<SimpleMesh::Vertex> &verts = ptr->GetVerts();
+            SimpleMesh* ptr = static_cast<SimpleMesh*>(mMesh);
+            std::vector<SimpleMesh::Vertex>& verts = ptr->GetVerts();
 
             glm::mat4 M = glm::transpose(GetTransform());
 
@@ -61,7 +61,7 @@ void Implicit::Update() {
 }
 
 void Implicit::Initialize() {
-    Geometry *mesh = dynamic_cast<Geometry *>(mMesh);
+    Geometry* mesh = dynamic_cast<Geometry*>(mMesh);
     if (mesh == NULL)
         std::cerr << "Error: implicit geometry not triangulated, add call to "
                      "triangulate()"
@@ -119,7 +119,7 @@ float Implicit::ComputeVolume(float dx) const {
         }
     }
 
-  return volume * static_cast<float>(std::pow(dx, 3.0));
+    return volume * static_cast<float>(std::pow(dx, 3.0));
 }
 
 Bbox Implicit::GetBoundingBox() const {
@@ -127,14 +127,14 @@ Bbox Implicit::GetBoundingBox() const {
     return mBox.Transform(GetTransform());
 }
 
-void Implicit::SetBoundingBox(const Bbox &b) { mBox = b.Transform(mWorld2Obj); }
+void Implicit::SetBoundingBox(const Bbox& b) { mBox = b.Transform(mWorld2Obj); }
 
-void Implicit::SetTransform(const glm::mat4 &transform) {
+void Implicit::SetTransform(const glm::mat4& transform) {
     Geometry::SetTransform(transform);
     mWorld2Obj = glm::inverse(GetTransform());
 }
 
-void Implicit::TransformW2O(float &x, float &y, float &z) const {
+void Implicit::TransformW2O(float& x, float& y, float& z) const {
     glm::vec4 vprim, v = glm::vec4(x, y, z, 1.f);
     vprim = mWorld2Obj * v;
     x = vprim[0];
@@ -146,8 +146,8 @@ void Implicit::Render() {
     // Draw bounding box for debugging
     Bbox b = GetBoundingBox();
 
-    glm::vec3 &v0 = b.pMin;
-    glm::vec3 &v1 = b.pMax;
+    glm::vec3& v0 = b.pMin;
+    glm::vec3& v1 = b.pMax;
 
     if (mSelected) {
         glLineWidth(2.f);
@@ -189,13 +189,12 @@ void Implicit::Render() {
     glPushMatrix();
     glMultMatrixf(glm::value_ptr(mTransform));
 
-    Geometry *mesh = dynamic_cast<Geometry *>(mMesh);
+    Geometry* mesh = dynamic_cast<Geometry*>(mMesh);
     if (mesh == NULL) {
         std::cerr << "Error: implicit geometry not triangulated, add call to "
                      "triangulate()"
                   << std::endl;
-    }
-    else {
+    } else {
         mesh->SetShowNormals(mShowNormals);
         mesh->SetWireframe(mWireframe);
         mesh->SetOpacity(mOpacity);
@@ -205,8 +204,8 @@ void Implicit::Render() {
 
     if (mVisualizationMode == Gradients) {
         if (typeid(*mMesh) == typeid(SimpleMesh)) {
-            SimpleMesh *ptr = static_cast<SimpleMesh *>(mMesh);
-            const std::vector<SimpleMesh::Vertex> &verts = ptr->GetVerts();
+            SimpleMesh* ptr = static_cast<SimpleMesh*>(mMesh);
+            const std::vector<SimpleMesh::Vertex>& verts = ptr->GetVerts();
 
             glDisable(GL_LIGHTING);
 
@@ -243,13 +242,13 @@ void Implicit::Render() {
     GLObject::Render();
 }
 
-void Implicit::SetVisualizationMode(const VisualizationMode &source) {
+void Implicit::SetVisualizationMode(const VisualizationMode& source) {
     Geometry::SetVisualizationMode(source);
     Update();
 }
 
-void Implicit::SetColorMap(ColorMap *colormap) {
-    Geometry *mesh = dynamic_cast<Geometry *>(mMesh);
+void Implicit::SetColorMap(ColorMap* colormap) {
+    Geometry* mesh = dynamic_cast<Geometry*>(mMesh);
     if (mesh != NULL) mesh->SetColorMap(colormap);
 
     Geometry::SetColorMap(colormap);

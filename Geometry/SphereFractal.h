@@ -19,9 +19,9 @@ public:
     virtual float GetValue(float x, float y, float z) const;
 
     //! Builds the fractal. Returns a pointer to an implicit geometry object.
-    Implicit *buildFractal();
+    Implicit* buildFractal();
 
 private:
-    std::vector<Implicit *> mSpheres;
-    Implicit *mFractal;
+    std::vector<Implicit*> mSpheres;
+    Implicit* mFractal;
 };

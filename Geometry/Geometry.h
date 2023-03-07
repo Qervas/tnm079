@@ -21,9 +21,7 @@ public:
     }
 
     //! Scale geometry
-    void Scale(float s) {
-        SetTransform(mTransform * glm::scale(glm::vec3{s, s, s}));
-    }
+    void Scale(float s) { SetTransform(mTransform * glm::scale(glm::vec3{s, s, s})); }
 
     //! Scale geometry
     void Scale(float x, float y, float z) {

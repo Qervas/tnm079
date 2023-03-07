@@ -38,15 +38,15 @@ public:
         friend class LevelSetGrid;
 
     protected:
-        const BitMask3D *mask;
+        const BitMask3D* mask;
         size_t i, j, k;
         size_t iMax, jMax, kMax;
         bool endState;
 
-        Iterator(const BitMask3D *mask, size_t i = 0, size_t j = 0, size_t k = 0);
+        Iterator(const BitMask3D* mask, size_t i = 0, size_t j = 0, size_t k = 0);
 
     public:
-        inline Iterator &operator++(int) {
+        inline Iterator& operator++(int) {
             endState = false;
             if (endState != true) {
                 do {
@@ -70,7 +70,7 @@ public:
             return *this;
         }
 
-        bool operator!=(const Iterator &b) const {
+        bool operator!=(const Iterator& b) const {
             return (this->i != b.i || this->j != b.j || this->k != b.k);
         }
 
@@ -97,13 +97,13 @@ public:
     glm::ivec3 GetDimensions();
 
     inline float GetValue(size_t i, size_t j, size_t k) const { return mPhi.GetValue(i, j, k); }
-    inline void SetValue(size_t  i, size_t j, size_t k, float f) {
+    inline void SetValue(size_t i, size_t j, size_t k, float f) {
         SetMask(i, j, k, true);
         mPhi.SetValue(i, j, k, f);
     }
 
-    inline bool GetMask(size_t  i, size_t  j, size_t  k) const { return mMask.GetValue(i, j, k); }
-    inline void SetMask(size_t  i, size_t j, size_t k, bool b) { mMask.SetValue(i, j, k, b); }
+    inline bool GetMask(size_t i, size_t j, size_t k) const { return mMask.GetValue(i, j, k); }
+    inline void SetMask(size_t i, size_t j, size_t k, bool b) { mMask.SetValue(i, j, k, b); }
 
     void SetInsideConstant(float insideConstant) { mInsideConstant = insideConstant; }
     inline const float GetInsideConstant() const { return mInsideConstant; }
@@ -117,7 +117,7 @@ public:
     //! Rebuild the narrow band by culling too large values from mask
     void Rebuild();
 
-    friend std::ostream &operator<<(std::ostream &os, const LevelSetGrid &grid) {
+    friend std::ostream& operator<<(std::ostream& os, const LevelSetGrid& grid) {
         os << "Grid dimensions: "
            << "(" << grid.GetDimX() << "x" << grid.GetDimY() << "x" << grid.GetDimZ() << ")"
            << std::endl;

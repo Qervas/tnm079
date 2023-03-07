@@ -16,8 +16,7 @@
 
 VectorCutPlane::VectorCutPlane(const std::string& name, float dx,
                                const Function3D<glm::vec3>* function)
-    : mDx(dx), mFunction(function)
-{
+    : mDx(dx), mFunction(function) {
     SetName(name);
     Update();
 }

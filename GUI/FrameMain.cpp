@@ -1466,15 +1466,9 @@ void FrameMain::PlaySimulation(wxCommandEvent& event) {
 
 void FrameMain::SaveSimulationFrames(wxCommandEvent& event) {
     wxString filename;
-    wxFileDialog* dialog = new wxFileDialog(
-        this,
-        _T("Save mesh sequence as"),
-        _T("."),
-        _T("fluid.obj"),
-        _T("OBJ (*.obj)|*.obj"),
-        wxFD_SAVE,
-        wxDefaultPosition
-    );
+    wxFileDialog* dialog =
+        new wxFileDialog(this, _T("Save mesh sequence as"), _T("."), _T("fluid.obj"),
+                         _T("OBJ (*.obj)|*.obj"), wxFD_SAVE, wxDefaultPosition);
 
     if (dialog->ShowModal() == wxID_OK) {
         filename = dialog->GetPath();

@@ -23,9 +23,9 @@ public:
         friend class HalfEdgeMesh;  // why friend?
     protected:
         // should not change what mesh the pointer points to, can change mesh though
-        HalfEdgeMesh const *mHem;
+        HalfEdgeMesh const* mHem;
         mutable size_t mIndex;
-        EdgeIterator(HalfEdgeMesh const *he, size_t index) {
+        EdgeIterator(HalfEdgeMesh const* he, size_t index) {
             mHem = he;
             // Guard against outside access
             assert(index < mHem->GetNumEdges());
@@ -33,42 +33,42 @@ public:
         }
 
     public:
-        EdgeIterator &Next() {
+        EdgeIterator& Next() {
             mIndex = mHem->e(mIndex).next;
             return *this;
         }
-        EdgeIterator &Prev() {
+        EdgeIterator& Prev() {
             mIndex = mHem->e(mIndex).prev;
             return *this;
         }
-        EdgeIterator &Pair() {
+        EdgeIterator& Pair() {
             mIndex = mHem->e(mIndex).pair;
             return *this;
         }
-        const EdgeIterator &Next() const {
+        const EdgeIterator& Next() const {
             mIndex = mHem->e(mIndex).next;
             return *this;
         }
-        const EdgeIterator &Prev() const {
+        const EdgeIterator& Prev() const {
             mIndex = mHem->e(mIndex).prev;
             return *this;
         }
-        const EdgeIterator &Pair() const {
+        const EdgeIterator& Pair() const {
             mIndex = mHem->e(mIndex).pair;
             return *this;
         }
         size_t GetEdgeIndex() const { return mIndex; }
         size_t GetEdgeVertexIndex() const { return mHem->e(mIndex).vert; }
         size_t GetEdgeFaceIndex() const { return mHem->e(mIndex).face; }
-        const bool operator==(const EdgeIterator &eit) { return this->mIndex == eit.mIndex; }
-        const bool operator!=(const EdgeIterator &eit) { return this->mIndex != eit.mIndex; }
+        const bool operator==(const EdgeIterator& eit) { return this->mIndex == eit.mIndex; }
+        const bool operator!=(const EdgeIterator& eit) { return this->mIndex != eit.mIndex; }
     };
 
     EdgeIterator GetEdgeIterator(size_t i) { return EdgeIterator(this, i); }
     const EdgeIterator GetEdgeIterator(size_t i) const { return EdgeIterator(this, i); }
 
     //! Adds a triangle to the mesh
-    virtual bool AddFace(const std::vector<glm::vec3> &verts);
+    virtual bool AddFace(const std::vector<glm::vec3>& verts);
 
     //! Calculates the area of the mesh
     virtual float Area() const;
@@ -100,7 +100,6 @@ public:
     virtual void Render() override;
 
 protected:
-
     enum EdgeState : size_t {
         Uninitialized = std::numeric_limits<size_t>::max() - 1,
         Border = std::numeric_limits<size_t>::max()
@@ -153,7 +152,7 @@ protected:
             p1 = std::min(i1, i2);
             p2 = std::max(i1, i2);
         }
-        bool operator<(const OrderedPair &rhs) const {
+        bool operator<(const OrderedPair& rhs) const {
             if (this->p1 < rhs.p1) {
                 return true;
             } else if (this->p1 == rhs.p1) {
@@ -168,7 +167,7 @@ protected:
     std::map<OrderedPair, size_t> mUniqueEdgePairs;
 
     //! Adds a vertex to the mesh
-    virtual size_t AddVertex(const glm::vec3 &v) override;
+    virtual size_t AddVertex(const glm::vec3& v) override;
 
     //! Adds a half edge pair, from vertex 1 to vertex 2, to the mesh
     std::pair<size_t, size_t> AddHalfEdgePair(size_t v1, size_t v2);
@@ -183,13 +182,13 @@ protected:
     virtual std::vector<size_t> FindNeighborVertices(size_t vertexIndex) const;
 
     //! Return the edge at index i
-    HalfEdge &e(size_t i) { return mEdges.at(i); }
-    const HalfEdge &e(size_t i) const { return mEdges.at(i); }
+    HalfEdge& e(size_t i) { return mEdges.at(i); }
+    const HalfEdge& e(size_t i) const { return mEdges.at(i); }
     //! Return the face at index i
-    Face &f(size_t i) { return mFaces.at(i); }
-    const Face &f(size_t i) const { return mFaces.at(i); }
+    Face& f(size_t i) { return mFaces.at(i); }
+    const Face& f(size_t i) const { return mFaces.at(i); }
     //! Return the Vertex at index i
-    Vertex &v(size_t i) { return mVerts.at(i); }
+    Vertex& v(size_t i) { return mVerts.at(i); }
     const Vertex v(size_t i) const { return mVerts.at(i); }
     //! Return number of vertices
     size_t GetNumVerts() const { return mVerts.size(); }
@@ -202,7 +201,7 @@ protected:
     virtual void Erode(float amount);
     virtual void Smooth(float amount);
 
-    virtual bool save(std::ostream &os) {
+    virtual bool save(std::ostream& os) {
         os << "# HalfEdgeMesh obj streamer\n# M&A 2008\n\n";
         os << "# Vertices\n";
         for (size_t i = 0; i < GetNumVerts(); i++) {

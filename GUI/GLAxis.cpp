@@ -1,7 +1,6 @@
 
 #include "GLAxis.h"
 
-
 void GLAxis::Render() {
     glPushMatrix();
 

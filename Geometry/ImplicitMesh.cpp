@@ -4,16 +4,16 @@
 #include <Util/ColorMap.h>
 
 //-----------------------------------------------------------------------------
-ImplicitMesh::ImplicitMesh(SimpleMesh *mesh) : mSourceMesh(mesh), mData(NULL) {
+ImplicitMesh::ImplicitMesh(SimpleMesh* mesh) : mSourceMesh(mesh), mData(NULL) {
     // Loop through all vertices in the mesh to determine the smallest
     // bounding box needed
-    glm::vec3 pMin((std::numeric_limits<float>::max)(), (std::numeric_limits<float>::max)(),
-                   (std::numeric_limits<float>::max)());
-    glm::vec3 pMax(-(std::numeric_limits<float>::max)(), -(std::numeric_limits<float>::max)(),
-                   -(std::numeric_limits<float>::max)());
-    const std::vector<SimpleMesh::Vertex> &verts = mSourceMesh->GetVerts();
+    glm::vec3 pMin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),
+                   std::numeric_limits<float>::max());
+    glm::vec3 pMax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(),
+                   -std::numeric_limits<float>::max());
+    const std::vector<SimpleMesh::Vertex>& verts = mSourceMesh->GetVerts();
     for (size_t i = 0; i < verts.size(); i++) {
-        const SimpleMesh::Vertex &v = verts.at(i);
+        const SimpleMesh::Vertex& v = verts.at(i);
         for (int j = 0; j < 3; j++) {
             if (pMin[j] > v.pos[j]) pMin[j] = v.pos[j];
             if (pMax[j] < v.pos[j]) pMax[j] = v.pos[j];
@@ -102,18 +102,18 @@ void ImplicitMesh::Initialize() {
     Implicit::Update();
 }
 
-float ImplicitMesh::DistanceToPoint(float x, float y, float z, const SimpleMesh &mesh) const {
+float ImplicitMesh::DistanceToPoint(float x, float y, float z, const SimpleMesh& mesh) const {
 
     // just loop over all faces and take the min distance.
     // uses normals to determine direction and resulting sign (negative inside)
     std::pair<float, bool> pr((std::numeric_limits<float>::max)(), true);
-    const std::vector<SimpleMesh::Vertex> &verts = mesh.GetVerts();
-    const std::vector<SimpleMesh::Face> &faces = mesh.GetFaces();
+    const std::vector<SimpleMesh::Vertex>& verts = mesh.GetVerts();
+    const std::vector<SimpleMesh::Face>& faces = mesh.GetFaces();
     glm::vec3 p(x, y, z);
     for (size_t i = 0; i < faces.size(); i++) {
-        const SimpleMesh::Vertex &v1 = verts.at(faces.at(i).v1);
-        const SimpleMesh::Vertex &v2 = verts.at(faces.at(i).v2);
-        const SimpleMesh::Vertex &v3 = verts.at(faces.at(i).v3);
+        const SimpleMesh::Vertex& v1 = verts.at(faces.at(i).v1);
+        const SimpleMesh::Vertex& v2 = verts.at(faces.at(i).v2);
+        const SimpleMesh::Vertex& v3 = verts.at(faces.at(i).v3);
 
         std::pair<float, bool> pt = DistanceSquared(p, v1.pos, v2.pos, v3.pos);
         if (pt.first < pr.first) pr = pt;
@@ -144,8 +144,8 @@ float ImplicitMesh::DistanceToPoint(float x, float y, float z, const SimpleMesh 
  * http://www.geometrictools.com/Documentation/DistancePoint3Triangle3.pdf
  Remember to use consistent orientation
 */
-std::pair<float, bool> ImplicitMesh::DistanceSquared(const glm::vec3 &p, const glm::vec3 &v1,
-                                                     const glm::vec3 &v2, const glm::vec3 &v3) {
+std::pair<float, bool> ImplicitMesh::DistanceSquared(const glm::vec3& p, const glm::vec3& v1,
+                                                     const glm::vec3& v2, const glm::vec3& v3) {
 
     glm::vec3 kDiff = v1 - p;
     glm::vec3 kEdge0 = v2 - v1;

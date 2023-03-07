@@ -20,10 +20,10 @@
 
 class ImplicitGradientField : public Function3D<glm::vec3> {
 protected:
-    const Implicit *mImplicit;
+    const Implicit* mImplicit;
 
 public:
-    ImplicitGradientField(const Implicit *implicit) : mImplicit(implicit){};
+    ImplicitGradientField(const Implicit* implicit) : mImplicit(implicit){};
     virtual ~ImplicitGradientField() {}
 
     //! Evaluate the function at x,y,z

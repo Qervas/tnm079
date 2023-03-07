@@ -29,7 +29,7 @@ protected:
     float mAlpha;
 
 public:
-    OperatorMeanCurvatureFlow(LevelSet *LS, float alpha = 0.9f)
+    OperatorMeanCurvatureFlow(LevelSet* LS, float alpha = 0.9f)
         : LevelSetOperator(LS), mAlpha(alpha) {}
 
     virtual float ComputeTimestep() {

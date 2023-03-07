@@ -21,7 +21,7 @@ protected:
     const Implicit* mTarget;
 
 public:
-    OperatorMorph(LevelSet *LS, const Implicit *target) : LevelSetOperator(LS), mTarget(target) {}
+    OperatorMorph(LevelSet* LS, const Implicit* target) : LevelSetOperator(LS), mTarget(target) {}
 
     virtual float ComputeTimestep() {
         // Compute and return a stable timestep
