@@ -35,32 +35,19 @@ public:
     std::string mName;
   };
 
-  GLObject() : mName("no-name") {
-    mHover = mSelected = false;
-    mWireframe = false;
-    mShowNormals = false;
-    mOpacity = 1;
-    mAutoMinMax = true;
-
-    std::list<std::string> colormaps = ColorMapFactory::GetColorMaps();
-    if (colormaps.size() > 0)
-      mColorMap = ColorMapFactory::New(colormaps.front());
-    else
-      mColorMap = NULL;
-  }
+  GLObject() : GLObject("no-name") {}
 
   GLObject(const std::string &name) : mName(name) {
     mHover = mSelected = false;
     mWireframe = false;
     mShowNormals = false;
-    mOpacity = 1;
+    mOpacity = 1.f;
     mAutoMinMax = true;
+    mMinCMap = 0.f;
+    mMaxCMap = 1.f;
 
     std::list<std::string> colormaps = ColorMapFactory::GetColorMaps();
-    if (colormaps.size() > 0)
-      mColorMap = ColorMapFactory::New(colormaps.front());
-    else
-      mColorMap = NULL;
+    mColorMap = (colormaps.size() > 0) ? ColorMapFactory::New(colormaps.front()) : NULL;
   }
 
   virtual ~GLObject() {}
@@ -112,15 +99,10 @@ public:
 protected:
   std::string mName;
   bool mHover, mSelected;
-
   ColorMap *mColorMap;
-
   VisualizationMode mVisualizationMode;
-
   float mOpacity;
-
   bool mWireframe;
-
   bool mShowNormals;
 
   void CheckGLError();
