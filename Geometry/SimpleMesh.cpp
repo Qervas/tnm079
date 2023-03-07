@@ -240,7 +240,6 @@ void SimpleMesh::Initialize() {
 
 //-----------------------------------------------------------------------------
 void SimpleMesh::Update() {
-
     // Update vertex and face colors
     if (mVisualizationMode == CurvatureVertex) {
         std::vector<Vertex>::iterator iter = mVerts.begin();
@@ -252,7 +251,7 @@ void SimpleMesh::Update() {
             if (maxCurvature < iter->curvature) maxCurvature = iter->curvature;
             iter++;
         }
-        if (mAutoMinMax == false) {
+        if (!mAutoMinMax) {
             std::cerr << "Mapping color based on vertex curvature with range [" << mMinCMap << ","
                       << mMaxCMap << "]" << std::endl;
             minCurvature = mMinCMap;
@@ -353,7 +352,9 @@ void SimpleMesh::Render() {
     // Load transform into modelview matrix
     glMultMatrixf(glm::value_ptr(mTransform));
 
-    if (mWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (mWireframe) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
 
     // Draw geometry
     glBegin(GL_TRIANGLES);

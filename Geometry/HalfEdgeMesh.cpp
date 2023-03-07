@@ -295,8 +295,8 @@ void HalfEdgeMesh::Update() {
     if (mVisualizationMode == CurvatureVertex) {
         std::vector<Vertex>::iterator iter = mVerts.begin();
         std::vector<Vertex>::iterator iend = mVerts.end();
-        float minCurvature = (std::numeric_limits<float>::max)();
-        float maxCurvature = -(std::numeric_limits<float>::max)();
+        float minCurvature = std::numeric_limits<float>::max();
+        float maxCurvature = -std::numeric_limits<float>::max();
         while (iter != iend) {
             if (minCurvature > (*iter).curvature) minCurvature = (*iter).curvature;
             if (maxCurvature < (*iter).curvature) maxCurvature = (*iter).curvature;
