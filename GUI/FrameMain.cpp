@@ -272,7 +272,7 @@ void FrameMain::SetColormap(wxCommandEvent& event) {
     std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
     std::list<GLObject*>::iterator iter = objects.begin();
     std::list<GLObject*>::iterator iend = objects.end();
-    while (iter != iend) {
+    while (map != NULL && iter != iend) {
         (*iter)->mAutoMinMax = mAutoMinMax->IsChecked();
         double tmp1 = 0;
         mMin->GetValue().ToDouble(&tmp1);
@@ -285,7 +285,10 @@ void FrameMain::SetColormap(wxCommandEvent& event) {
         iter++;
     }
 
+    // Reset color map item view, as it does not update between objects
+    // This is a bit ugly, but works..
     mColorMapChoice->SetSelection(0);
+
     mGLViewer->Render();
 
     /*
