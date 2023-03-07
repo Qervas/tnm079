@@ -38,17 +38,19 @@ sudo apt-get install libwxgtk3.0-dev
 ```
 
 ## Getting the code
-The source code for the application can be downloaded as zip [here](https://gitlab.itn.liu.se/TNM079/tnm079-student/repository/master/archive.zip) or you can clone the [repo](https://gitlab.itn.liu.se/TNM079/tnm079-student.git).
+The source code for the application can either be cloned using git or downloaded as zip from this [repository](https://gitlab.liu.se/MIT/tnm079/tnm079-code).
 
 Note that
 * if you want to fork/clone the repo, you will have to create an account on ITNs Gitlab server using your student credentials.
-* it would be best if you work on your student network drive and not on the local one.
+* it would be best if you work on your student network drive and not on the local one. However, workin on the network drive does slow down the performance compared to on the local disk. 
+
+Data sets are available in a separate [repository](https://gitlab.liu.se/MIT/tnm079/tnm079-data).
 
 ## Compiling the code
 In the following, we will shortly describe how to compile the code on different platforms.
 
 #### Windows
-We will use CMake to create the project files for Visual Studio. If you do not have CMake installed, this is the first thing you will need to do. Start it and set the source code directory (first field on the top) to where you have unzipped the source code or cloned the repo, respectively, e.g. ```I:/tnm079/tnm079-student```. Subsequently, set the build directory (second field on the top) to something like ```I:/tnm079/build/```. Hit ```Configure```. A window will pop up, asking you what kind of project file you wish to generate. Please check, which version of Visual Studio is installed. Press ```Finish```. If an error persists and you don't know how to fix it feel free to ask the lab assistant. After the configuration step terminated successfully you can hit ```Generate``` and open the generated solution.
+We will use CMake to create the project files for Visual Studio. If you do not have CMake installed, this is the first thing you will need to do. Start it and set the source code directory (first field on the top) to where you have unzipped the source code or cloned the repo, respectively, e.g. ```I:/tnm079/tnm079-code```. Subsequently, set the build directory (second field on the top) to something like ```I:/tnm079/build/```. Hit ```Configure```. A window will pop up, asking you what kind of project file you wish to generate. Please check, which version of Visual Studio is installed. Press ```Finish```. If an error persists and you don't know how to fix it feel free to ask the lab assistant. After the configuration step terminated successfully you can hit ```Generate``` and open the generated solution.
 
 ##### Compilation targets in Visual Studio
 You can compile the code in ```Debug```, ```Release```, or ```RelWithDebInfo``` (Release with debug information) mode. You can change this in the top toolbar. There is a dropdown menu that is per default set to ```Debug```. While you are working on the solution it might be advisable to use ```Debug``` or ```RelWithDebInfo``` so you can (you guessed it) debug the code, use breakpoints, etc. When you are done, you can switch to ```Release```. This has the effect that the application will run significantly faster.
