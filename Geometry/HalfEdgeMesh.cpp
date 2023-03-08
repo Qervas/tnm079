@@ -370,37 +370,25 @@ size_t HalfEdgeMesh::Genus() const {
 }
 
 void HalfEdgeMesh::Dilate(float amount) {
-    std::vector<Vertex>::iterator iter = mVerts.begin();
-    std::vector<Vertex>::iterator iend = mVerts.end();
-    while (iter != iend) {
-        (*iter).pos += amount * (*iter).normal;
-        iter++;
+    for (Vertex& v : mVerts) {
+        v.pos += amount * v.normal;
     }
-
     Initialize();
     Update();
 }
 
 void HalfEdgeMesh::Erode(float amount) {
-    std::vector<Vertex>::iterator iter = mVerts.begin();
-    std::vector<Vertex>::iterator iend = mVerts.end();
-    while (iter != iend) {
-        (*iter).pos -= amount * (*iter).normal;
-        iter++;
+    for (Vertex& v : mVerts) {
+        v.pos -= amount * v.normal;
     }
-
     Initialize();
     Update();
 }
 
 void HalfEdgeMesh::Smooth(float amount) {
-    std::vector<Vertex>::iterator iter = mVerts.begin();
-    std::vector<Vertex>::iterator iend = mVerts.end();
-    while (iter != iend) {
-        (*iter).pos -= amount * (*iter).normal * (*iter).curvature;
-        iter++;
+    for (Vertex& v : mVerts) {
+        v.pos -= amount * v.normal * v.curvature;
     }
-
     Initialize();
     Update();
 }

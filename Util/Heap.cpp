@@ -73,6 +73,7 @@ void Heap::print(std::ostream& os) {
         os << (*iter)->cost << "(" << (*iter)->position << ") ";
         ++iter;
     }
+
     os << std::endl;
 }
 

@@ -509,17 +509,14 @@ void DecimationMesh::Render() {
     if (mVisualizationMode == CollapseCost) {
         float minCost = std::numeric_limits<float>::max();
         float maxCost = -std::numeric_limits<float>::max();
-        std::vector<HalfEdge>::const_iterator iter = mEdges.begin();
-        std::vector<HalfEdge>::const_iterator iend = mEdges.end();
-        while (iter != iend) {
+        for (auto iter = mEdges.begin(); iter != mEdges.end(); iter++) {
             EdgeCollapse* collapse = mHalfEdge2EdgeCollapse.at(iter - mEdges.begin());
             if (collapse != NULL) {
                 if (minCost > collapse->cost) minCost = collapse->cost;
                 if (maxCost < collapse->cost) maxCost = collapse->cost;
             }
-
-            iter++;
         }
+
         std::cout << "Colormapping collapse cost with range: [" << minCost << "," << maxCost << "]"
                   << std::endl;
 
@@ -529,8 +526,7 @@ void DecimationMesh::Render() {
         glDisable(GL_LIGHTING);
         glEnable(GL_LINE_SMOOTH);
         glBegin(GL_LINES);
-        iter = mEdges.begin();
-        while (iter != iend) {
+        for (auto iter = mEdges.begin(); iter != mEdges.end(); iter++) {
             size_t ind = iter - mEdges.begin();
             if (!isEdgeCollapsed(ind)) {
                 const Vertex& v1 = v(e(ind).vert);
@@ -546,8 +542,6 @@ void DecimationMesh::Render() {
                 glVertex3fv(glm::value_ptr(v1.pos));
                 glVertex3fv(glm::value_ptr(v2.pos));
             }
-
-            iter++;
         }
         glEnd();
         glLineWidth(lineWidth);
