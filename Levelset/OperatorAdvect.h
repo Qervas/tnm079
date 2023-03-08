@@ -15,16 +15,16 @@
 //! \lab4 Implement advection in external vector field
 class OperatorAdvect : public LevelSetOperator {
 protected:
-    Function3D<glm::vec3> *mVectorField;
+    Function3D<glm::vec3>* mVectorField;
 
 public:
-    OperatorAdvect(LevelSet *LS, Function3D<glm::vec3> *vf)
+    OperatorAdvect(LevelSet* LS, Function3D<glm::vec3>* vf)
         : LevelSetOperator(LS), mVectorField(vf) {}
 
     virtual float ComputeTimestep() {
         // Compute and return a stable timestep
         // (Hint: Function3D::GetMaxValue())
-        return 1;
+        return 1.f;
     }
 
     virtual void Propagate(float time) {
@@ -33,8 +33,10 @@ public:
 
         // Propagate level set with stable timestep dt
         // until requested time is reached
-        for (float elapsed = 0; elapsed < time;) {
-            if (dt > time - elapsed) dt = time - elapsed;
+        for (float elapsed = 0.f; elapsed < time;) {
+            if (dt > time - elapsed) {
+                dt = time - elapsed;
+            }
             elapsed += dt;
 
             IntegrateEuler(dt);
@@ -49,6 +51,6 @@ public:
         // the velocity field used for advection needs to be sampled in
         // world coordinates (x,y,z). You can use LevelSet::TransformGridToWorld()
         // for this task.
-        return 0;
+        return 0.f;
     }
 };

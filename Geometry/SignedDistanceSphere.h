@@ -20,12 +20,12 @@
 /*!  \brief Sphere base class */
 class SignedDistanceSphere : public Implicit {
 public:
-  SignedDistanceSphere(float r);
-  virtual ~SignedDistanceSphere();
-  virtual float getValue(float x, float y, float z) const;
+    SignedDistanceSphere(float r);
+    virtual ~SignedDistanceSphere();
+    virtual float getValue(float x, float y, float z) const;
 
 protected:
-  float radius;
+    float radius;
 };
 
 #endif

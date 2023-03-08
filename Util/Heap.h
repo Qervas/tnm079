@@ -18,45 +18,41 @@
 
 class Heap {
 public:
-  Heap();
-  ~Heap();
+    Heap();
+    ~Heap();
 
-  struct Heapable {
-    Heapable() : cost(0), position((std::numeric_limits<size_t>::max)()) {}
-    Heapable(float val)
-        : cost(val), position((std::numeric_limits<size_t>::max)()) {}
+    struct Heapable {
+        Heapable() : cost(0), position((std::numeric_limits<size_t>::max)()) {}
+        Heapable(float val) : cost(val), position((std::numeric_limits<size_t>::max)()) {}
 
-    float cost;
-    size_t position;
+        float cost;
+        size_t position;
 
-    bool operator<(const Heapable &h) const { return this->cost < h.cost; }
-  };
+        bool operator<(const Heapable& h) const { return this->cost < h.cost; }
+    };
 
-  void push(Heapable *h);
+    void push(Heapable* h);
 
-  Heapable *peek();
+    Heapable* peek();
+    Heapable* pop();
+    Heapable* remove(Heapable* h);
 
-  Heapable *pop();
+    inline size_t size() { return mNodes.size() - 1; }
+    inline bool isEmpty() { return size() == 0; }
 
-  Heapable *remove(Heapable *h);
+    void update(Heapable* h);
 
-  inline size_t size() { return mNodes.size() - 1; }
-
-  inline bool isEmpty() { return size() == 0; }
-
-  void update(Heapable *h);
-
-  void print(std::ostream &os);
+    void print(std::ostream& os);
 
 protected:
-  inline size_t parent(size_t i) { return i / 2; }
-  inline size_t leftChild(size_t i) { return 2 * i; }
-  inline size_t rightChild(size_t i) { return 2 * i + 1; }
+    inline size_t parent(size_t i) { return i / 2; }
+    inline size_t leftChild(size_t i) { return 2 * i; }
+    inline size_t rightChild(size_t i) { return 2 * i + 1; }
 
-  void percolateUp(size_t hole);
-  void percolateDown(size_t hole);
+    void percolateUp(size_t hole);
+    void percolateDown(size_t hole);
 
-  std::vector<Heapable *> mNodes;
+    std::vector<Heapable*> mNodes;
 };
 
 #endif

@@ -7,19 +7,19 @@
 
 class GLAxis : public GLObject {
 public:
-  GLAxis(const std::string &name) : GLObject(name) {
-    mAxisPicked[0] = mAxisPicked[1] = mAxisPicked[2] = false;
-  }
-  virtual ~GLAxis() {}
+    GLAxis(const std::string& name) : GLObject(name) {
+        mAxisPicked[0] = mAxisPicked[1] = mAxisPicked[2] = false;
+    }
+    virtual ~GLAxis() {}
 
-  virtual const char *GetTypeName() { return typeid(GLAxis).name(); }
+    virtual const char* GetTypeName() { return typeid(GLAxis).name(); }
 
-  virtual void Render();
+    virtual void Render();
 
-  virtual void PickChildren(GLuint *objects, int numberOfObjects);
+    virtual void PickChildren(GLuint* objects, int numberOfObjects);
 
 protected:
-  bool mAxisPicked[3];
+    bool mAxisPicked[3];
 };
 
 #endif

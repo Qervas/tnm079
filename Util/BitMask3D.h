@@ -16,7 +16,7 @@
 #include <vector>
 /*!
  * A 3D bit mask with a boolean value denoting true or false for each i,j,k.
- *  Uses stl's vector<bool> which is specialized to pack data and use one bit
+ * Uses stl's vector<bool> which is specialized to pack data and use one bit
  * per bool.
  */
 class BitMask3D {
@@ -48,15 +48,15 @@ public:
         i = glm::clamp(i, size_t{0}, mDimX - 1);
         j = glm::clamp(j, size_t{0}, mDimY - 1);
         k = glm::clamp(k, size_t{0}, mDimZ - 1);
-        return mData.at(i * premult + j * mDimZ +
-                        k);  // .at() does bound checking, throws exception
-        // return mData[i*premult + j*mDimZ + k]; // op [] does no bound checking
+        return mData.at(i * premult + j * mDimZ + k);  // .at() does bound checking, throws exception
+                                                       // (op [] does no bound checking)
     }
     //! Sets the value at i,j,k to val
     void SetValue(size_t i, size_t j, size_t k, bool val) {
         assert(i < mDimX && i >= 0 && j < mDimY && j >= 0 && k < mDimZ && k >= 0);
         mData.at(i * premult + j * mDimZ + k) = val;  // .at() does bound checking, throws exception
-                                                      // mData[i*premult + j*mDimZ + k] = val;
+                                                      // (op [] does no bound checking)
+
     }
 };
 

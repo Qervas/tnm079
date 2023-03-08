@@ -15,22 +15,20 @@
 #include <Geometry/Mesh.h>
 #include <iostream>
 
-const Mesh::VisualizationMode Mesh::CurvatureVertex =
-    NewVisualizationMode("Vertex curvature");
-const Mesh::VisualizationMode Mesh::CurvatureFace =
-    NewVisualizationMode("Face curvature");
+const Mesh::VisualizationMode Mesh::CurvatureVertex = NewVisualizationMode("Vertex curvature");
+const Mesh::VisualizationMode Mesh::CurvatureFace = NewVisualizationMode("Face curvature");
 
 float Mesh::Area() const {
-  std::cerr << "Error: area() not implemented for this Mesh" << std::endl;
-  return -1;
+    std::cerr << "Error: area() not implemented for this Mesh" << std::endl;
+    return -1;
 }
 
 float Mesh::Volume() const {
-  std::cerr << "Error: volume() not implemented for this Mesh" << std::endl;
-  return -1;
+    std::cerr << "Error: volume() not implemented for this Mesh" << std::endl;
+    return -1;
 }
 
 size_t Mesh::Genus() const {
-  std::cerr << "Error: genus() not implemented for this Mesh" << std::endl;
-  return -1;
+    std::cerr << "Error: genus() not implemented for this Mesh" << std::endl;
+    return -1;
 }

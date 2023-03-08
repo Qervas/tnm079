@@ -16,10 +16,10 @@
 
 class HotColorMap : public ColorMap {
 public:
-  HotColorMap();
+    HotColorMap();
 
 protected:
-  static ColorMapFactory::FactoryRegistration mFactoryRegistration;
+    static ColorMapFactory::FactoryRegistration mFactoryRegistration;
 };
 
 #endif

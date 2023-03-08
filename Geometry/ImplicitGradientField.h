@@ -20,10 +20,10 @@
 
 class ImplicitGradientField : public Function3D<glm::vec3> {
 protected:
-    const Implicit *mImplicit;
+    const Implicit* mImplicit;
 
 public:
-    ImplicitGradientField(const Implicit *implicit) : mImplicit(implicit){};
+    ImplicitGradientField(const Implicit* implicit) : mImplicit(implicit){};
     virtual ~ImplicitGradientField() {}
 
     //! Evaluate the function at x,y,z
@@ -32,7 +32,7 @@ public:
     }
 
     //! Return a bound on the maximum value of the function
-    virtual glm::vec3 GetMaxValue() const { return glm::vec3(1.0f, 1.0f, 1.0f); }
+    virtual glm::vec3 GetMaxValue() const { return glm::vec3(1.f, 1.f, 1.f); }
 };
 
 #endif

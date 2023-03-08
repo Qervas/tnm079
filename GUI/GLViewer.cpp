@@ -35,31 +35,30 @@ EVT_ERASE_BACKGROUND(GLViewer::OnEraseBackground)
 EVT_KEY_DOWN(GLViewer::KeyPressed)
 END_EVENT_TABLE()
 
-bool CompareOpacity(const GLObject *obj1, const GLObject *obj2) {
+bool CompareOpacity(const GLObject* obj1, const GLObject* obj2) {
     return obj1->GetOpacity() > obj2->GetOpacity();
 }
 
-GLViewer::GLViewer(wxWindow *parent, int *args)
+GLViewer::GLViewer(wxWindow* parent, int* args)
     : wxGLCanvas(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"), args)
     , mIsInitialized(false) {
     mCamera.MoveForward(-3.0);
 }
 
 void GLViewer::InitGL() {
-
     std::cout << "OpenGL version " << glGetString(GL_VERSION) << std::endl;
     std::cout << "OpenGL vendor " << glGetString(GL_VENDOR) << std::endl;
     SetupView();
 
     // Setup OpenGL environment
-    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-    glClearDepth(1.0f);
+    glClearColor(0.5f, 0.5f, 0.5f, 1.f);
+    glClearDepth(1.f);
 
-    GLfloat matSpecular[] = {1.0f, 1.0f, 1.0f, 1.0f};
-    GLfloat matShininess[] = {50.0f};
-    GLfloat lightPosition[] = {1.0f, 1.0f, 1.0f, 1.0f};
-    GLfloat whiteLight[] = {1.0f, 1.0f, 1.0f, 1.0f};
-    GLfloat lightModelAmbient[] = {0.1f, 0.1f, 0.1f, 1.0f};
+    GLfloat matSpecular[] = {1.f, 1.f, 1.f, 1.f};
+    GLfloat matShininess[] = {50.f};
+    GLfloat lightPosition[] = {1.f, 1.f, 1.f, 1.f};
+    GLfloat whiteLight[] = {1.f, 1.f, 1.f, 1.f};
+    GLfloat lightModelAmbient[] = {0.1f, 0.1f, 0.1f, 1.f};
     glShadeModel(GL_SMOOTH);
 
     // glMaterialfv(GL_FRONT, GL_SPECULAR, matSpecular);
@@ -93,11 +92,11 @@ void GLViewer::SetupView() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     GLfloat ratio = (GLfloat)GetWidth() / (GLfloat)GetHeight();
-    gluPerspective(45.0, ratio, 0.1, 200);
+    gluPerspective(45.0, ratio, 0.1, 200.0);
     glViewport(0, 0, GetWidth(), GetHeight());
 }
 
-void GLViewer::Resized(wxSizeEvent &evt) {
+void GLViewer::Resized(wxSizeEvent& evt) {
     wxGLCanvas::OnSize(evt);
 
     if (!IsShownOnScreen()) return;
@@ -109,7 +108,7 @@ int GLViewer::GetWidth() { return GetSize().x; }
 
 int GLViewer::GetHeight() { return GetSize().y; }
 
-void GLViewer::OnPaint(wxPaintEvent &event) { Render(); }
+void GLViewer::OnPaint(wxPaintEvent& event) { Render(); }
 
 void GLViewer::Render(bool swapBuffers) {
     if (!IsShownOnScreen()) return;
@@ -130,8 +129,8 @@ void GLViewer::Render(bool swapBuffers) {
 
     // Sort the objects to get descent opacity rendering
     mObjects.sort(CompareOpacity);
-    std::list<GLObject *>::iterator iter = mObjects.begin();
-    std::list<GLObject *>::iterator iend = mObjects.end();
+    std::list<GLObject*>::iterator iter = mObjects.begin();
+    std::list<GLObject*>::iterator iend = mObjects.end();
     GLuint ID = 0;
     while (iter != iend) {
         if ((*iter)->GetOpacity() > 0) {
@@ -147,7 +146,7 @@ void GLViewer::Render(bool swapBuffers) {
     if (swapBuffers) SwapBuffers();
 }
 
-void GLViewer::ScreenCapture(const std::string &filename, float magnification) {
+void GLViewer::ScreenCapture(const std::string& filename, float magnification) {
     if (!IsShownOnScreen()) return;
     SetCurrent();
 
@@ -167,9 +166,9 @@ void GLViewer::ScreenCapture(const std::string &filename, float magnification) {
     SetupView();
 }
 
-bool GLViewer::AddObject(GLObject *object) {
-    std::list<GLObject *>::iterator iter = mObjects.begin();
-    std::list<GLObject *>::iterator iend = mObjects.end();
+bool GLViewer::AddObject(GLObject* object) {
+    std::list<GLObject*>::iterator iter = mObjects.begin();
+    std::list<GLObject*>::iterator iend = mObjects.end();
     while (iter != iend) {
         if ((*iter)->GetName() == object->GetName()) {
             std::cerr << "Error: GLObject '" << object->GetName() << " already added to scene"
@@ -185,33 +184,35 @@ bool GLViewer::AddObject(GLObject *object) {
     return true;
 }
 
-GLObject *GLViewer::GetObject(const std::string &name) {
-    std::list<GLObject *>::iterator iter = mObjects.begin();
-    std::list<GLObject *>::iterator iend = mObjects.end();
+GLObject* GLViewer::GetObject(const std::string& name) {
+    std::list<GLObject*>::iterator iter = mObjects.begin();
+    std::list<GLObject*>::iterator iend = mObjects.end();
     while (iter != iend) {
-        if ((*iter)->GetName() == name) return (*iter);
+        if ((*iter)->GetName() == name) {
+            return (*iter);
+        }
         ++iter;
     }
 
     return NULL;
 }
 
-GLObject *GLViewer::GetObject(size_t i) {
+GLObject* GLViewer::GetObject(size_t i) {
     if (i >= mObjects.size()) return NULL;
 
-    std::list<GLObject *>::iterator iter = mObjects.begin();
+    std::list<GLObject*>::iterator iter = mObjects.begin();
     for (size_t j = 0; j < i; j++) ++iter;
 
     return (*iter);
 }
 
-std::list<GLObject *> GLViewer::GetObjects() { return mObjects; }
+std::list<GLObject*> GLViewer::GetObjects() { return mObjects; }
 
-GLObject *GLViewer::RemoveObject(const std::string &name) {
-    std::list<GLObject *>::iterator iter = mObjects.begin();
-    std::list<GLObject *>::iterator iend = mObjects.end();
+GLObject* GLViewer::RemoveObject(const std::string& name) {
+    std::list<GLObject*>::iterator iter = mObjects.begin();
+    std::list<GLObject*>::iterator iend = mObjects.end();
     while (iter != iend) {
-        GLObject *object = *iter;
+        GLObject* object = *iter;
         if (object->GetName() == name) {
             mObjects.erase(iter);
             return object;
@@ -222,24 +223,24 @@ GLObject *GLViewer::RemoveObject(const std::string &name) {
     return NULL;
 }
 
-GLObject *GLViewer::RemoveObject(size_t i) {
+GLObject* GLViewer::RemoveObject(size_t i) {
     if (i >= mObjects.size()) return NULL;
 
-    std::list<GLObject *>::iterator iter = mObjects.begin();
-    for (size_t j = 0; j < i; j++) ++iter;
+    std::list<GLObject*>::iterator iter = mObjects.begin();
+    for (size_t j = 0; j < i; j++) ++iter;  // TODO: use std::advance or iter + steps
 
-    GLObject *object = *iter;
+    GLObject* object = *iter;
     mObjects.erase(iter);
     return object;
 }
 
-void GLViewer::MoveObject(const std::string &name, int shift) {
-    std::list<GLObject *>::iterator iter = mObjects.begin();
-    std::list<GLObject *>::iterator iend = mObjects.end();
+void GLViewer::MoveObject(const std::string& name, int shift) {
+    std::list<GLObject*>::iterator iter = mObjects.begin();
+    std::list<GLObject*>::iterator iend = mObjects.end();
     while (iter != iend) {
-        GLObject *object = *iter;
+        GLObject* object = *iter;
         if (object->GetName() == name) {
-            std::list<GLObject *>::iterator iter2 = iter;
+            std::list<GLObject*>::iterator iter2 = iter;
             while (iter2 != iend && shift > 0) {
                 iter2++;
                 shift--;
@@ -249,7 +250,9 @@ void GLViewer::MoveObject(const std::string &name, int shift) {
                 shift++;
             }
 
-            if (iter2 != iend) std::swap(*iter, *iter2);
+            if (iter2 != iend) {
+                std::swap(*iter, *iter2);
+            }
 
             return;
         }
@@ -257,19 +260,21 @@ void GLViewer::MoveObject(const std::string &name, int shift) {
     }
 }
 
-void GLViewer::ReplaceObject(GLObject *oldObject, GLObject *newObject) {
-    std::list<GLObject *>::iterator iter = std::find(mObjects.begin(), mObjects.end(), oldObject);
-    if (iter == mObjects.end()) return;
+void GLViewer::ReplaceObject(GLObject* oldObject, GLObject* newObject) {
+    std::list<GLObject*>::iterator iter = std::find(mObjects.begin(), mObjects.end(), oldObject);
+    if (iter == mObjects.end()) {
+        return;
+    }
 
     mObjects.insert(iter, newObject);
     mObjects.erase(iter);
 }
 
-std::list<GLObject *> GLViewer::GetSelectedObjects() {
-    std::list<GLObject *> selected;
+std::list<GLObject*> GLViewer::GetSelectedObjects() {
+    std::list<GLObject*> selected;
 
-    std::list<GLObject *>::iterator iter = mObjects.begin();
-    std::list<GLObject *>::iterator iend = mObjects.end();
+    std::list<GLObject*>::iterator iter = mObjects.begin();
+    std::list<GLObject*>::iterator iend = mObjects.end();
     while (iter != iend) {
         if ((*iter)->IsSelected()) {
             selected.push_back(*iter);
@@ -281,25 +286,25 @@ std::list<GLObject *> GLViewer::GetSelectedObjects() {
 }
 
 void GLViewer::DeselectAllObjects() {
-    std::list<GLObject *>::iterator iter = mObjects.begin();
-    std::list<GLObject *>::iterator iend = mObjects.end();
+    std::list<GLObject*>::iterator iter = mObjects.begin();
+    std::list<GLObject*>::iterator iend = mObjects.end();
     while (iter != iend) {
         (*iter)->DeSelect();
         ++iter;
     }
 }
 
-void GLViewer::DeselectObject(const std::string &name) {
+void GLViewer::DeselectObject(const std::string& name) {
     std::cerr << "Deselecting '" << name << "'..." << std::endl;
-    GLObject *object = GetObject(name);
+    GLObject* object = GetObject(name);
     if (object == NULL) return;
 
     object->DeSelect();
 }
 
-void GLViewer::SelectObject(const std::string &name) {
+void GLViewer::SelectObject(const std::string& name) {
     std::cerr << "Selecting '" << name << "'..." << std::endl;
-    GLObject *object = GetObject(name);
+    GLObject* object = GetObject(name);
     if (object == NULL) return;
 
     object->Select();
@@ -309,7 +314,7 @@ void GLViewer::SelectObject(const std::string &name) {
     wxPostEvent(GetParent(), event);
 }
 
-GLObject *GLViewer::PickObject(long x, long y) {
+GLObject* GLViewer::PickObject(long x, long y) {
     if (!IsShownOnScreen()) return NULL;
     SetCurrent();
 
@@ -335,8 +340,8 @@ GLObject *GLViewer::PickObject(long x, long y) {
     glLoadIdentity();
 
     // Focus on the region around the cursor
-    gluPickMatrix(x, GetHeight() - y, 4.0, 4.0,
-                  viewport);  // x, y, width, height is the picking area
+    // x, y, width, height is the picking area
+    gluPickMatrix(x, GetHeight() - y, 4.0, 4.0, viewport);
 
     // Load the projection matrix
     glMultMatrixf(projection);
@@ -354,7 +359,7 @@ GLObject *GLViewer::PickObject(long x, long y) {
 
     // std::cerr << "Number of hits: " << hits << std::endl;
 
-    GLuint minDepth = (std::numeric_limits<GLuint>::max)();
+    GLuint minDepth = std::numeric_limits<GLuint>::max();
     int i = 0;
     int pickedObject = -1;
     for (GLuint hit = 0; hit < (GLuint)hits; hit++) {
@@ -370,14 +375,16 @@ GLObject *GLViewer::PickObject(long x, long y) {
         i += stackSize;  // proceed to next hit
     }
 
-    if (pickedObject == -1) return NULL;
+    if (pickedObject == -1) {
+        return NULL;
+    }
 
-    GLObject *object = GetObject(mSelectBuffer[pickedObject]);
+    GLObject* object = GetObject(mSelectBuffer[pickedObject]);
     object->PickChildren(mSelectBuffer + pickedObject + 1, mSelectBuffer[pickedObject - 3] - 1);
     return object;
 }
 
-void GLViewer::MouseMoved(wxMouseEvent &event) {
+void GLViewer::MouseMoved(wxMouseEvent& event) {
     SetFocus();
     long x = event.GetX();
     long y = event.GetY();
@@ -400,76 +407,77 @@ void GLViewer::MouseMoved(wxMouseEvent &event) {
             auto forward = mCamera.GetLookAtVector();
             auto up = mCamera.GetUpVector();
 
-            auto halfWidth = GetWidth() / 2.0f;
+            auto halfWidth = GetWidth() / 2.f;
             auto ratioX = (x - halfWidth) / halfWidth;
             auto blendX = std::abs(ratioX);
 
-            auto halfHeight = GetHeight() / 2.0f;
+            auto halfHeight = GetHeight() / 2.f;
             auto ratioY = (y - halfHeight) / halfHeight;
             auto blendY = std::abs(ratioY);
 
-            mCamera.RotateX(diffY * (1.0f - blendX));
+            mCamera.RotateX(diffY * (1.f - blendX));
             mCamera.RotateZ(-diffY * ratioX);
 
-            mCamera.RotateY(diffX * (1.0f - blendY));
+            mCamera.RotateY(diffX * (1.f - blendY));
             mCamera.RotateZ(diffX * ratioY);
 
-            mCamera.QuatRotate((mMousePrevious[0] / halfWidth) - 1.0f,
-                               1.0f - (mMousePrevious[1] / halfHeight), (x / halfWidth) - 1.0f,
-                               1.0f - (y / halfHeight));
+            mCamera.QuatRotate((mMousePrevious[0] / halfWidth) - 1.f,
+                               1.f - (mMousePrevious[1] / halfHeight), (x / halfWidth) - 1.f,
+                               1.f - (y / halfHeight));
 
             mMousePrevious[0] = x;
             mMousePrevious[1] = y;
             // std::cout << "rot" << std::endl;
         }
     } else if (event.RightIsDown()) {
-
         mCamera.MoveRight(-diffX * 0.01f);
         mCamera.MoveUpward(diffY * 0.01f);
 
         mMousePrevious[0] = x;
         mMousePrevious[1] = y;
-    } else {
 
-        std::list<GLObject *>::iterator iter = mObjects.begin();
-        std::list<GLObject *>::iterator iend = mObjects.end();
+    } else {
+        std::list<GLObject*>::iterator iter = mObjects.begin();
+        std::list<GLObject*>::iterator iend = mObjects.end();
         while (iter != iend) {
             (*iter)->UnHover();
             ++iter;
         }
 
-        GLObject *object = PickObject(x, y);
-        if (object != NULL) object->Hover();
+        GLObject* object = PickObject(x, y);
+        if (object != NULL) {
+            object->Hover();
+        }
     }
 
     Render();
 }
 
-void GLViewer::MouseDown(wxMouseEvent &event) {
+void GLViewer::MouseDown(wxMouseEvent& event) {
     mMousePrevious[0] = mMouseDown[0] = event.GetX();
     mMousePrevious[1] = mMouseDown[1] = event.GetY();
 }
 
-void GLViewer::MouseWheelMoved(wxMouseEvent &event) {
-    int scroll = event.GetWheelRotation();
-    mCamera.MoveForward((float)scroll * 0.001f);
+void GLViewer::MouseWheelMoved(wxMouseEvent& event) {
+    float scroll = static_cast<float>(event.GetWheelRotation());
+    mCamera.MoveForward(scroll * 0.001f);
     Render();
 }
 
-void GLViewer::MouseReleased(wxMouseEvent &event) {
+void GLViewer::MouseReleased(wxMouseEvent& event) {
     if (event.GetX() == mMouseDown[0] && event.GetY() == mMouseDown[1]) {
         std::cerr << "Pick at (" << event.GetX() << "," << event.GetY() << ")" << std::endl;
 
         if (!event.ShiftDown()) {
-            std::list<GLObject *>::iterator iter = mObjects.begin();
-            std::list<GLObject *>::iterator iend = mObjects.end();
+            std::list<GLObject*>::iterator iter = mObjects.begin();
+            std::list<GLObject*>::iterator iend = mObjects.end();
             while (iter != iend) {
                 (*iter)->DeSelect();
                 ++iter;
             }
         }
 
-        GLObject *object = PickObject(event.GetX(), event.GetY());
+        GLObject* object = PickObject(event.GetX(), event.GetY());
         if (object != NULL) {
             object->Select();
             std::cout << "Selecting object '" << object->GetName() << "'" << std::endl;
@@ -483,17 +491,16 @@ void GLViewer::MouseReleased(wxMouseEvent &event) {
     }
 }
 
-void GLViewer::RightClick(wxMouseEvent &event) {}
+void GLViewer::RightClick(wxMouseEvent& event) {}
 
-void GLViewer::MouseLeftWindow(wxMouseEvent &event) {}
+void GLViewer::MouseLeftWindow(wxMouseEvent& event) {}
 
 // Key capture function. Just add functionallity in the switch
-void GLViewer::KeyPressed(wxKeyEvent &event) {
-
+void GLViewer::KeyPressed(wxKeyEvent& event) {
     switch (event.GetKeyCode()) {
         case WXK_SPACE:
             mCamera.Reset();
-            mCamera.MoveForward(-3.0f);
+            mCamera.MoveForward(-3.f);
             break;
         case 87:  // W
             mCamera.MoveForward(0.05f);
@@ -514,5 +521,7 @@ void GLViewer::KeyPressed(wxKeyEvent &event) {
             mCamera.MoveUpward(-0.05f);
             break;
     }
-    if (event.GetKeyCode() != WXK_SHIFT) Render();
+    if (event.GetKeyCode() != WXK_SHIFT) {
+        Render();
+    }
 }

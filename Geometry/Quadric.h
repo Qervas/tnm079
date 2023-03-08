@@ -21,7 +21,7 @@
 class Quadric : public Implicit {
 public:
     //! Initialize the quadric from matrix q
-    Quadric(const glm::mat4 &q);
+    Quadric(const glm::mat4& q);
     virtual ~Quadric();
     //! evaluate the quadric at world coordinates x y z
     virtual float GetValue(float x, float y, float z) const;

@@ -21,20 +21,20 @@
 
 class ObjIO {
 public:
-  ObjIO() {}
+    ObjIO() {}
 
-  bool Load(Mesh *, std::istream &is); // false return on error
+    bool Load(Mesh*, std::istream& is);  // false return on error
 
 protected:
-  bool ReadHeader(std::istream &is);
-  bool ReadData(std::istream &is);
+    bool ReadHeader(std::istream& is);
+    bool ReadData(std::istream& is);
 
-  static glm::uvec3 ReadTri(std::istream &is);
+    static glm::uvec3 ReadTri(std::istream& is);
 
-  struct LoadData {
-    std::vector<glm::vec3> verts;
-    std::vector<glm::uvec3> tris;
-  } loadData;
+    struct LoadData {
+        std::vector<glm::vec3> verts;
+        std::vector<glm::uvec3> tris;
+    } loadData;
 };
 
 #endif

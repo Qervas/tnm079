@@ -30,17 +30,17 @@ public:
 
     FluidSolver(float dx) : mDx(dx), mInitialVolume(0), mCurrentVolume(0), mExternalForces(NULL) {}
 
-    void AddSolid(Implicit *impl);
-    void AddFluid(LevelSet *LS);
+    void AddSolid(Implicit* impl);
+    void AddFluid(LevelSet* LS);
 
-    std::set<Implicit *> &GetSolids() { return mSolids; }
-    std::set<LevelSet *> &GetFluids() { return mFluids; }
+    std::set<Implicit*>& GetSolids() { return mSolids; }
+    std::set<LevelSet*>& GetFluids() { return mFluids; }
 
-    void SetExternalForces(Function3D<glm::vec3> *forces) { mExternalForces = forces; }
+    void SetExternalForces(Function3D<glm::vec3>* forces) { mExternalForces = forces; }
 
     int Solve(float time);
 
-    const Bbox &GetBoundingBox() const { return mBox; }
+    const Bbox& GetBoundingBox() const { return mBox; }
 
     float ComputeTimestep();
 
@@ -53,8 +53,8 @@ public:
     virtual glm::vec3 GetMaxValue() const;
 
 protected:
-    std::set<Implicit *> mSolids;
-    std::set<LevelSet *> mFluids;
+    std::set<Implicit*> mSolids;
+    std::set<LevelSet*> mFluids;
 
     Bbox mBox;
     float mDx;
@@ -63,7 +63,7 @@ protected:
     Volume<glm::vec3> mVelocityField;
     Volume<float> mVoxels;
     Volume<bool> mSolidMask;
-    Function3D<glm::vec3> *mExternalForces;
+    Function3D<glm::vec3>* mExternalForces;
 
     void ExternalForces(float dt);
     void SelfAdvection(float dt, int steps);
@@ -75,9 +75,9 @@ protected:
     bool IsFluid(size_t i, size_t j, size_t k) const;
 
     void ClassifyVoxels();
-    void ClassifyVoxel(int i, int j, int k);
+    void ClassifyVoxel(size_t i, size_t j, size_t k);
 
-    inline void TransformGridToWorld(int i, int j, int k, float &x, float &y, float &z) {
+    inline void TransformGridToWorld(size_t i, size_t j, size_t k, float& x, float& y, float& z) {
         x = mBox.pMin[0] + i * mDx;
         y = mBox.pMin[1] + j * mDx;
         z = mBox.pMin[2] + k * mDx;
@@ -89,7 +89,7 @@ protected:
  */
 
 template <typename Real>
-Real dot(const std::vector<Real> &v1, const std::vector<Real> &v2) {
+Real dot(const std::vector<Real>& v1, const std::vector<Real>& v2) {
     assert(v1.size() == v2.size());
 
     Real sum = 0;
@@ -100,37 +100,43 @@ Real dot(const std::vector<Real> &v1, const std::vector<Real> &v2) {
 }
 
 template <typename Real>
-Real norm(const std::vector<Real> &v) {
+Real norm(const std::vector<Real>& v) {
     return std::sqrt(dot(v, v));
 }
 
 template <typename Real>
-std::vector<Real> operator-(const std::vector<Real> &v1, const std::vector<Real> &v2) {
+std::vector<Real> operator-(const std::vector<Real>& v1, const std::vector<Real>& v2) {
     assert(v1.size() == v2.size());
 
     const size_t size = v1.size();
     std::vector<Real> v(size);
-    for (size_t i = 0; i < size; i++) v[i] = v1[i] - v2[i];
+    for (size_t i = 0; i < size; i++) {
+        v[i] = v1[i] - v2[i];
+    }
 
     return v;
 }
 
 template <typename Real>
-std::vector<Real> operator+(const std::vector<Real> &v1, const std::vector<Real> &v2) {
+std::vector<Real> operator+(const std::vector<Real>& v1, const std::vector<Real>& v2) {
     assert(v1.size() == v2.size());
 
     const size_t size = v1.size();
     std::vector<Real> v(size);
-    for (size_t i = 0; i < size; i++) v[i] = v1[i] + v2[i];
+    for (size_t i = 0; i < size; i++) {
+        v[i] = v1[i] + v2[i];
+    }
 
     return v;
 }
 
 template <typename Real>
-std::vector<Real> operator*(Real r, const std::vector<Real> &v1) {
+std::vector<Real> operator*(Real r, const std::vector<Real>& v1) {
     const size_t size = v1.size();
     std::vector<Real> v(size);
-    for (size_t i = 0; i < size; i++) v[i] = v1[i] * r;
+    for (size_t i = 0; i < size; i++) {
+        v[i] = v1[i] * r;
+    }
 
     return v;
 }

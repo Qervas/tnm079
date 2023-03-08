@@ -19,24 +19,23 @@
 
 class VectorCutPlane : public Geometry {
 protected:
-  float mDx;
-  const Function3D<glm::vec3> *mFunction;
+    float mDx;
+    const Function3D<glm::vec3>* mFunction;
 
-  std::vector<glm::vec3> mVectors;
+    std::vector<glm::vec3> mVectors;
 
 public:
-  VectorCutPlane(const std::string &name, float dx,
-                 const Function3D<glm::vec3> *function);
+    VectorCutPlane(const std::string& name, float dx, const Function3D<glm::vec3>* function);
 
-  virtual const char *GetTypeName() { return typeid(VectorCutPlane).name(); }
+    virtual const char* GetTypeName() { return typeid(VectorCutPlane).name(); }
 
-  virtual void Render();
+    virtual void Render();
 
-  virtual void Initialize() {}
+    virtual void Initialize() {}
 
-  virtual void Update();
+    virtual void Update();
 
-  virtual void SetTransform(const glm::mat4&transform);
+    virtual void SetTransform(const glm::mat4& transform);
 };
 
 #endif

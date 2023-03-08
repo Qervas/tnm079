@@ -13,10 +13,10 @@
 #include <Util/GreenRedColorMap.h>
 #include <glm.hpp>
 
-ColorMapFactory::FactoryRegistration
-    GreenRedColorMap::mFactoryRegistration("Green-Red", new GreenRedColorMap());
+ColorMapFactory::FactoryRegistration GreenRedColorMap::mFactoryRegistration("Green-Red",
+                                                                            new GreenRedColorMap());
 
 GreenRedColorMap::GreenRedColorMap() {
-  mColors.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
-  mColors.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
+    mColors.push_back(glm::vec3(0.f, 1.f, 0.f));
+    mColors.push_back(glm::vec3(1.f, 0.f, 0.f));
 }

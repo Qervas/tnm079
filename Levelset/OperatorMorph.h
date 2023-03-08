@@ -18,24 +18,26 @@
 //! \lab5 Implement morphing
 class OperatorMorph : public LevelSetOperator {
 protected:
-    const Implicit *mTarget;
+    const Implicit* mTarget;
 
 public:
-    OperatorMorph(LevelSet *LS, const Implicit *target) : LevelSetOperator(LS), mTarget(target) {}
+    OperatorMorph(LevelSet* LS, const Implicit* target) : LevelSetOperator(LS), mTarget(target) {}
 
     virtual float ComputeTimestep() {
         // Compute and return a stable timestep
-        return 1;
+        return 1.f;
     }
 
     virtual void Propagate(float time) {
         // Propagate level set with stable timestep dt
         // until requested time is reached
-        for (float elapsed = 0; elapsed < time;) {
+        for (float elapsed = 0.f; elapsed < time;) {
             // Determine timestep for stability
             float dt = ComputeTimestep();
 
-            if (dt > time - elapsed) dt = time - elapsed;
+            if (dt > time - elapsed) {
+                dt = time - elapsed;
+            }
             elapsed += dt;
 
             // Integrate level set function in time using Euler integration
@@ -45,6 +47,6 @@ public:
 
     virtual float Evaluate(size_t i, size_t j, size_t k) {
         // Compute the rate of change (dphi/dt)
-        return 0;
+        return 0.f;
     }
 };

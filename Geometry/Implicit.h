@@ -52,7 +52,7 @@ public:
     void Triangulate();
 
     //! Returns the mesh for outside manipulation. Decimation etc.
-    Mesh *GetMesh() { return mMesh; }
+    Mesh* GetMesh() { return mMesh; }
 
     virtual void SetMeshSampling(float sampling) { mMeshSampling = sampling; }
     inline float GetMeshSampling() { return mMeshSampling; }
@@ -66,7 +66,7 @@ public:
     //! Returns axis aligned bounding box in world space
     Bbox GetBoundingBox() const;
     //! Sets the bounding box in current frame coordinates
-    virtual void SetBoundingBox(const Bbox &b);
+    virtual void SetBoundingBox(const Bbox& b);
 
     //! Compute area of implicit
     virtual float ComputeArea(float dx = 0.01) const;
@@ -75,7 +75,7 @@ public:
     virtual float ComputeVolume(float dx = 0.01) const;
 
     //! Set transformation
-    virtual void SetTransform(const glm::mat4 &transform);
+    virtual void SetTransform(const glm::mat4& transform);
 
     virtual void SetOpacity(float opacity) {
         Geometry::SetOpacity(opacity);
@@ -84,21 +84,23 @@ public:
 
     virtual void Render();
 
-    virtual const char *GetTypeName() { return typeid(Implicit).name(); }
+    virtual const char* GetTypeName() { return typeid(Implicit).name(); }
 
-    virtual void SetVisualizationMode(const VisualizationMode &source);
+    virtual void SetVisualizationMode(const VisualizationMode& source);
 
-    virtual void SetColorMap(ColorMap *colormap);
+    virtual void SetColorMap(ColorMap* colormap);
 
-    virtual bool save(std::ostream &os) {
-        if (mMesh != NULL) return mMesh->save(os);
+    virtual bool save(std::ostream& os) {
+        if (mMesh != NULL) {
+            return mMesh->save(os);
+        }
         return os.good();
     }
 
 protected:
-    void TransformW2O(float &x, float &y, float &z) const;
+    void TransformW2O(float& x, float& y, float& z) const;
 
-    Mesh *mMesh;
+    Mesh* mMesh;
     Bbox mBox;
     glm::mat4 mWorld2Obj;
     float mMeshSampling;
@@ -121,8 +123,8 @@ void Implicit::Triangulate() {
 
     // Get axis aligned bounding box (in world space)
     Bbox b = GetBoundingBox();
-    glm::vec3 &pmin = b.pMin;
-    glm::vec3 &pmax = b.pMax;
+    glm::vec3& pmin = b.pMin;
+    glm::vec3& pmax = b.pMax;
 
     std::cerr << b << std::endl;
 
@@ -136,9 +138,9 @@ void Implicit::Triangulate() {
 
     // Loop over bounding box
     std::cerr << "Triangulating [";
-    for (float i = pmin[0]; i < pmax[0] - 0.5 * mMeshSampling; i += mMeshSampling) {
-        for (float j = pmin[1]; j < pmax[1] - 0.5 * mMeshSampling; j += mMeshSampling) {
-            for (float k = pmin[2]; k < pmax[2] - 0.5 * mMeshSampling; k += mMeshSampling) {
+    for (float i = pmin[0]; i < pmax[0] - 0.5f * mMeshSampling; i += mMeshSampling) {
+        for (float j = pmin[1]; j < pmax[1] - 0.5f * mMeshSampling; j += mMeshSampling) {
+            for (float k = pmin[2]; k < pmax[2] - 0.5f * mMeshSampling; k += mMeshSampling) {
                 float voxelValues[8] = {
                     GetValue(i, j, k),
                     GetValue(i + mMeshSampling, j, k),
@@ -154,14 +156,17 @@ void Implicit::Triangulate() {
                     std::copy(tris.begin() + n, tris.begin() + n + 3, std::back_inserter(verts));
 
                     // Transform to local coordinates
-                    for (size_t v = 0; v < 3; v++)
+                    for (size_t v = 0; v < 3; v++) {
                         TransformW2O(verts[v][0], verts[v][1], verts[v][2]);
+                    }
 
                     mMesh->AddFace(verts);
                 }
 
                 currentSample++;
-                if (currentSample % reportFreq == 0) std::cerr << "=";
+                if (currentSample % reportFreq == 0) {
+                    std::cerr << "=";
+                }
             }
         }
     }

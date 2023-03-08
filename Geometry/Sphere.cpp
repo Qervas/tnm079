@@ -24,8 +24,9 @@ Sphere::~Sphere() {}
 float Sphere::GetValue(float x, float y, float z) const {
     TransformW2O(x, y, z);
 
-    if (mEuclideanDistance)
+    if (mEuclideanDistance) {
         return sqrt(x * x + y * y + z * z) - sqrt(radius2);
-    else
+    } else {
         return (x * x + y * y + z * z - radius2);
+    }
 }

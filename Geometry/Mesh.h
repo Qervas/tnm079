@@ -15,11 +15,11 @@ public:
         return L;
     }
 
-    virtual bool save(std::ostream &os) = 0;
+    virtual bool save(std::ostream& os) = 0;
 
 protected:
     //! Adds a vertex to the mesh
-    virtual size_t AddVertex(const glm::vec3 &v) = 0;
+    virtual size_t AddVertex(const glm::vec3& v) = 0;
 
     //! Given a vertex, find all triangles that includes this vertex (sorted
     //! counter clockwise)
@@ -46,8 +46,8 @@ protected:
 public:
     //! Minimal requirements for all meshes, inherited
     struct Face {
-        Face(const glm::vec3 &n = glm::vec3(0.0f, 0.0f, 0.0f),
-             const glm::vec3 &c = glm::vec3(0.5f, 0.1f, 0.7f), float u = 0)
+        Face(const glm::vec3& n = glm::vec3(0.f, 0.f, 0.f),
+             const glm::vec3& c = glm::vec3(0.5f, 0.1f, 0.7f), float u = 0)
             : normal(n), color(c), curvature(u) {}
         glm::vec3 normal;
         glm::vec3 color;
@@ -55,9 +55,9 @@ public:
     };
     //! Minimal requirements for all meshes, inherited
     struct Vertex {
-        Vertex(const glm::vec3 &p = glm::vec3(0.0f, 0.0f, 0.0f),
-               const glm::vec3 &n = glm::vec3(0.0f, 0.0f, 0.0f),
-               const glm::vec3 &c = glm::vec3(0.5f, 0.1f, 0.7f), float u = 0)
+        Vertex(const glm::vec3& p = glm::vec3(0.f, 0.f, 0.f),
+               const glm::vec3& n = glm::vec3(0.f, 0.f, 0.f),
+               const glm::vec3& c = glm::vec3(0.5f, 0.1f, 0.7f), float u = 0)
             : pos(p), normal(n), color(c), curvature(u) {}
         glm::vec3 pos;
         glm::vec3 normal;
@@ -69,7 +69,7 @@ public:
     virtual ~Mesh() {}
 
     //! Adds a face to the mesh.
-    virtual bool AddFace(const std::vector<glm::vec3> &verts) = 0;
+    virtual bool AddFace(const std::vector<glm::vec3>& verts) = 0;
 
     //! Compute area of mesh
     virtual float Area() const;
@@ -81,17 +81,17 @@ public:
 
     virtual void Dilate(float epsilon) {}
 
-    virtual void SetColorMap(ColorMap *colormap) {
+    virtual void SetColorMap(ColorMap* colormap) {
         GLObject::SetColorMap(colormap);
         Update();
     }
 
     virtual void VisualizeNormals(bool flag = true) { mVisualizeNormals = flag; }
 
-    virtual void SetVisualizationMode(const VisualizationMode &mode) {
+    virtual void SetVisualizationMode(const VisualizationMode& mode) {
         GLObject::SetVisualizationMode(mode);
         Update();
     }
 
-    virtual const char *GetTypeName() { return typeid(Mesh).name(); }
+    virtual const char* GetTypeName() { return typeid(Mesh).name(); }
 };

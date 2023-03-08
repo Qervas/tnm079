@@ -16,12 +16,12 @@
 /*! Constant vector field that always returns a constant vector */
 class ConstantVectorField : public Function3D<glm::vec3> {
 protected:
-  glm::vec3 mV;
+    glm::vec3 mV;
 
 public:
-  ConstantVectorField(const glm::vec3 v) : mV(v) {}
-  glm::vec3 GetValue(float x, float y, float z) const { return mV; }
-  //! Return a bound on the maximum value of the function
-  glm::vec3 GetMaxValue() const { return mV; }
+    ConstantVectorField(const glm::vec3 v) : mV(v) {}
+    glm::vec3 GetValue(float x, float y, float z) const { return mV; }
+    //! Return a bound on the maximum value of the function
+    glm::vec3 GetMaxValue() const { return mV; }
 };
 #endif

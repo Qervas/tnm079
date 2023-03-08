@@ -113,20 +113,20 @@ glm::vec3 LoopSubdivisionMesh::VertexRule(size_t vertexIndex) {
  */
 glm::vec3 LoopSubdivisionMesh::EdgeRule(size_t edgeIndex) {
     // Place the edge vertex halfway along the edge
-    HalfEdge &e0 = e(edgeIndex);
-    HalfEdge &e1 = e(e0.pair);
-    glm::vec3 &v0 = v(e0.vert).pos;
-    glm::vec3 &v1 = v(e1.vert).pos;
+    HalfEdge& e0 = e(edgeIndex);
+    HalfEdge& e1 = e(e0.pair);
+    glm::vec3& v0 = v(e0.vert).pos;
+    glm::vec3& v1 = v(e1.vert).pos;
     return (v0 + v1) * 0.5f;
 }
 
 //! Return weights for interior verts
 float LoopSubdivisionMesh::Beta(size_t valence) {
     if (valence == 6) {
-        return 1.0f / 16.0f;
+        return 1.f / 16.f;
     } else if (valence == 3) {
-        return 3.0f / 16.0f;
+        return 3.f / 16.f;
     } else {
-        return 3.0f / (8.0f * valence);
+        return 3.f / (8.f * valence);
     }
 }

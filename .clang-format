@@ -5,3 +5,5 @@ BreakConstructorInitializersBeforeComma: true
 AccessModifierOffset: -4
 KeepEmptyLinesAtTheStartOfBlocks: true
 SortIncludes: false
+DerivePointerAlignment: false
+PointerAlignment: Left

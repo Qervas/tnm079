@@ -20,14 +20,13 @@
 
 class Cube : public Implicit {
 public:
-  Cube();
-  ~Cube();
+    Cube();
+    ~Cube();
 
-  virtual float GetValue(float x, float y, float z) const;
+    virtual float GetValue(float x, float y, float z) const;
 
 private:
-  std::vector<Quadric *> mPlanes;
-  bool mEuclideanDistance;
+    std::vector<Quadric*> mPlanes;
 };
 
 #endif

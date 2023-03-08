@@ -3,7 +3,7 @@
 #include <gtc/type_ptr.hpp>
 
 UniformCubicSplineSubdivisionCurve::UniformCubicSplineSubdivisionCurve(
-    const std::vector<glm::vec3> &joints, glm::vec3 lineColor, float lineWidth)
+    const std::vector<glm::vec3>& joints, glm::vec3 lineColor, float lineWidth)
     : mCoefficients(joints), mControlPolygon(joints) {
     this->mLineColor = lineColor;
     this->mLineWidth = lineWidth;

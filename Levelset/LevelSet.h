@@ -23,13 +23,13 @@ public:
     }
 
     LevelSet(float dx);
-    LevelSet(float dx, const Implicit &impl);
-    LevelSet(float dx, const Implicit &impl, const Bbox &box);
-    LevelSet(float dx, const Volume<float> &vol);
+    LevelSet(float dx, const Implicit& impl);
+    LevelSet(float dx, const Implicit& impl, const Bbox& box);
+    LevelSet(float dx, const Volume<float>& vol);
 
     virtual ~LevelSet() {}
 
-    virtual const char *GetTypeName() { return typeid(LevelSet).name(); }
+    virtual const char* GetTypeName() { return typeid(LevelSet).name(); }
 
     //! Evaluate the implicit at world coordinates x y z
     virtual float GetValue(float x, float y, float z) const;
@@ -41,7 +41,7 @@ public:
     virtual float GetCurvature(float x, float y, float z) const;
 
     //! Sets the bounding box in current frame coordinates
-    virtual void SetBoundingBox(const Bbox &b);
+    virtual void SetBoundingBox(const Bbox& b);
 
     //! Set narrow band width (in number of grid points)
     virtual void SetNarrowBandWidth(int width);
@@ -87,7 +87,7 @@ public:
 
     float WENO(float v1, float v2, float v3, float v4, float v5) const;
 
-    friend std::ostream &operator<<(std::ostream &os, const LevelSet &LS) {
+    friend std::ostream& operator<<(std::ostream& os, const LevelSet& LS) {
         os << "Level set bounding box: " << glm::to_string(LS.mBox.pMin) << " -> "
            << glm::to_string(LS.mBox.pMax) << std::endl;
         os << "Level set dx: " << std::to_string(LS.mDx) << std::endl;
@@ -97,7 +97,7 @@ public:
 
     virtual void Render();
 
-    void TransformWorldToGrid(float &i, float &j, float &k) const;
+    void TransformWorldToGrid(float& i, float& j, float& k) const;
 
-    void TransformGridToWorld(float &x, float &y, float &z) const;
+    void TransformGridToWorld(float& x, float& y, float& z) const;
 };

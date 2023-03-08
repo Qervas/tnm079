@@ -12,23 +12,22 @@
 
 #include "Util/IsoContourColorMap.h"
 
-ColorMapFactory::FactoryRegistration
-    IsoContourColorMap::mFactoryRegistration("Iso contour",
-                                             new IsoContourColorMap());
+ColorMapFactory::FactoryRegistration IsoContourColorMap::mFactoryRegistration(
+    "Iso contour", new IsoContourColorMap());
 
 IsoContourColorMap::IsoContourColorMap() {
-  mColors.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
-  mColors.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
+    mColors.push_back(glm::vec3(0.f, 1.f, 0.f));
+    mColors.push_back(glm::vec3(1.f, 0.f, 0.f));
 }
 
 glm::vec3 IsoContourColorMap::Map(float val, float low, float high) const {
-  // Take absolute value
-  if (val < 0.0f)
-    val = -val;
+    // Take absolute value
+    if (val < 0.f) {
+        val = -val;
+    }
+    // Compute fraction to do wrap-around
+    float fraction = val * 10.f - (size_t)(val * 10.f);
 
-  // Compute fraction to do wrap-around
-  float fraction = val * 10.0f - (size_t)(val * 10.0f);
-
-  // Do color mapping
-  return ColorMap::Map(fraction, 0.0f, 1.0f);
+    // Do color mapping
+    return ColorMap::Map(fraction, 0.f, 1.f);
 }

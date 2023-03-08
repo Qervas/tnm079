@@ -6,7 +6,7 @@
 class CSG_Operator : public Implicit {
 protected:
     //! Constructor
-    CSG_Operator(Implicit *l, Implicit *r) : left(l), right(r) {}
+    CSG_Operator(Implicit* l, Implicit* r) : left(l), right(r) {}
 
     //! Pointers to left and right child nodes
     Implicit *left, *right;
@@ -15,7 +15,7 @@ protected:
 /*! \brief Union boolean operation */
 class Union : public CSG_Operator {
 public:
-    Union(Implicit *l, Implicit *r) : CSG_Operator(l, r) {
+    Union(Implicit* l, Implicit* r) : CSG_Operator(l, r) {
         // Compute the resulting (axis aligned) bounding box from
         // the left and right children
         mBox = Bbox::BoxUnion(l->GetBoundingBox(), r->GetBoundingBox());
@@ -36,29 +36,29 @@ public:
 /*! \brief Intersection boolean operation */
 class Intersection : public CSG_Operator {
 public:
-    Intersection(Implicit *l, Implicit *r) : CSG_Operator(l, r) {
+    Intersection(Implicit* l, Implicit* r) : CSG_Operator(l, r) {
         mBox = Bbox::BoxIntersection(l->GetBoundingBox(), r->GetBoundingBox());
     }
 
-    virtual float GetValue(float x, float y, float z) const { return 0; }
+    virtual float GetValue(float x, float y, float z) const { return 0.f; }
 };
 
 /*! \brief Difference boolean operation */
 class Difference : public CSG_Operator {
 public:
-    Difference(Implicit *l, Implicit *r) : CSG_Operator(l, r) { mBox = l->GetBoundingBox(); }
+    Difference(Implicit* l, Implicit* r) : CSG_Operator(l, r) { mBox = l->GetBoundingBox(); }
 
-    virtual float GetValue(float x, float y, float z) const { return 0; }
+    virtual float GetValue(float x, float y, float z) const { return 0.f; }
 };
 
 /*! \brief BlendedUnion boolean operation */
 class BlendedUnion : public CSG_Operator {
 public:
-    BlendedUnion(Implicit *l, Implicit *r, int blend) : CSG_Operator(l, r), mBlend(blend) {
+    BlendedUnion(Implicit* l, Implicit* r, int blend) : CSG_Operator(l, r), mBlend(blend) {
         mBox = Bbox::BoxUnion(l->GetBoundingBox(), r->GetBoundingBox());
     }
 
-    virtual float GetValue(float x, float y, float z) const { return 0; }
+    virtual float GetValue(float x, float y, float z) const { return 0.f; }
 
 protected:
     int mBlend;
@@ -67,11 +67,11 @@ protected:
 /*! \brief BlendedIntersection boolean operation */
 class BlendedIntersection : public CSG_Operator {
 public:
-    BlendedIntersection(Implicit *l, Implicit *r, int blend) : CSG_Operator(l, r), mBlend(blend) {
+    BlendedIntersection(Implicit* l, Implicit* r, int blend) : CSG_Operator(l, r), mBlend(blend) {
         mBox = Bbox::BoxUnion(l->GetBoundingBox(), r->GetBoundingBox());
     }
 
-    virtual float GetValue(float x, float y, float z) const { return 0; }
+    virtual float GetValue(float x, float y, float z) const { return 0.f; }
 
 protected:
     int mBlend;
@@ -80,11 +80,11 @@ protected:
 /*! \brief BlendedDifference boolean operation */
 class BlendedDifference : public CSG_Operator {
 public:
-    BlendedDifference(Implicit *l, Implicit *r, int blend) : CSG_Operator(l, r), mBlend(blend) {
+    BlendedDifference(Implicit* l, Implicit* r, int blend) : CSG_Operator(l, r), mBlend(blend) {
         mBox = l->GetBoundingBox();
     }
 
-    virtual float GetValue(float x, float y, float z) const { return 0; }
+    virtual float GetValue(float x, float y, float z) const { return 0.f; }
 
 protected:
     int mBlend;

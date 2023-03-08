@@ -17,17 +17,14 @@
 
 #include <cstddef>
 
-class DecimationInterface
-{
-public :
-  DecimationInterface() { }
-  virtual ~DecimationInterface() { }
+class DecimationInterface {
+public:
+    DecimationInterface() {}
+    virtual ~DecimationInterface() {}
 
-  virtual bool decimate() = 0;
+    virtual bool decimate() = 0;
 
-  virtual bool decimate(size_t targetFaces) = 0;
-
-
+    virtual bool decimate(size_t targetFaces) = 0;
 };
 
 #endif

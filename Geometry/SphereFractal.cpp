@@ -50,7 +50,7 @@ SphereFractal::SphereFractal(int level) {
         transform = transform * glm::scale(transform, glm::vec3{r, r, r});
 
         // Add sphere to array of spheres
-        Implicit *sphere = new Sphere(1.0);
+        Implicit* sphere = new Sphere(1.0);
         sphere->SetTransform(transform);
         mSpheres.push_back(sphere);
     }
@@ -77,8 +77,8 @@ SphereFractal::~SphereFractal() {
     }
 }
 
-Implicit *SphereFractal::buildFractal() {
-    Union *u = new Union(mSpheres[0], mSpheres[1]);
+Implicit* SphereFractal::buildFractal() {
+    Union* u = new Union(mSpheres[0], mSpheres[1]);
 
     for (size_t i = 2; i < mSpheres.size(); i++) {
         u = new Union(u, mSpheres[i]);

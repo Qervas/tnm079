@@ -10,17 +10,17 @@
 
 class Console {
 private:
-  std::ofstream m_out;
-  std::ofstream m_err;
-  std::ifstream m_in;
+    std::ofstream m_out;
+    std::ofstream m_err;
+    std::ifstream m_in;
 
-  std::streambuf *m_old_cout;
-  std::streambuf *m_old_cerr;
-  std::streambuf *m_old_cin;
+    std::streambuf* m_old_cout;
+    std::streambuf* m_old_cerr;
+    std::streambuf* m_old_cin;
 
 public:
-  Console();
-  ~Console();
+    Console();
+    ~Console();
 };
 
 #endif

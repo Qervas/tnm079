@@ -19,29 +19,29 @@
 
 class ColorMapFactory {
 public:
-  ColorMapFactory() {}
+    ColorMapFactory() {}
 
-  // Factory method for creating color maps given a name identifier
-  static ColorMap *New(const std::string &name);
+    // Factory method for creating color maps given a name identifier
+    static ColorMap* New(const std::string& name);
 
-  // Returns the names of all color maps registered with the factory
-  static std::list<std::string> GetColorMaps();
+    // Returns the names of all color maps registered with the factory
+    static std::list<std::string> GetColorMaps();
 
-  // Color maps should instantiate a FactoryRegistration member to register
-  // with the factory
-  class FactoryRegistration {
-  public:
-    FactoryRegistration(const std::string &name, ColorMap *colormap) {
-      ColorMapFactory::GetMap()[name] = colormap;
-    }
-  };
+    // Color maps should instantiate a FactoryRegistration member to register
+    // with the factory
+    class FactoryRegistration {
+    public:
+        FactoryRegistration(const std::string& name, ColorMap* colormap) {
+            ColorMapFactory::GetMap()[name] = colormap;
+        }
+    };
 
 protected:
-  // Map of all color maps registered with the factory
-  static std::map<std::string, ColorMap *> &GetMap() {
-    static std::map<std::string, ColorMap *> mColorMaps;
-    return mColorMaps;
-  }
+    // Map of all color maps registered with the factory
+    static std::map<std::string, ColorMap*>& GetMap() {
+        static std::map<std::string, ColorMap*> mColorMaps;
+        return mColorMaps;
+    }
 };
 
 #endif

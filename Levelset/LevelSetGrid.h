@@ -24,9 +24,9 @@ protected:
     float mInsideConstant, mOutsideConstant;
 
 public:
-    LevelSetGrid(int dimX = 0, int dimY = 0, int dimZ = 0,
-                 float insideConstant = -(std::numeric_limits<float>::max)(),
-                 float outsideConstant = (std::numeric_limits<float>::max)())
+    LevelSetGrid(size_t dimX = 0, size_t dimY = 0, size_t dimZ = 0,
+                 float insideConstant = -std::numeric_limits<float>::max(),
+                 float outsideConstant = std::numeric_limits<float>::max())
         : mPhi(dimX, dimY, dimZ, outsideConstant)
         , mMask(dimX, dimY, dimZ)
         , mInsideConstant(insideConstant)
@@ -38,15 +38,15 @@ public:
         friend class LevelSetGrid;
 
     protected:
-        const BitMask3D *mask;
+        const BitMask3D* mask;
         size_t i, j, k;
         size_t iMax, jMax, kMax;
         bool endState;
 
-        Iterator(const BitMask3D *mask, size_t i = 0, size_t j = 0, size_t k = 0);
+        Iterator(const BitMask3D* mask, size_t i = 0, size_t j = 0, size_t k = 0);
 
     public:
-        inline Iterator &operator++(int) {
+        inline Iterator& operator++(int) {
             endState = false;
             if (endState != true) {
                 do {
@@ -70,13 +70,13 @@ public:
             return *this;
         }
 
-        bool operator!=(const Iterator &b) const {
+        bool operator!=(const Iterator& b) const {
             return (this->i != b.i || this->j != b.j || this->k != b.k);
         }
 
-        auto GetI() const { return i; }
-        auto GetJ() const { return j; }
-        auto GetK() const { return k; }
+        size_t GetI() const { return i; }
+        size_t GetJ() const { return j; }
+        size_t GetK() const { return k; }
     };
 
     Iterator BeginNarrowBand() { return Iterator(&mMask); }
@@ -89,21 +89,21 @@ public:
         return Iterator(&mMask, mMask.GetDimX(), mMask.GetDimY(), mMask.GetDimZ());
     }
 
-    inline auto GetDimX() const { return mPhi.GetDimX(); }
-    inline auto GetDimY() const { return mPhi.GetDimY(); }
-    inline auto GetDimZ() const { return mPhi.GetDimZ(); }
+    inline size_t GetDimX() const { return mPhi.GetDimX(); }
+    inline size_t GetDimY() const { return mPhi.GetDimY(); }
+    inline size_t GetDimZ() const { return mPhi.GetDimZ(); }
 
     //! Return grid dimensions as measured in number of grid cells
     glm::ivec3 GetDimensions();
 
     inline float GetValue(size_t i, size_t j, size_t k) const { return mPhi.GetValue(i, j, k); }
-    inline void SetValue(size_t  i, size_t j, size_t k, float f) {
+    inline void SetValue(size_t i, size_t j, size_t k, float f) {
         SetMask(i, j, k, true);
         mPhi.SetValue(i, j, k, f);
     }
 
-    inline bool GetMask(size_t  i, size_t  j, size_t  k) const { return mMask.GetValue(i, j, k); }
-    inline void SetMask(size_t  i, size_t j, size_t k, bool b) { mMask.SetValue(i, j, k, b); }
+    inline bool GetMask(size_t i, size_t j, size_t k) const { return mMask.GetValue(i, j, k); }
+    inline void SetMask(size_t i, size_t j, size_t k, bool b) { mMask.SetValue(i, j, k, b); }
 
     void SetInsideConstant(float insideConstant) { mInsideConstant = insideConstant; }
     inline const float GetInsideConstant() const { return mInsideConstant; }
@@ -117,16 +117,16 @@ public:
     //! Rebuild the narrow band by culling too large values from mask
     void Rebuild();
 
-    friend std::ostream &operator<<(std::ostream &os, const LevelSetGrid &grid) {
+    friend std::ostream& operator<<(std::ostream& os, const LevelSetGrid& grid) {
         os << "Grid dimensions: "
            << "(" << grid.GetDimX() << "x" << grid.GetDimY() << "x" << grid.GetDimZ() << ")"
            << std::endl;
         Iterator iter = grid.BeginNarrowBand();
         Iterator iend = grid.EndNarrowBand();
         while (iter != iend) {
-            auto i = iter.GetI();
-            auto j = iter.GetJ();
-            auto k = iter.GetK();
+            size_t i = iter.GetI();
+            size_t j = iter.GetJ();
+            size_t k = iter.GetK();
             os << "(" << i << "," << j << "," << k << "): " << grid.GetValue(i, j, k) << std::endl;
             iter++;
         }

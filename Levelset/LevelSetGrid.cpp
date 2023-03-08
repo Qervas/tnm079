@@ -1,6 +1,6 @@
 #include <Levelset/LevelSetGrid.h>
 
-LevelSetGrid::Iterator::Iterator(const BitMask3D *mask, size_t i, size_t j, size_t k) {
+LevelSetGrid::Iterator::Iterator(const BitMask3D* mask, size_t i, size_t j, size_t k) {
     // Initialize counters
     this->mask = mask;
     this->iMax = mask->GetDimX();
@@ -26,16 +26,28 @@ void LevelSetGrid::Dilate() {
     Iterator it = BeginNarrowBand();
     Iterator iend = EndNarrowBand();
     while (it != iend) {
-        auto i = it.GetI();
-        auto j = it.GetJ();
-        auto k = it.GetK();
+        size_t i = it.GetI();
+        size_t j = it.GetJ();
+        size_t k = it.GetK();
         newMask.SetValue(i, j, k, true);
-        if (k < GetDimZ() - 1) newMask.SetValue(i, j, k + 1, true);
-        if (k > 0) newMask.SetValue(i, j, k - 1, true);
-        if (j < GetDimY() - 1) newMask.SetValue(i, j + 1, k, true);
-        if (j > 0) newMask.SetValue(i, j - 1, k, true);
-        if (i < GetDimX() - 1) newMask.SetValue(i + 1, j, k, true);
-        if (i > 0) newMask.SetValue(i - 1, j, k, true);
+        if (k < GetDimZ() - 1) {
+            newMask.SetValue(i, j, k + 1, true);
+        }
+        if (k > 0) {
+            newMask.SetValue(i, j, k - 1, true);
+        }
+        if (j < GetDimY() - 1) {
+            newMask.SetValue(i, j + 1, k, true);
+        }
+        if (j > 0) {
+            newMask.SetValue(i, j - 1, k, true);
+        }
+        if (i < GetDimX() - 1) {
+            newMask.SetValue(i + 1, j, k, true);
+        }
+        if (i > 0) {
+            newMask.SetValue(i - 1, j, k, true);
+        }
         it++;
     }
     mMask = newMask;
@@ -45,9 +57,9 @@ void LevelSetGrid::Rebuild() {
     Iterator it = BeginNarrowBand();
     Iterator iend = EndNarrowBand();
     while (it != iend) {
-        auto i = it.GetI();
-        auto j = it.GetJ();
-        auto k = it.GetK();
+        size_t i = it.GetI();
+        size_t j = it.GetJ();
+        size_t k = it.GetK();
 
         //    std::cerr << mPhi.GetValue(i,j,k) << " -> " ;
         if (mPhi.GetValue(i, j, k) > mOutsideConstant) {

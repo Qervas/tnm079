@@ -23,31 +23,28 @@
  */
 class GLObjectPlayback : public GLObject {
 public:
-  GLObjectPlayback(const std::string &name, int fps = 24)
-      : mFPS(fps), GLObject(name) {
-    Reset();
-  }
+    GLObjectPlayback(const std::string& name, int fps = 24) : mFPS(fps), GLObject(name) { Reset(); }
 
-  virtual const char *GetTypeName() { return typeid(GLObjectPlayback).name(); };
+    virtual const char* GetTypeName() { return typeid(GLObjectPlayback).name(); };
 
-  virtual void Render();
+    virtual void Render();
 
-  void Reset();
+    void Reset();
 
-  void AddFrame(const SimpleMesh &obj) { mFrames.push_back(obj); }
+    void AddFrame(const SimpleMesh& obj) { mFrames.push_back(obj); }
 
-  bool HasReachedEnd() { return !mFrameCapture; }
-  void SetFrameCapture(bool f) { mFrameCapture = f; }
+    bool HasReachedEnd() { return !mFrameCapture; }
+    void SetFrameCapture(bool f) { mFrameCapture = f; }
 
 protected:
-  SimpleMesh &NextFrame();
+    SimpleMesh& NextFrame();
 
 private:
-  int mFPS;
-  Stopwatch mStopwatch;
-  std::vector<SimpleMesh> mFrames;
-  bool mFrameCapture;
-  size_t mCurrentFrame;
+    int mFPS;
+    Stopwatch mStopwatch;
+    std::vector<SimpleMesh> mFrames;
+    bool mFrameCapture;
+    size_t mCurrentFrame;
 };
 
 #endif

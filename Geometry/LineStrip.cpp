@@ -16,11 +16,11 @@
 #include <glm.hpp>
 #include <gtc/type_ptr.hpp>
 
-LineStrip::LineStrip(const std::vector<glm::vec3> &joints) : mJoints(joints) {
-    mJointColor = glm::vec3(1.0f, 0.0f, 0.0f);
-    mLineColor = glm::vec3(0.0f, 0.0f, 1.0f);
-    mLineWidth = 3.0f;
-    mJointSize = 5.0f;
+LineStrip::LineStrip(const std::vector<glm::vec3>& joints) : mJoints(joints) {
+    mJointColor = glm::vec3(1.f, 0.f, 0.f);
+    mLineColor = glm::vec3(0.f, 0.f, 1.f);
+    mLineWidth = 3.f;
+    mJointSize = 5.f;
 }
 
 void LineStrip::Render() {
@@ -31,7 +31,7 @@ void LineStrip::Render() {
     glPointSize(mJointSize);
     glColor3fv(glm::value_ptr(mJointColor));
     glBegin(GL_POINTS);
-    for (std::vector<glm::vec3>::const_iterator it(mJoints.begin()); it != mJoints.end(); it++) {
+    for (auto it = mJoints.begin(); it != mJoints.end(); it++) {
         glVertex3fv(glm::value_ptr(*it));
     }
     glEnd();
@@ -40,7 +40,7 @@ void LineStrip::Render() {
     glLineWidth(mLineWidth);
     glColor3fv(glm::value_ptr(mLineColor));
     glBegin(GL_LINE_STRIP);
-    for (std::vector<glm::vec3>::const_iterator it(mJoints.begin()); it != mJoints.end(); it++) {
+    for (auto it = mJoints.begin(); it != mJoints.end(); it++) {
         glVertex3fv(glm::value_ptr(*it));
     }
     glEnd();

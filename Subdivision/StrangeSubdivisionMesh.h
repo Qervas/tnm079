@@ -5,17 +5,16 @@
 
 class StrangeSubdivisionMesh : public AdaptiveLoopSubdivisionMesh {
 public:
-  virtual void Subdivide() {
-    // ....
-    AdaptiveLoopSubdivisionMesh::Subdivide();
-  }
+    virtual void Subdivide() {
+        AdaptiveLoopSubdivisionMesh::Subdivide();
+    }
 
 protected:
-  bool Subdividable(size_t fi) {
-    // Every 4th face is not subdividable - kinda strange!
-    // Do something more interesting...
-    return (fi % 4);
-  }
+    bool Subdividable(size_t fi) {
+        // Every 4th face is not subdividable - kinda strange!
+        // Do something more interesting...
+        return (fi % 4);
+    }
 };
 
 #endif

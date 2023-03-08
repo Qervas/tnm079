@@ -9,150 +9,150 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &title,
-                             const wxPoint &pos, const wxSize &size, long style)
+BaseFrameMain::BaseFrameMain(wxWindow* parent, wxWindowID id, const wxString& title,
+                             const wxPoint& pos, const wxSize& size, long style)
     : wxFrame(parent, id, title, pos, size, style) {
-    const auto black = wxColor(0, 0, 0);
-    const auto white = wxColor(255, 255, 255);
+    const wxColor black = wxColor(0, 0, 0);
+    const wxColor white = wxColor(255, 255, 255);
 
     this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 
-    m_menubar2 = new wxMenuBar(0);
+    m_menubar2 = new wxMenuBar(0.f);
     mMenuAddObject = new wxMenu();
-    wxMenuItem *mAddObjectSimpleMesh;
+    wxMenuItem* mAddObjectSimpleMesh;
     mAddObjectSimpleMesh = new wxMenuItem(mMenuAddObject, wxID_ANY, wxString(wxT("Simple mesh")),
                                           wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(mAddObjectSimpleMesh);
 
-    wxMenuItem *mAddObjectHalfEdgeMesh;
+    wxMenuItem* mAddObjectHalfEdgeMesh;
     mAddObjectHalfEdgeMesh = new wxMenuItem(
         mMenuAddObject, wxID_ANY, wxString(wxT("Half-edge mesh")), wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(mAddObjectHalfEdgeMesh);
 
-    wxMenuItem *mAddObjectSimpleDecimationMesh;
+    wxMenuItem* mAddObjectSimpleDecimationMesh;
     mAddObjectSimpleDecimationMesh =
         new wxMenuItem(mMenuAddObject, wxID_ANY, wxString(wxT("Simple decimation mesh")),
                        wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(mAddObjectSimpleDecimationMesh);
 
-    wxMenuItem *mAddObjectQuadricDecimationMesh;
+    wxMenuItem* mAddObjectQuadricDecimationMesh;
     mAddObjectQuadricDecimationMesh =
         new wxMenuItem(mMenuAddObject, wxID_ANY, wxString(wxT("Quadric decimation mesh")),
                        wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(mAddObjectQuadricDecimationMesh);
 
-    wxMenuItem *m_separator1;
+    wxMenuItem* m_separator1;
     m_separator1 = mMenuAddObject->AppendSeparator();
 
-    wxMenuItem *mAddObjectCubicSpline;
+    wxMenuItem* mAddObjectCubicSpline;
     mAddObjectCubicSpline = new wxMenuItem(mMenuAddObject, wxID_ANY, wxString(wxT("Cubic spline")),
                                            wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(mAddObjectCubicSpline);
 
-    wxMenuItem *mAddObjectSubdivisionCurve;
+    wxMenuItem* mAddObjectSubdivisionCurve;
     mAddObjectSubdivisionCurve = new wxMenuItem(
         mMenuAddObject, wxID_ANY, wxString(wxT("Subdivision curve")), wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(mAddObjectSubdivisionCurve);
 
-    wxMenuItem *mAddObjectLoopSubdivisionMesh;
+    wxMenuItem* mAddObjectLoopSubdivisionMesh;
     mAddObjectLoopSubdivisionMesh =
         new wxMenuItem(mMenuAddObject, wxID_ANY, wxString(wxT("Loop subdivision mesh")),
                        wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(mAddObjectLoopSubdivisionMesh);
 
-    wxMenuItem *mAddObjectStrangeSubdivisionMesh;
+    wxMenuItem* mAddObjectStrangeSubdivisionMesh;
     mAddObjectStrangeSubdivisionMesh =
         new wxMenuItem(mMenuAddObject, wxID_ANY, wxString(wxT("Strange subdivision mesh")),
                        wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(mAddObjectStrangeSubdivisionMesh);
 
-    wxMenuItem *m_separator2;
+    wxMenuItem* m_separator2;
     m_separator2 = mMenuAddObject->AppendSeparator();
 
-    wxMenuItem *mAddObjectImplicitSphere;
+    wxMenuItem* mAddObjectImplicitSphere;
     mAddObjectImplicitSphere = new wxMenuItem(
         mMenuAddObject, wxID_ANY, wxString(wxT("Implicit sphere")), wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(mAddObjectImplicitSphere);
 
-    wxMenuItem *mAddObjectImplicitMesh;
+    wxMenuItem* mAddObjectImplicitMesh;
     mAddObjectImplicitMesh = new wxMenuItem(
         mMenuAddObject, wxID_ANY, wxString(wxT("Implicit mesh")), wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(mAddObjectImplicitMesh);
 
     m_menu1 = new wxMenu();
-    wxMenuItem *mAddObjectQuadricPlane;
+    wxMenuItem* mAddObjectQuadricPlane;
     mAddObjectQuadricPlane =
         new wxMenuItem(m_menu1, wxID_ANY, wxString(wxT("Plane")), wxEmptyString, wxITEM_NORMAL);
     m_menu1->Append(mAddObjectQuadricPlane);
 
-    wxMenuItem *mAddObjectQuadricCylinder;
+    wxMenuItem* mAddObjectQuadricCylinder;
     mAddObjectQuadricCylinder =
         new wxMenuItem(m_menu1, wxID_ANY, wxString(wxT("Cylinder")), wxEmptyString, wxITEM_NORMAL);
     m_menu1->Append(mAddObjectQuadricCylinder);
 
-    wxMenuItem *mAddObjectQuadricEllipsoid;
+    wxMenuItem* mAddObjectQuadricEllipsoid;
     mAddObjectQuadricEllipsoid =
         new wxMenuItem(m_menu1, wxID_ANY, wxString(wxT("Ellipsoid")), wxEmptyString, wxITEM_NORMAL);
     m_menu1->Append(mAddObjectQuadricEllipsoid);
 
-    wxMenuItem *mAddObjectQuadricCone;
+    wxMenuItem* mAddObjectQuadricCone;
     mAddObjectQuadricCone =
         new wxMenuItem(m_menu1, wxID_ANY, wxString(wxT("Cone")), wxEmptyString, wxITEM_NORMAL);
     m_menu1->Append(mAddObjectQuadricCone);
 
-    wxMenuItem *mAddObjectQuadricParaboloid;
+    wxMenuItem* mAddObjectQuadricParaboloid;
     mAddObjectQuadricParaboloid = new wxMenuItem(m_menu1, wxID_ANY, wxString(wxT("Paraboloid")),
                                                  wxEmptyString, wxITEM_NORMAL);
     m_menu1->Append(mAddObjectQuadricParaboloid);
 
-    wxMenuItem *mAddObjectQuadricHyperboloid;
+    wxMenuItem* mAddObjectQuadricHyperboloid;
     mAddObjectQuadricHyperboloid = new wxMenuItem(m_menu1, wxID_ANY, wxString(wxT("Hyperboloid")),
                                                   wxEmptyString, wxITEM_NORMAL);
     m_menu1->Append(mAddObjectQuadricHyperboloid);
 
     mMenuAddObject->Append(-1, wxT("Implicit quadric"), m_menu1);
 
-    wxMenuItem *m_separator3;
+    wxMenuItem* m_separator3;
     m_separator3 = mMenuAddObject->AppendSeparator();
 
-    wxMenuItem *mAddObjectScalarCutPlane;
+    wxMenuItem* mAddObjectScalarCutPlane;
     mAddObjectScalarCutPlane = new wxMenuItem(
         mMenuAddObject, wxID_ANY, wxString(wxT("Scalar cut plane")), wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(mAddObjectScalarCutPlane);
 
-    wxMenuItem *mAddObjectVectorCutPlane;
+    wxMenuItem* mAddObjectVectorCutPlane;
     mAddObjectVectorCutPlane = new wxMenuItem(
         mMenuAddObject, wxID_ANY, wxString(wxT("Vector cut plane")), wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(mAddObjectVectorCutPlane);
 
-    wxMenuItem *m_separator4;
+    wxMenuItem* m_separator4;
     m_separator4 = mMenuAddObject->AppendSeparator();
 
-    wxMenuItem *m_menuItem21;
+    wxMenuItem* m_menuItem21;
     m_menuItem21 = new wxMenuItem(mMenuAddObject, wxID_ANY, wxString(wxT("Load levelset")),
                                   wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(m_menuItem21);
 
-    wxMenuItem *m_menuItem8;
+    wxMenuItem* m_menuItem8;
     m_menuItem8 =
         new wxMenuItem(mMenuAddObject, wxID_ANY, wxString(wxT("Convert implicit to levelset")),
                        wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(m_menuItem8);
 
-    wxMenuItem *m_separator5;
+    wxMenuItem* m_separator5;
     m_separator5 = mMenuAddObject->AppendSeparator();
 
-    wxMenuItem *m_menuItem22;
+    wxMenuItem* m_menuItem22;
     m_menuItem22 = new wxMenuItem(mMenuAddObject, wxID_ANY, wxString(wxT("Add template 1")),
                                   wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(m_menuItem22);
 
-    wxMenuItem *m_menuItem23;
+    wxMenuItem* m_menuItem23;
     m_menuItem23 = new wxMenuItem(mMenuAddObject, wxID_ANY, wxString(wxT("Add template 2")),
                                   wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(m_menuItem23);
 
-    wxMenuItem *m_menuItem24;
+    wxMenuItem* m_menuItem24;
     m_menuItem24 = new wxMenuItem(mMenuAddObject, wxID_ANY, wxString(wxT("Add template 3")),
                                   wxEmptyString, wxITEM_NORMAL);
     mMenuAddObject->Append(m_menuItem24);
@@ -160,12 +160,12 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
     m_menubar2->Append(mMenuAddObject, wxT("Add object"));
 
     m_menu2 = new wxMenu();
-    wxMenuItem *m_menuItem14;
+    wxMenuItem* m_menuItem14;
     m_menuItem14 = new wxMenuItem(m_menu2, wxID_ANY, wxString(wxT("Capture screen")), wxEmptyString,
                                   wxITEM_NORMAL);
     m_menu2->Append(m_menuItem14);
 
-    wxMenuItem *m_menuItem26;
+    wxMenuItem* m_menuItem26;
     m_menuItem26 =
         new wxMenuItem(m_menu2, wxID_ANY, wxString(wxT("Save mesh")), wxEmptyString, wxITEM_NORMAL);
     m_menu2->Append(m_menuItem26);
@@ -175,7 +175,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
     this->SetMenuBar(m_menubar2);
 
     m_statusBar2 = this->CreateStatusBar(1, wxST_SIZEGRIP, wxID_ANY);
-    wxBoxSizer *bSizer11;
+    wxBoxSizer* bSizer11;
     bSizer11 = new wxBoxSizer(wxHORIZONTAL);
 
     mPanelSideBar =
@@ -183,16 +183,16 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
     mPanelSideBar->SetScrollRate(5, 5);
     mPanelSideBar->SetMinSize(wxSize(320, -1));
 
-    wxBoxSizer *bSizer2;
+    wxBoxSizer* bSizer2;
     bSizer2 = new wxBoxSizer(wxVERTICAL);
 
     mPanelObjects =
         new wxPanel(mPanelSideBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
-    wxStaticBoxSizer *sbSizer2;
+    wxStaticBoxSizer* sbSizer2;
     sbSizer2 = new wxStaticBoxSizer(new wxStaticBox(mPanelObjects, wxID_ANY, wxT("Object list")),
                                     wxVERTICAL);
 
-    wxBoxSizer *bSizer5;
+    wxBoxSizer* bSizer5;
     bSizer5 = new wxBoxSizer(wxVERTICAL);
 
     mObjectList = new wxListBox(mPanelObjects, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL,
@@ -203,7 +203,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
 
     bSizer5->Add(mObjectList, 0, wxALL | wxEXPAND, 5);
 
-    wxBoxSizer *bSizer9;
+    wxBoxSizer* bSizer9;
     bSizer9 = new wxBoxSizer(wxHORIZONTAL);
 
     m_button14 =
@@ -231,11 +231,11 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
         new wxPanel(mPanelSideBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
     mPanelFluid->Hide();
 
-    wxStaticBoxSizer *sbSizer8;
+    wxStaticBoxSizer* sbSizer8;
     sbSizer8 = new wxStaticBoxSizer(new wxStaticBox(mPanelFluid, wxID_ANY, wxT("Fluid solver")),
                                     wxVERTICAL);
 
-    wxBoxSizer *bSizer131;
+    wxBoxSizer* bSizer131;
     bSizer131 = new wxBoxSizer(wxHORIZONTAL);
 
     m_button18 =
@@ -252,7 +252,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
 
     sbSizer8->Add(bSizer131, 0, 0, 5);
 
-    wxBoxSizer *bSizer141;
+    wxBoxSizer* bSizer141;
     bSizer141 = new wxBoxSizer(wxHORIZONTAL);
 
     m_staticText16 =
@@ -275,7 +275,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
 
     sbSizer8->Add(bSizer141, 0, 0, 5);
 
-    wxBoxSizer *bSizer17;
+    wxBoxSizer* bSizer17;
     bSizer17 = new wxBoxSizer(wxHORIZONTAL);
 
     mFluidRecord =
@@ -319,7 +319,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
         new wxPanel(mPanelSideBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
     mPanelDecimation->Hide();
 
-    wxStaticBoxSizer *sbSizer7;
+    wxStaticBoxSizer* sbSizer7;
     sbSizer7 = new wxStaticBoxSizer(new wxStaticBox(mPanelDecimation, wxID_ANY, wxT("Decimation")),
                                     wxHORIZONTAL);
 
@@ -332,7 +332,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
     sbSizer7->Add(m_DecimationTargetTxtBox, 0, wxALL, 5);
 
     mInfo1 = new wxStaticText(mPanelDecimation, wxID_ANY, wxT("(# or remaining faces)"),
-        wxDefaultPosition, wxDefaultSize, 0);
+                              wxDefaultPosition, wxDefaultSize, 0);
     sbSizer7->Add(mInfo1, 0, wxALL, 5);
 
     mPanelDecimation->SetSizer(sbSizer7);
@@ -344,7 +344,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
         new wxPanel(mPanelSideBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
     mPanelSubdivision->Hide();
 
-    wxStaticBoxSizer *sbSizer71;
+    wxStaticBoxSizer* sbSizer71;
     sbSizer71 = new wxStaticBoxSizer(
         new wxStaticBox(mPanelSubdivision, wxID_ANY, wxT("Subdivision")), wxHORIZONTAL);
 
@@ -361,11 +361,11 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
         new wxPanel(mPanelSideBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
     mPanelLevelset->Hide();
 
-    wxStaticBoxSizer *sbSizer5;
+    wxStaticBoxSizer* sbSizer5;
     sbSizer5 = new wxStaticBoxSizer(new wxStaticBox(mPanelLevelset, wxID_ANY, wxT("Levelset")),
                                     wxVERTICAL);
 
-    wxGridSizer *gSizer1;
+    wxGridSizer* gSizer1;
     gSizer1 = new wxGridSizer(3, 2, 0, 0);
 
     m_button7 = new wxButton(mPanelLevelset, wxID_ANY, wxT("Reinitialize"), wxDefaultPosition,
@@ -399,7 +399,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
                        wxDefaultPosition, wxDefaultSize, 0);
     sbSizer5->Add(mReinitializeFastMarching, 0, wxALL, 5);
 
-    wxBoxSizer *bSizer8;
+    wxBoxSizer* bSizer8;
     bSizer8 = new wxBoxSizer(wxHORIZONTAL);
 
     m_staticText15 = new wxStaticText(mPanelLevelset, wxID_ANY, wxT("Time"), wxDefaultPosition,
@@ -422,7 +422,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
 
     sbSizer5->Add(bSizer8, 0, wxEXPAND, 5);
 
-    wxBoxSizer *bSizer14;
+    wxBoxSizer* bSizer14;
     bSizer14 = new wxBoxSizer(wxHORIZONTAL);
 
     mLabelNarrowBand = new wxStaticText(mPanelLevelset, wxID_ANY, wxT("Narrowband"),
@@ -447,11 +447,11 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
 
     mPanelImplicit =
         new wxPanel(mPanelSideBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
-    wxStaticBoxSizer *sbSizer72;
+    wxStaticBoxSizer* sbSizer72;
     sbSizer72 = new wxStaticBoxSizer(new wxStaticBox(mPanelImplicit, wxID_ANY, wxT("Implicit")),
                                      wxVERTICAL);
 
-    wxBoxSizer *bSizer13;
+    wxBoxSizer* bSizer13;
     bSizer13 = new wxBoxSizer(wxHORIZONTAL);
 
     m_staticText131 = new wxStaticText(mPanelImplicit, wxID_ANY, wxT("Mesh sampling"),
@@ -469,10 +469,10 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
 
     sbSizer72->Add(bSizer13, 0, 0, 5);
 
-    wxBoxSizer *bSizer12;
+    wxBoxSizer* bSizer12;
     bSizer12 = new wxBoxSizer(wxHORIZONTAL);
 
-    wxBoxSizer *bSizer6;
+    wxBoxSizer* bSizer6;
     bSizer6 = new wxBoxSizer(wxVERTICAL);
 
     mUnion =
@@ -489,14 +489,14 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
 
     bSizer12->Add(bSizer6, 1, wxEXPAND, 5);
 
-    wxBoxSizer *bSizer7;
+    wxBoxSizer* bSizer7;
     bSizer7 = new wxBoxSizer(wxVERTICAL);
 
     mBlend = new wxCheckBox(mPanelImplicit, wxID_ANY, wxT("Blended CSG"), wxDefaultPosition,
                             wxDefaultSize, 0);
     bSizer7->Add(mBlend, 0, wxALL, 5);
 
-    wxBoxSizer *bSizer51;
+    wxBoxSizer* bSizer51;
     bSizer51 = new wxBoxSizer(wxHORIZONTAL);
 
     mBlendLabel = new wxStaticText(mPanelImplicit, wxID_ANY, wxT("Blend"), wxDefaultPosition,
@@ -518,7 +518,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
 
     sbSizer72->Add(bSizer12, 1, wxEXPAND, 5);
 
-    wxBoxSizer *bSizer18;
+    wxBoxSizer* bSizer18;
     bSizer18 = new wxBoxSizer(wxHORIZONTAL);
 
     m_staticText191 = new wxStaticText(mPanelImplicit, wxID_ANY, wxT("Differential scale"),
@@ -539,7 +539,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
 
     mPanelVisualization =
         new wxPanel(mPanelSideBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
-    wxStaticBoxSizer *sbSizer51;
+    wxStaticBoxSizer* sbSizer51;
     sbSizer51 = new wxStaticBoxSizer(
         new wxStaticBox(mPanelVisualization, wxID_ANY, wxT("Visualization")), wxVERTICAL);
 
@@ -552,7 +552,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
                        wxDefaultPosition, wxDefaultSize, 0);
     sbSizer51->Add(mVisualizeMeshNormals, 0, wxALL, 5);
 
-    wxBoxSizer *bSizer4;
+    wxBoxSizer* bSizer4;
     bSizer4 = new wxBoxSizer(wxHORIZONTAL);
 
     m_staticText9 = new wxStaticText(mPanelVisualization, wxID_ANY, wxT("Opacity"),
@@ -573,7 +573,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
     mColorMapChoice->SetSelection(0);
     sbSizer51->Add(mColorMapChoice, 0, wxALL, 5);
 
-    wxFlexGridSizer *fgSizer11;
+    wxFlexGridSizer* fgSizer11;
     fgSizer11 = new wxFlexGridSizer(2, 4, 0, 0);
     fgSizer11->SetFlexibleDirection(wxBOTH);
     fgSizer11->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_SPECIFIED);
@@ -625,11 +625,11 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
 
     mPanelTransform =
         new wxPanel(mPanelSideBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
-    wxStaticBoxSizer *sbSizer1;
+    wxStaticBoxSizer* sbSizer1;
     sbSizer1 = new wxStaticBoxSizer(new wxStaticBox(mPanelTransform, wxID_ANY, wxT("Transform")),
                                     wxVERTICAL);
 
-    wxFlexGridSizer *fgSizer1;
+    wxFlexGridSizer* fgSizer1;
     fgSizer1 = new wxFlexGridSizer(4, 4, 0, 0);
     fgSizer1->SetFlexibleDirection(wxBOTH);
     fgSizer1->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_SPECIFIED);
@@ -720,7 +720,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
                                     wxDefaultSize, 0);
     sbSizer1->Add(mButtonTransform, 0, wxALIGN_RIGHT | wxALL, 5);
 
-    wxBoxSizer *bSizer16;
+    wxBoxSizer* bSizer16;
     bSizer16 = new wxBoxSizer(wxHORIZONTAL);
 
     mDilate =
@@ -737,7 +737,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
 
     sbSizer1->Add(bSizer16, 0, 0, 5);
 
-    wxBoxSizer *bSizer171;
+    wxBoxSizer* bSizer171;
     bSizer171 = new wxBoxSizer(wxHORIZONTAL);
 
     m_staticText19 = new wxStaticText(mPanelTransform, wxID_ANY, wxT("Amount"), wxDefaultPosition,
@@ -984,7 +984,7 @@ BaseFrameMain::BaseFrameMain(wxWindow *parent, wxWindowID id, const wxString &ti
     m_button27->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(BaseFrameMain::Smooth),
                         NULL, this);
 
-    std::array<wxButton *, 27> mButtons{
+    std::array<wxButton*, 27> mButtons{
         m_button14,        m_button13,      m_button15,       m_button16,       m_button18,
         m_button19,        m_button20,      m_button21,       m_button22,       m_button24,
         m_button27,        m_button4,       m_button5,        m_button6,        m_button7,

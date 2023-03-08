@@ -29,12 +29,12 @@ protected:
     float mAlpha;
 
 public:
-    OperatorMeanCurvatureFlow(LevelSet *LS, float alpha = .9f)
+    OperatorMeanCurvatureFlow(LevelSet* LS, float alpha = 0.9f)
         : LevelSetOperator(LS), mAlpha(alpha) {}
 
     virtual float ComputeTimestep() {
         // Compute and return a stable timestep
-        return 1;
+        return 1.f;
     }
 
     virtual void Propagate(float time) {
@@ -43,8 +43,10 @@ public:
 
         // Propagate level set with stable timestep dt
         // until requested time is reached
-        for (float elapsed = 0; elapsed < time;) {
-            if (dt > time - elapsed) dt = time - elapsed;
+        for (float elapsed = 0.f; elapsed < time;) {
+            if (dt > time - elapsed) {
+                dt = time - elapsed;
+            }
             elapsed += dt;
 
             IntegrateEuler(dt);
@@ -54,6 +56,6 @@ public:
 
     virtual float Evaluate(size_t i, size_t j, size_t k) {
         // Compute the rate of change (dphi/dt)
-        return 0;
+        return 0.f;
     }
 };
