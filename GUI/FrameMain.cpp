@@ -267,27 +267,33 @@ void FrameMain::OpacityChanged(wxScrollEvent& event) {
     mGLViewer->Render();
 }
 
-void FrameMain::SetColormap(wxCommandEvent& event) {
-    ColorMap* map = ColorMapFactory::New(std::string(event.GetString().mb_str()));
-    std::list<GLObject*> objects = mGLViewer->GetSelectedObjects();
-    std::list<GLObject*>::iterator iter = objects.begin();
-    std::list<GLObject*>::iterator iend = objects.end();
-    while (map != NULL && iter != iend) {
-        (*iter)->mAutoMinMax = mAutoMinMax->IsChecked();
+void FrameMain::ApplyColormap(wxCommandEvent& event) {
+    // Apply all the current color map settings
+    ColorMap* map =
+        ColorMapFactory::New(std::string(mColorMapChoice->GetStringSelection().mb_str()));
+
+    std::list<GLObject*> selectedObjects = mGLViewer->GetSelectedObjects();
+
+    if (!map) {
+        std::cerr << "No valid color map chosen" << std::endl;
+        return;
+    }
+
+    for (auto& object : selectedObjects) {
+        object->mAutoMinMax = mAutoMinMax->IsChecked();
         double tmp1 = 0;
         mMin->GetValue().ToDouble(&tmp1);
-        (*iter)->mMinCMap = tmp1;
+        object->mMinCMap = tmp1;
         double tmp2 = 1;
         mMax->GetValue().ToDouble(&tmp2);
-        (*iter)->mMaxCMap = tmp2;
+        object->mMaxCMap = tmp2;
 
-        (*iter)->SetColorMap(map);
-        iter++;
+        object->SetColorMap(map);
     }
 
     // Reset color map item view, as it does not update between objects
     // This is a bit ugly, but works..
-    mColorMapChoice->SetSelection(0);
+    //mColorMapChoice->SetSelection(0);
 
     mGLViewer->Render();
 

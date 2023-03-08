@@ -292,43 +292,53 @@ void HalfEdgeMesh::Update() {
     std::cerr << "Volume: " << Volume() << ".\n";
 
     // Update vertex and face colors
+    if (!mColorMap) {
+        return;
+    }
+
+    float minCurvature = std::numeric_limits<float>::max();
+    float maxCurvature = -std::numeric_limits<float>::max();
+
+    if (!mAutoMinMax) {
+        minCurvature = mMinCMap;
+        maxCurvature = mMaxCMap;
+    }
+
     if (mVisualizationMode == CurvatureVertex) {
-        std::vector<Vertex>::iterator iter = mVerts.begin();
-        std::vector<Vertex>::iterator iend = mVerts.end();
-        float minCurvature = std::numeric_limits<float>::max();
-        float maxCurvature = -std::numeric_limits<float>::max();
-        while (iter != iend) {
-            if (minCurvature > (*iter).curvature) minCurvature = (*iter).curvature;
-            if (maxCurvature < (*iter).curvature) maxCurvature = (*iter).curvature;
-            iter++;
-        }
-        std::cerr << "Mapping color based on vertex curvature with range [" << minCurvature << ","
-                  << maxCurvature << "]" << std::endl;
-        iter = mVerts.begin();
-        while (iter != iend) {
-            if (mColorMap != nullptr) {
-                (*iter).color = mColorMap->Map((*iter).curvature, minCurvature, maxCurvature);
+        if (!mAutoMinMax) {
+            std::cerr << "Mapping color based on vertex curvature with range [" << mMinCMap << ","
+                      << mMaxCMap << "]" << std::endl;
+        } else {
+            // Compute range from vertices
+            for (auto& vert : mVerts) {
+                if (minCurvature > vert.curvature) minCurvature = vert.curvature;
+                if (maxCurvature < vert.curvature) maxCurvature = vert.curvature;
             }
-            iter++;
+            std::cerr << "Automatic mapping of color based on vertex curvature with range ["
+                      << minCurvature << "," << maxCurvature << "]" << std::endl;
+            mMinCMap = minCurvature;
+            mMaxCMap = maxCurvature;
+        }
+        for (auto& vert : mVerts) {
+            vert.color = mColorMap->Map(vert.curvature, minCurvature, maxCurvature);
         }
     } else if (mVisualizationMode == CurvatureFace) {
-        std::vector<Face>::iterator iter = mFaces.begin();
-        std::vector<Face>::iterator iend = mFaces.end();
-        float minCurvature = (std::numeric_limits<float>::max)();
-        float maxCurvature = -(std::numeric_limits<float>::max)();
-        while (iter != iend) {
-            if (minCurvature > (*iter).curvature) minCurvature = (*iter).curvature;
-            if (maxCurvature < (*iter).curvature) maxCurvature = (*iter).curvature;
-            iter++;
-        }
-        std::cerr << "Mapping color based on face curvature with range [" << minCurvature << ","
-                  << maxCurvature << "]" << std::endl;
-        iter = mFaces.begin();
-        while (iter != iend) {
-            if (mColorMap != nullptr) {
-                (*iter).color = mColorMap->Map((*iter).curvature, minCurvature, maxCurvature);
+        if (!mAutoMinMax) {
+            std::cerr << "Mapping color based on face curvature with range [" << mMinCMap << ","
+                      << mMaxCMap << "]" << std::endl;
+        } else {
+            // Compute range from faces
+            for (auto& face : mFaces) {
+                if (minCurvature > face.curvature) minCurvature = face.curvature;
+                if (maxCurvature < face.curvature) maxCurvature = face.curvature;
             }
-            iter++;
+            std::cerr << "Automatic mapping of color based on face curvature with range ["
+                      << minCurvature << "," << maxCurvature << "]" << std::endl;
+            mMinCMap = minCurvature;
+            mMaxCMap = maxCurvature;
+        }
+        for (auto& face : mFaces) {
+            face.color = mColorMap->Map(face.curvature, minCurvature, maxCurvature);
         }
     }
 }
