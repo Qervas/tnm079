@@ -32,13 +32,13 @@ public:
     class FactoryRegistration {
     public:
         FactoryRegistration(const std::string& name, ColorMap* colormap) {
-            ColorMapFactory::GetMap()[name] = colormap;
+            ColorMapFactory::GetMaps()[name] = colormap;
         }
     };
 
 protected:
     // Map of all color maps registered with the factory
-    static std::map<std::string, ColorMap*>& GetMap() {
+    static std::map<std::string, ColorMap*>& GetMaps() {
         static std::map<std::string, ColorMap*> mColorMaps;
         return mColorMaps;
     }

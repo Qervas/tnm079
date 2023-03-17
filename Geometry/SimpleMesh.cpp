@@ -159,13 +159,11 @@ std::vector<size_t> SimpleMesh::FindNeighborFaces(size_t vertexIndex) const {
     std::vector<size_t> foundFaces;
 
     // Find other triangles that include this vertex
-    std::vector<Face>::const_iterator iter = mFaces.begin();
-    std::vector<Face>::const_iterator iend = mFaces.end();
-    while (iter != iend) {
-        if (iter->v1 == vertexIndex || iter->v2 == vertexIndex || iter->v3 == vertexIndex) {
-            foundFaces.push_back(iter - mFaces.begin());
+    for (size_t i = 0; i < mFaces.size(); ++i) {
+        const Face& face = mFaces[i];
+        if (face.v1 == vertexIndex || face.v2 == vertexIndex || face.v3 == vertexIndex) {
+            foundFaces.push_back(i);
         }
-        iter++;
     }
 
     // Pick prev vertex
@@ -237,100 +235,91 @@ void SimpleMesh::Initialize() {
 
 //-----------------------------------------------------------------------------
 void SimpleMesh::Update() {
+    if (!mColorMap) { return; }
+
     // Update vertex and face colors
+    float minCurvature = std::numeric_limits<float>::max();
+    float maxCurvature = -std::numeric_limits<float>::max();
+
+    if (!mAutoMinMax) {
+        minCurvature = mMinCMap;
+        maxCurvature = mMaxCMap;
+    }
+
     if (mVisualizationMode == CurvatureVertex) {
-        std::vector<Vertex>::iterator iter = mVerts.begin();
-        std::vector<Vertex>::iterator iend = mVerts.end();
-        float minCurvature = std::numeric_limits<float>::max();
-        float maxCurvature = -std::numeric_limits<float>::max();
-        while (iter != iend) {
-            if (minCurvature > iter->curvature) minCurvature = iter->curvature;
-            if (maxCurvature < iter->curvature) maxCurvature = iter->curvature;
-            iter++;
-        }
         if (!mAutoMinMax) {
             std::cerr << "Mapping color based on vertex curvature with range [" << mMinCMap << ","
                       << mMaxCMap << "]" << std::endl;
-            minCurvature = mMinCMap;
-            maxCurvature = mMaxCMap;
         } else {
+            // Compute range from vertices
+            for (auto& vert : mVerts) {
+                if (minCurvature > vert.curvature) minCurvature = vert.curvature;
+                if (maxCurvature < vert.curvature) maxCurvature = vert.curvature;
+            }
             std::cerr << "Automatic mapping of color based on vertex curvature with range ["
                       << minCurvature << "," << maxCurvature << "]" << std::endl;
             mMinCMap = minCurvature;
             mMaxCMap = maxCurvature;
         }
-        iter = mVerts.begin();
-        while (iter != iend) {
-            iter->color = mColorMap->Map(iter->curvature, minCurvature, maxCurvature);
-            iter++;
+        for (auto& vert : mVerts) {
+            vert.color = mColorMap->Map(vert.curvature, minCurvature, maxCurvature);
         }
     } else if (mVisualizationMode == CurvatureFace) {
-        std::vector<Face>::iterator iter = mFaces.begin();
-        std::vector<Face>::iterator iend = mFaces.end();
-        float minCurvature = std::numeric_limits<float>::max();
-        float maxCurvature = -std::numeric_limits<float>::max();
-        while (iter != iend) {
-            if (minCurvature > iter->curvature) minCurvature = iter->curvature;
-            if (maxCurvature < iter->curvature) maxCurvature = iter->curvature;
-            iter++;
+        if (!mAutoMinMax) {
+            std::cerr << "Mapping color based on face curvature with range [" << mMinCMap << ","
+                      << mMaxCMap << "]" << std::endl;
+        } else {
+            // Compute range from faces
+            for (auto& face : mFaces) {
+                if (minCurvature > face.curvature) minCurvature = face.curvature;
+                if (maxCurvature < face.curvature) maxCurvature = face.curvature;
+            }
+            std::cerr << "Automatic mapping of color based on face curvature with range ["
+                      << minCurvature << "," << maxCurvature << "]" << std::endl;
+            mMinCMap = minCurvature;
+            mMaxCMap = maxCurvature;
         }
-        std::cerr << "Mapping color based on face curvature with range [" << minCurvature << ","
-                  << maxCurvature << "]" << std::endl;
-        iter = mFaces.begin();
-        while (iter != iend) {
-            iter->color = mColorMap->Map(iter->curvature, minCurvature, maxCurvature);
-            iter++;
+        for (auto& face : mFaces) {
+            face.color = mColorMap->Map(face.curvature, minCurvature, maxCurvature);
         }
     }
 }
 
 size_t SimpleMesh::Genus() const {
     std::set<MyEdge> uniqueEdges;
-    for (size_t i = 0; i < mFaces.size(); i++) {
-        uniqueEdges.insert(MyEdge(mFaces[i].v1, mFaces[i].v2));
-        uniqueEdges.insert(MyEdge(mFaces[i].v1, mFaces[i].v3));
-        uniqueEdges.insert(MyEdge(mFaces[i].v2, mFaces[i].v3));
+    for (const Face& face : mFaces) {
+        uniqueEdges.insert(MyEdge(face.v1, face.v2));
+        uniqueEdges.insert(MyEdge(face.v1, face.v3));
+        uniqueEdges.insert(MyEdge(face.v2, face.v3));
     }
-    auto E = uniqueEdges.size();
-    auto V = mVerts.size();
-    auto F = mFaces.size();
+    size_t E = uniqueEdges.size();
+    size_t V = mVerts.size();
+    size_t F = mFaces.size();
 
     std::cerr << "Number of edges: " << E << ", F: " << F << ", V: " << V << "\n";
-    return -(static_cast<int64_t>(V) - static_cast<int64_t>(E) + static_cast<int64_t>(F) - 2) / 2;
+    return -(V - E + F - 2) / 2;
 }
 
 void SimpleMesh::Dilate(float amount) {
-    std::vector<Vertex>::iterator iter = mVerts.begin();
-    std::vector<Vertex>::iterator iend = mVerts.end();
-    while (iter != iend) {
-        iter->pos += amount * iter->normal;
-        iter++;
+    for (Vertex& v : mVerts) {
+        v.pos += amount * v.normal;
     }
-
     Initialize();
     Update();
 }
 
 void SimpleMesh::Erode(float amount) {
-    std::vector<Vertex>::iterator iter = mVerts.begin();
-    std::vector<Vertex>::iterator iend = mVerts.end();
-    while (iter != iend) {
-        iter->pos -= amount * iter->normal;
-        iter++;
+    for (Vertex& v : mVerts) {
+        v.pos -= amount * v.normal;
     }
-
     Initialize();
     Update();
 }
 
 void SimpleMesh::Smooth(float amount) {
-    std::vector<Vertex>::iterator iter = mVerts.begin();
-    std::vector<Vertex>::iterator iend = mVerts.end();
-    while (iter != iend) {
-        iter->pos -= amount * iter->normal * iter->curvature;
-        iter++;
+    for (Vertex& v : mVerts) {
+        v.pos -= amount * v.normal * v.curvature;
     }
-
     Initialize();
     Update();
 }
@@ -355,31 +344,28 @@ void SimpleMesh::Render() {
 
     // Draw geometry
     glBegin(GL_TRIANGLES);
-    const auto numFaces = mFaces.size();
-    for (size_t i = 0; i < numFaces; i++) {
-        Face& triangle = mFaces[i];
-
-        glm::vec3& p0 = mVerts[triangle.v1].pos;
-        glm::vec3& p1 = mVerts[triangle.v2].pos;
-        glm::vec3& p2 = mVerts[triangle.v3].pos;
+    for (const Face& triangle : mFaces) {
+        const glm::vec3& p0 = mVerts[triangle.v1].pos;
+        const glm::vec3& p1 = mVerts[triangle.v2].pos;
+        const glm::vec3& p2 = mVerts[triangle.v3].pos;
 
         if (mVisualizationMode == CurvatureVertex) {
-            glm::vec3& c1 = mVerts.at(triangle.v1).color;
+            const glm::vec3& c1 = mVerts.at(triangle.v1).color;
             glColor4f(c1[0], c1[1], c1[2], mOpacity);
             glNormal3fv(glm::value_ptr(mVerts.at(triangle.v1).normal));
             glVertex3fv(glm::value_ptr(p0));
 
-            glm::vec3& c2 = mVerts.at(triangle.v2).color;
+            const glm::vec3& c2 = mVerts.at(triangle.v2).color;
             glColor4f(c2[0], c2[1], c2[2], mOpacity);
             glNormal3fv(glm::value_ptr(mVerts.at(triangle.v2).normal));
             glVertex3fv(glm::value_ptr(p1));
 
-            glm::vec3& c3 = mVerts.at(triangle.v3).color;
+            const glm::vec3& c3 = mVerts.at(triangle.v3).color;
             glColor4f(c3[0], c3[1], c3[2], mOpacity);
             glNormal3fv(glm::value_ptr(mVerts.at(triangle.v3).normal));
             glVertex3fv(glm::value_ptr(p2));
         } else {
-            glm::vec3& color = triangle.color;
+            const glm::vec3& color = triangle.color;
             glColor4f(color[0], color[1], color[2], mOpacity);
             glNormal3fv(glm::value_ptr(triangle.normal));
 
@@ -394,21 +380,19 @@ void SimpleMesh::Render() {
     if (mShowNormals) {
         glDisable(GL_LIGHTING);
         glBegin(GL_LINES);
-        for (size_t i = 0; i < mFaces.size(); i++) {
-            Face& face = mFaces.at(i);
-
-            Vertex& v1 = mVerts.at(face.v1);
-            Vertex& v2 = mVerts.at(face.v2);
-            Vertex& v3 = mVerts.at(face.v3);
+        for (const Face& face : mFaces) {
+            const Vertex& v1 = mVerts.at(face.v1);
+            const Vertex& v2 = mVerts.at(face.v2);
+            const Vertex& v3 = mVerts.at(face.v3);
 
             glm::vec3 faceStart = (v1.pos + v2.pos + v3.pos) / 3.f;
             glm::vec3 faceEnd = faceStart + face.normal * 0.1f;
 
-            glColor3f(1, 0, 0);  // Red for face normal
+            glColor3f(1.f, 0.f, 0.f);  // Red for face normal
             glVertex3fv(glm::value_ptr(faceStart));
             glVertex3fv(glm::value_ptr(faceEnd));
 
-            glColor3f(0, 1, 0);  // Vertex normals in Green
+            glColor3f(0.f, 1.f, 0.f);  // Vertex normals in Green
             glVertex3fv(glm::value_ptr(v1.pos));
             glVertex3fv(glm::value_ptr(v1.pos + v1.normal * 0.1f));
             glVertex3fv(glm::value_ptr(v2.pos));

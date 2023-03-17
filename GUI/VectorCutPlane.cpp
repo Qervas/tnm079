@@ -27,16 +27,16 @@ void VectorCutPlane::Render() {
     glDisable(GL_LIGHTING);
     glDisable(GL_COLOR_MATERIAL);
 
-    glLineWidth(1);
+    glLineWidth(1.f);
     glBegin(GL_LINES);
     size_t i = 0;
-    float x = 0;
-    for (float y = -1; y <= 1; y += mDx) {
-        for (float z = -1; z <= 1; z += mDx) {
-            glm::vec4 vec(x, y, z, 1);
+    float x = 0.f;
+    for (float y = -1.f; y <= 1.f; y += mDx) {
+        for (float z = -1.f; z <= 1.f; z += mDx) {
+            glm::vec4 vec(x, y, z, 1.f);
             vec = mTransform * vec;
 
-            glm::vec3 color = mColorMap->Map(mVectors[i], -1, 1);
+            glm::vec3 color = mColorMap->Map(mVectors[i], -1.f, 1.f);
             glColor3fv(glm::value_ptr(color));
 
             glm::vec3 end = glm::vec3(vec[0], vec[1], vec[2]) + mVectors[i] * mDx;
@@ -46,20 +46,20 @@ void VectorCutPlane::Render() {
         }
     }
     glEnd();
-    glLineWidth(1);
+    glLineWidth(1.f);
 
-    glPointSize(3);
+    glPointSize(3.f);
     glColor3f(1.f, 0.f, 0.f);
     glBegin(GL_POINTS);
-    for (float y = -1; y <= 1; y += mDx) {
-        for (float z = -1; z <= 1; z += mDx) {
+    for (float y = -1.f; y <= 1.f; y += mDx) {
+        for (float z = -1.f; z <= 1.f; z += mDx) {
             glm::vec4 vec(x, y, z, 1);
             vec = mTransform * vec;
             glVertex3fv(glm::value_ptr(vec));
         }
     }
     glEnd();
-    glPointSize(1);
+    glPointSize(1.f);
 
     glPopAttrib();
 

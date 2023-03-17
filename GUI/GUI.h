@@ -110,6 +110,7 @@ protected:
     wxStaticText* m_staticText61;
     wxTextCtrl* mMax;
     wxCheckBox* mAutoMinMax;
+    wxButton* mButtonApplyColormap;
     wxChoice* mVisualizationModeChoice;
     wxPanel* mPanelTransform;
     wxStaticText* m_staticText1;
@@ -194,7 +195,7 @@ protected:
     virtual void VisualizeWireframe(wxCommandEvent& event) { event.Skip(); }
     virtual void VisualizeMeshNormals(wxCommandEvent& event) { event.Skip(); }
     virtual void OpacityChanged(wxScrollEvent& event) { event.Skip(); }
-    virtual void SetColormap(wxCommandEvent& event) { event.Skip(); }
+    virtual void ApplyColormap(wxCommandEvent& event) { event.Skip(); }
     virtual void TextCtrlFocus(wxFocusEvent& event) { event.Skip(); }
     virtual void ScaleChanged(wxCommandEvent& event) { event.Skip(); }
     virtual void ToggleAutoMinMax(wxCommandEvent& event) { event.Skip(); }

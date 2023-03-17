@@ -205,7 +205,7 @@ void LevelSet::SetNarrowBandWidth(int width) {
     mGrid.Rebuild();
 }
 
-int LevelSet::GetNarrowBandWidth() {
+int LevelSet::GetNarrowBandWidth() const {
     float width = mGrid.GetOutsideConstant() - mGrid.GetInsideConstant();
     return static_cast<int>(width / mDx);
 }

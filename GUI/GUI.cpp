@@ -566,6 +566,11 @@ BaseFrameMain::BaseFrameMain(wxWindow* parent, wxWindowID id, const wxString& ti
 
     sbSizer51->Add(bSizer4, 1, wxEXPAND, 5);
 
+    wxStaticText* m_staticTextColormap = new wxStaticText(
+        mPanelVisualization, wxID_ANY, wxT("Color map"), wxDefaultPosition, wxDefaultSize, 0);
+    m_staticTextColormap->Wrap(-1);
+    sbSizer51->Add(m_staticTextColormap, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_LEFT | wxALL, 5);
+
     wxString mColorMapChoiceChoices[] = {wxT("Choose color map...")};
     int mColorMapChoiceNChoices = sizeof(mColorMapChoiceChoices) / sizeof(wxString);
     mColorMapChoice = new wxChoice(mPanelVisualization, wxID_ANY, wxDefaultPosition, wxDefaultSize,
@@ -608,6 +613,11 @@ BaseFrameMain::BaseFrameMain(wxWindow* parent, wxWindowID id, const wxString& ti
                                  wxDefaultPosition, wxDefaultSize, 0);
     mAutoMinMax->SetValue(true);
     sbSizer51->Add(mAutoMinMax, 0, wxALL, 5);
+
+    mButtonApplyColormap = new wxButton(mPanelVisualization, wxID_ANY, wxT("Apply color map"),
+                                        wxDefaultPosition, wxDefaultSize, 0);
+
+    sbSizer51->Add(mButtonApplyColormap, 0, wxALIGN_RIGHT | wxALL, 5);
 
     wxString mVisualizationModeChoiceChoices[] = {wxT("Choose visualization mode...")};
     int mVisualizationModeChoiceNChoices =
@@ -820,6 +830,7 @@ BaseFrameMain::BaseFrameMain(wxWindow* parent, wxWindowID id, const wxString& ti
                   wxCommandEventHandler(BaseFrameMain::CaptureScreen));
     this->Connect(m_menuItem26->GetId(), wxEVT_COMMAND_MENU_SELECTED,
                   wxCommandEventHandler(BaseFrameMain::SaveMesh));
+
     mObjectList->Connect(wxEVT_COMMAND_LISTBOX_SELECTED,
                          wxCommandEventHandler(BaseFrameMain::SelectObjects), NULL, this);
     m_button14->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
@@ -941,8 +952,10 @@ BaseFrameMain::BaseFrameMain(wxWindow* parent, wxWindowID id, const wxString& ti
                                wxScrollEventHandler(BaseFrameMain::OpacityChanged), NULL, this);
     mVisualizeOpacity->Connect(wxEVT_SCROLL_CHANGED,
                                wxScrollEventHandler(BaseFrameMain::OpacityChanged), NULL, this);
-    mColorMapChoice->Connect(wxEVT_COMMAND_CHOICE_SELECTED,
-                             wxCommandEventHandler(BaseFrameMain::SetColormap), NULL, this);
+    // TODO: new button
+    mButtonApplyColormap->Connect(wxEVT_COMMAND_BUTTON_CLICKED,
+                                  wxCommandEventHandler(BaseFrameMain::ApplyColormap), NULL, this);
+
     mMin->Connect(wxEVT_SET_FOCUS, wxFocusEventHandler(BaseFrameMain::TextCtrlFocus), NULL, this);
     mMin->Connect(wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(BaseFrameMain::ScaleChanged),
                   NULL, this);
@@ -1174,8 +1187,9 @@ BaseFrameMain::~BaseFrameMain() {
                                   wxScrollEventHandler(BaseFrameMain::OpacityChanged), NULL, this);
     mVisualizeOpacity->Disconnect(wxEVT_SCROLL_CHANGED,
                                   wxScrollEventHandler(BaseFrameMain::OpacityChanged), NULL, this);
-    mColorMapChoice->Disconnect(wxEVT_COMMAND_CHOICE_SELECTED,
-                                wxCommandEventHandler(BaseFrameMain::SetColormap), NULL, this);
+    mButtonApplyColormap->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED,
+                                     wxCommandEventHandler(BaseFrameMain::ApplyColormap), NULL,
+                                     this);
     mMin->Disconnect(wxEVT_SET_FOCUS, wxFocusEventHandler(BaseFrameMain::TextCtrlFocus), NULL,
                      this);
     mMin->Disconnect(wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(BaseFrameMain::ScaleChanged),

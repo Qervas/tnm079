@@ -55,11 +55,11 @@ public:
     virtual void Render();
 
     void SetName(const std::string& name) { mName = name; }
-    const std::string& GetName() { return mName; }
+    const std::string& GetName() const { return mName; }
     virtual const char* GetTypeName() = 0;
 
     virtual void SetColorMap(ColorMap* colormap) { mColorMap = colormap; }
-    virtual ColorMap* GetColorMap() { return mColorMap; }
+    virtual ColorMap* GetColorMap() const  { return mColorMap; }
 
     virtual void SetVisualizationMode(const VisualizationMode& source) {
         mVisualizationMode = source;
@@ -67,10 +67,10 @@ public:
     virtual const VisualizationMode& GetVisualizationMode() const { return mVisualizationMode; }
 
     virtual void SetWireframe(bool enable = true) { mWireframe = enable; }
-    virtual bool GetWireframe() { return mWireframe; }
+    virtual bool GetWireframe() const  { return mWireframe; }
 
     virtual void SetShowNormals(bool enable = true) { mShowNormals = enable; }
-    virtual bool GetShowNormals() { return mShowNormals; }
+    virtual bool GetShowNormals() const { return mShowNormals; }
 
     virtual void SetOpacity(float opacity) { mOpacity = opacity; }
     inline float GetOpacity() const { return mOpacity; }
@@ -87,7 +87,7 @@ public:
     void Select() { mSelected = true; }
     void DeSelect() { mSelected = false; }
     void ToggleSelect() { mSelected = !mSelected; }
-    bool IsSelected() { return mSelected; }
+    bool IsSelected() const { return mSelected; }
 
     virtual void PickChildren(GLuint* objects, int numberOfObjects) {}
 

@@ -73,11 +73,8 @@ int FluidSolver::Solve(float time) {
 
         // Compute current volume
         mCurrentVolume = 0.f;
-        std::set<LevelSet*>::const_iterator iter = mFluids.begin();
-        std::set<LevelSet*>::const_iterator iend = mFluids.end();
-        while (iter != iend) {
-            mCurrentVolume += (*iter)->ComputeVolume((*iter)->GetDx());
-            iter++;
+        for (const LevelSet* fluid : mFluids) {
+            mCurrentVolume += fluid->ComputeVolume(fluid->GetDx());
         }
         std::cout << "Current volume: " << mCurrentVolume << std::endl;
         std::cout << "Initial volume: " << mInitialVolume << std::endl;
@@ -303,13 +300,10 @@ void FluidSolver::VelocityExtension() {
     auto iterations = 0;
     auto narrowbandWidth = 0.f;
     auto dt = 0.7f;
-    std::set<LevelSet*>::const_iterator iter = mFluids.begin();
-    std::set<LevelSet*>::const_iterator iend = mFluids.end();
-    while (iter != iend) {
-        iterations = std::max(iterations, (int)((*iter)->GetNarrowBandWidth() * 0.5f / dt));
+    for (const LevelSet* fluid : mFluids) {
+        iterations = std::max(iterations, (int)(fluid->GetNarrowBandWidth() * 0.5f / dt));
         narrowbandWidth =
-            std::max(narrowbandWidth, (*iter)->GetNarrowBandWidth() * (*iter)->GetDx() * 0.5f);
-        iter++;
+            std::max(narrowbandWidth, fluid->GetNarrowBandWidth() * fluid->GetDx() * 0.5f);
     }
 
     iterations = std::min(iterations, (int)(mVoxels.GetDimX() / dt));

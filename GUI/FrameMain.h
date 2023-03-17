@@ -108,7 +108,7 @@ protected:
     void VisualizeWireframe(wxCommandEvent& event);
     void VisualizeMeshNormals(wxCommandEvent& event);
     void OpacityChanged(wxScrollEvent& event);
-    void SetColormap(wxCommandEvent& event);
+    void ApplyColormap(wxCommandEvent& event);
     void SetVisualizationMode(wxCommandEvent& event);
     void ScaleChanged(wxCommandEvent& event);
     void ToggleUniformScaling(wxCommandEvent& event);

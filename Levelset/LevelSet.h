@@ -47,7 +47,7 @@ public:
     virtual void SetNarrowBandWidth(int width);
 
     //! Get narrow band width (in number of grid points)
-    int GetNarrowBandWidth();
+    int GetNarrowBandWidth() const;
 
     inline const float GetDx() const { return mDx; }
 
