@@ -54,61 +54,92 @@ bool ObjIO::ReadHeader(std::istream& is) {
     }
     return is.good();
 }
-
 bool ObjIO::ReadData(std::istream& is) {
-    std::string lineBuf;
-    int c;
-    int i = 0;
-    while (!is.eof()) {
-        c = is.peek();
-        switch (c) {
-            case 'V':
-            case 'v': {
-                std::string startBuf;
-                is >> startBuf;        // get the start of the line
-                getline(is, lineBuf);  // get the rest of the line
-                if (startBuf == "v") {
-                    loadData.verts.push_back(vec3<float>(lineBuf));
-                }
-            } break;
-            case 'F':
-            case 'f': {
-                std::stringstream buf;
-                is.get(*buf.rdbuf(), '\n');  // read a line into buf
-                is.get();                    // read the not extracted \n
-                buf << "\n";                 // and add it to the string stream
-
-                std::string tmp;
-                buf >> tmp;  // get the first f or F (+ whitespace)
-
-                // count the number of faces, delimited by whitespace
-                int count = 0;
-                while (buf >> tmp) {
-                    count++;
-                }
-                // reset stream
-                buf.clear();
-                buf.seekg(0, std::ios::beg);
-
-                // Determine wheter we have a triangle or a quad
-                if (count == 3) {
-                    loadData.tris.push_back(ReadTri(buf));
-                } else {
-                    std::cerr << "Encountered polygon with " << count << " faces. Bailing out.\n";
-                    return false;
-                }
-            } break;
-            default:
-                // otherwise just skip the row
-                getline(is, lineBuf);
-                // output it so we see what we miss :)
-                // std::cerr << "\"" << lineBuf << "\"\n";
-                break;
+    std::string line;
+    while (std::getline(is, line)) {
+        std::istringstream iss(line);
+        char type;
+        iss >> type;
+        if (type == 'v') {
+            float x, y, z;
+            iss >> x >> y >> z;
+            loadData.verts.emplace_back(x, y, z);
+        } else if (type == 'f') {
+            std::vector<unsigned int> indices;
+            std::string vertex;
+            while (iss >> vertex) {
+                size_t slash = vertex.find('/');
+                unsigned int idx = std::stoi(vertex.substr(0, slash)) - 1; // Convert from 1-based to 0-based index
+                indices.push_back(idx);
+            }
+            if (indices.size() == 3) {
+                loadData.tris.emplace_back(indices[0], indices[1], indices[2]);
+            } else if (indices.size() == 4) {
+                // Triangulate quadrilateral (A, B, C, D) into (A, B, C) and (A, C, D)
+                loadData.tris.emplace_back(indices[0], indices[1], indices[2]);
+                loadData.tris.emplace_back(indices[0], indices[2], indices[3]);
+            } else {
+                std::cerr << "Unsupported polygon with " << indices.size() << " vertices.\n";
+                return false;
+            }
         }
-        i++;
     }
     return true;
 }
+// bool ObjIO::ReadData(std::istream& is) {
+//     std::string lineBuf;
+//     int c;
+//     int i = 0;
+//     while (!is.eof()) {
+//         c = is.peek();
+//         switch (c) {
+//             case 'V':
+//             case 'v': {
+//                 std::string startBuf;
+//                 is >> startBuf;        // get the start of the line
+//                 getline(is, lineBuf);  // get the rest of the line
+//                 if (startBuf == "v") {
+//                     loadData.verts.push_back(vec3<float>(lineBuf));
+//                 }
+//             } break;
+//             case 'F':
+//             case 'f': {
+//                 std::stringstream buf;
+//                 is.get(*buf.rdbuf(), '\n');  // read a line into buf
+//                 is.get();                    // read the not extracted \n
+//                 buf << "\n";                 // and add it to the string stream
+
+//                 std::string tmp;
+//                 buf >> tmp;  // get the first f or F (+ whitespace)
+
+//                 // count the number of faces, delimited by whitespace
+//                 int count = 0;
+//                 while (buf >> tmp) {
+//                     count++;
+//                 }
+//                 // reset stream
+//                 buf.clear();
+//                 buf.seekg(0, std::ios::beg);
+
+//                 // Determine wheter we have a triangle or a quad
+//                 if (count == 3) {
+//                     loadData.tris.push_back(ReadTri(buf));
+//                 } else {
+//                     std::cerr << "Encountered polygon with " << count << " faces. Bailing out.\n";
+//                     return false;
+//                 }
+//             } break;
+//             default:
+//                 // otherwise just skip the row
+//                 getline(is, lineBuf);
+//                 // output it so we see what we miss :)
+//                 // std::cerr << "\"" << lineBuf << "\"\n";
+//                 break;
+//         }
+//         i++;
+//     }
+//     return true;
+// }
 
 glm::uvec3 ObjIO::ReadTri(std::istream& is) {
     //  This is a simplified version of an obj reader that can't read normal and

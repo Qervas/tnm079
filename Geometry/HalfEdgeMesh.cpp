@@ -14,20 +14,44 @@ HalfEdgeMesh::~HalfEdgeMesh() {}
  */
 bool HalfEdgeMesh::AddFace(const std::vector<glm::vec3>& verts) {
     // Add your code here
-    std::cerr << "ADD TRIANGLE NOT IMPLEMENTED. ";
-
+    if(verts.size()!= 3){throw std::runtime_error("`verts` must be size of 3!");}
     // Add the vertices of the face/triangle
-
+    const size_t ind1 = AddVertex(verts.at(0));
+    const size_t ind2 = AddVertex(verts.at(1));
+    const size_t ind3 = AddVertex(verts.at(2));
     // Add all half-edge pairs
+    auto he1 = AddHalfEdgePair(ind1,ind2);
+    auto he2 = AddHalfEdgePair(ind2,ind3);
+    auto he3 = AddHalfEdgePair(ind3,ind1);
 
     // Connect inner ring
-
+    e(he1.first).next = he2.first;
+    e(he1.first).prev = he3.first;
+    e(he2.first).next = he3.first;
+    e(he2.first).prev = he1.first;
+    e(he3.first).next = he1.first;
+    e(he3.first).prev = he2.first;
+    
+    auto tri = Face();
+    tri.edge = he1.first;
+    mFaces.push_back(tri);
     // Finally, create the face, don't forget to set the normal (which should be
     // normalized)
-
+    mFaces.back().normal = FaceNormal(mFaces.size() - 1);
     // All half-edges share the same left face (previously added)
+    
+    size_t newFaceIndex = mFaces.size() - 1;
+    e(he1.first).face = newFaceIndex;
+    e(he2.first).face = newFaceIndex;
+    e(he3.first).face = newFaceIndex;
 
-    // Optionally, track the (outer) boundary half-edges
+    //update the edge state to UNINITIALIZED for inner edges
+    
+
+     // todo: Optionally, track the (outer) boundary half-edges
+
+    // the EdgeState::Uninitialized is used to represent non-closed surfaces
+    // the EdgeState::Border is used to represent the outer boundary
     // to represent non-closed surfaces
     return true;
 }
@@ -60,14 +84,14 @@ size_t HalfEdgeMesh::AddVertex(const glm::vec3& v) {
  * \return a pair the indices to the half-edges
  */
 std::pair<size_t, size_t> HalfEdgeMesh::AddHalfEdgePair(size_t v1, size_t v2) {
-    std::map<OrderedPair, size_t>::iterator it = mUniqueEdgePairs.find(OrderedPair(v1, v2));
+    std::map<OrderedPair, size_t>::iterator it = mUniqueEdgePairs.find(OrderedPair(v1, v2));// find the edge in the map
     if (it != mUniqueEdgePairs.end()) {
-        auto indx1 = it->second;
-        auto indx2 = e(it->second).pair;
-        if (v1 != e(indx1).vert) {
+        auto indx1 = it->second;// get the index of the already existing edge
+        auto indx2 = e(it->second).pair; // get the index of the pair
+        if (v1 != e(indx1).vert) { // make sure the edge is correctly oriented
             std::swap(indx1, indx2);  // sort correctly
         }
-        return {indx1, indx2};
+        return {indx1, indx2}; // return the indices
     }
 
     // If not found, calculate both half-edges indices
@@ -199,11 +223,29 @@ void HalfEdgeMesh::Validate() {
  * counter clockwise. \param [in] vertexIndex  the index to vertex, size_t
  * \return a vector containing the indices to all the found vertices.
  */
-std::vector<size_t> HalfEdgeMesh::FindNeighborVertices(size_t vertexIndex) const {
-    // Collected vertices, sorted counter clockwise!
-    std::vector<size_t> oneRing;
 
-    // Add your code here
+std::vector<size_t> HalfEdgeMesh::FindNeighborVertices(size_t vertexIndex) const {
+    std::vector<size_t> oneRing;
+    
+    size_t startEdge = v(vertexIndex).edge;
+    if (startEdge == EdgeState::Uninitialized) {
+        return oneRing; // No edges; isolated vertex.
+    }
+
+    size_t currentEdge = startEdge;
+    do {
+        // Assuming that 'next' and 'pair' edges have been properly set in 'AddFace'
+        size_t nextEdge = e(e(currentEdge).next).pair;
+        // Check for border or non-existent edges.
+        if (nextEdge == EdgeState::Border || nextEdge == EdgeState::Uninitialized) {
+            break; // Stop if we hit a border or an uninitialized edge.
+        }
+        size_t connectedVertexIndex = e(e(currentEdge).next).vert;
+        if (connectedVertexIndex != vertexIndex) {
+            oneRing.push_back(connectedVertexIndex);
+        }
+        currentEdge = nextEdge;
+    } while (currentEdge != startEdge);
 
     return oneRing;
 }
@@ -213,14 +255,30 @@ std::vector<size_t> HalfEdgeMesh::FindNeighborVertices(size_t vertexIndex) const
  * counter clockwise. \param [in] vertexIndex  the index to vertex, size_t
  * \return a vector containing the indices to all the found faces.
  */
+// std::vector<size_t> HalfEdgeMesh::FindNeighborFaces(size_t vertexIndex) const {
+//     // Collected faces, sorted counter clockwise!
+//     std::vector<size_t> foundFaces;
+//     std::vector<size_t> vertices(3);
+
+//     for(size_t i = 0; i < GetNumFaces(); i++){
+//         size_t indx = f(i).edge;
+//         const EdgeIterator it = GetEdgeIterator(indx);
+//         vertices.at(0) = it.GetEdgeVertexIndex();
+//         vertices.at(1) = it.Next().GetEdgeVertexIndex();
+//         vertices.at(2) = it.Next().Next().GetEdgeVertexIndex();
+//         if(vertices[0].index == vertexIndex || vertices[1].index == vertexIndex || vertices[2].index == vertexIndex){
+//             foundFaces.push_back(i);
+//         }
+//     }
+//     return foundFaces;
+// }
 std::vector<size_t> HalfEdgeMesh::FindNeighborFaces(size_t vertexIndex) const {
-    // Collected faces, sorted counter clockwise!
+    // Collected faces, sorted counter-clockwise!
     std::vector<size_t> foundFaces;
 
     // Add your code here
     return foundFaces;
 }
-
 /*! \lab1 Implement the curvature */
 float HalfEdgeMesh::VertexCurvature(size_t vertexIndex) const {
     // Copy code from SimpleMesh or compute more accurate estimate
@@ -345,8 +403,9 @@ void HalfEdgeMesh::Update() {
 
 /*! \lab1 Implement the area */
 float HalfEdgeMesh::Area() const {
-    float area = 0;
+    float area = 0.f;
     // Add code here
+    
     std::cerr << "Area calculation not implemented for half-edge mesh!\n";
     return area;
 }
@@ -366,8 +425,13 @@ size_t HalfEdgeMesh::Shells() const { return 1; }
 size_t HalfEdgeMesh::Genus() const {
     // Add code here
     std::cerr << "Genus calculation not implemented for half-edge mesh!\n";
-    return 0;
+    size_t V = GetNumVerts();
+    size_t E = GetNumEdges();
+    size_t F = GetNumFaces();
+    return (V - E + F) / 2; // Euler characteristic
 }
+
+
 
 void HalfEdgeMesh::Dilate(float amount) {
     for (Vertex& v : mVerts) {
@@ -491,3 +555,5 @@ void HalfEdgeMesh::Render() {
 
     GLObject::Render();
 }
+
+// Customized functions
