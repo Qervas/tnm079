@@ -273,10 +273,33 @@ std::vector<size_t> HalfEdgeMesh::FindNeighborVertices(size_t vertexIndex) const
 //     return foundFaces;
 // }
 std::vector<size_t> HalfEdgeMesh::FindNeighborFaces(size_t vertexIndex) const {
-    // Collected faces, sorted counter-clockwise!
+    // Collected faces, sorted counter-clockwise around the vertex
     std::vector<size_t> foundFaces;
 
-    // Add your code here
+    // Get the edge that starts from the vertex
+    size_t edgeIndex = v(vertexIndex).edge;
+    
+    // If the vertex is isolated (no edges), return the empty list
+    if (edgeIndex == EdgeState::Uninitialized) {
+        return foundFaces;
+    }
+
+    // Keep track of the starting edge to detect when we've made a full loop
+    size_t startEdgeIndex = edgeIndex;
+
+    do {
+        // The face adjacent to this edge is a neighbor
+        foundFaces.push_back(e(edgeIndex).face);
+        
+        // Move to the next edge around the vertex
+        edgeIndex = e(e(edgeIndex).next).pair;
+
+        // If this edge is a border edge, stop here
+        if (edgeIndex == EdgeState::Border) {
+            break;
+        }
+    } while (edgeIndex != startEdgeIndex && edgeIndex != EdgeState::Uninitialized);
+
     return foundFaces;
 }
 /*! \lab1 Implement the curvature */
@@ -311,9 +334,13 @@ glm::vec3 HalfEdgeMesh::FaceNormal(size_t faceIndex) const {
 }
 
 glm::vec3 HalfEdgeMesh::VertexNormal(size_t vertexIndex) const {
+    //Mean weighted equally
     glm::vec3 n(0.f, 0.f, 0.f);
-
-    // Add your code here
+    std::vector<size_t> faces = FindNeighborFaces(vertexIndex);
+    for (size_t i = 0; i < faces.size(); i++) {
+        n += f(faces[i]).normal;
+    }
+    n = glm::normalize(n); 
     return n;
 }
 
