@@ -1,7 +1,7 @@
 #include <Geometry/HalfEdgeMesh.h>
 #include <gtc/type_ptr.hpp>
 #include <iterator>
-
+#include <math.h>
 HalfEdgeMesh::HalfEdgeMesh() {}
 
 HalfEdgeMesh::~HalfEdgeMesh() {}
@@ -286,52 +286,34 @@ std::vector<size_t> HalfEdgeMesh::FindNeighborFaces(size_t vertexIndex) const {
     return foundFaces;
 }
 /*! \lab1 Implement the curvature */
-#define GAUSSIAN_CURVATURE
 float HalfEdgeMesh::VertexCurvature(size_t vertexIndex) const {
-#ifdef GAUSSIAN_CURVATURE
-    float angleSum = 0.0f; // Sum of angles around the vertex
-    float areaSum = 0.0f;  // Sum of areas of adjacent triangles (for area-weighted curvature)
+    std::vector<size_t> oneRing = FindNeighborVertices(vertexIndex);
+    assert(oneRing.size() != 0);
 
-    // Retrieve all neighboring faces
-    std::vector<size_t> neighborFaces = FindNeighborFaces(vertexIndex);
+    size_t curr, next;
+    const glm::vec3& vi = mVerts.at(vertexIndex).pos;
+    float angleSum = 0.f;
+    float area = 0.f;
+    for (size_t i = 0; i < oneRing.size(); i++) {
+        // connections
+        curr = oneRing.at(i);
+        if (i < oneRing.size() - 1) {
+            next = oneRing.at(i + 1);
+        } else {
+            next = oneRing.front();
+        }
 
-    // Iterate over all neighboring faces to calculate the sum of angles and face areas
-    for (size_t faceIndex : neighborFaces) {
-        // Get the vertices of the face
-        size_t edgeIndex = f(faceIndex).edge;
-        const glm::vec3& p0 = v(e(edgeIndex).vert).pos;
-        edgeIndex = e(edgeIndex).next;
-        const glm::vec3& p1 = v(e(edgeIndex).vert).pos;
-        edgeIndex = e(edgeIndex).next;
-        const glm::vec3& p2 = v(e(edgeIndex).vert).pos;
+        // find vertices in 1-ring according to figure 5 in lab text
+        // next - beta
+        const glm::vec3& nextPos = mVerts.at(next).pos;
+        const glm::vec3& vj = mVerts.at(curr).pos;
 
-        // Calculate the area of the face
-        glm::vec3 vec1 = p1 - p0;
-        glm::vec3 vec2 = p2 - p0;
-        float area = glm::length(glm::cross(vec1, vec2)) / 2.0f;
-        areaSum += area;
-
-        // Find the angle at the vertex
-        glm::vec3 vecA = p1 - p0;
-        glm::vec3 vecB = p2 - p0;
-        float angle = acos(glm::dot(vecA, vecB) / (glm::length(vecA) * glm::length(vecB)));
-        angleSum += angle;
+        // compute angle and area
+        angleSum += acos(glm::dot(vj - vi, nextPos - vi) /
+                         (glm::length(vj - vi) * glm::length(nextPos - vi)));
+        area += glm::length(glm::cross(vi - vj, nextPos - vj)) * 0.5f;
     }
-
-    // Area-weighted curvature: K = (3/areaSum) * (2pi - angleSum)
-    float curvature = (3.0f / areaSum) * (2.0f * M_PI - angleSum);
-#else
-//mean curvature
-    float curvature = 0.0f;
-    std::vector<size_t> faces = FindNeighborFaces(vertexIndex);
-    for (size_t i = 0; i < faces.size(); i++) {
-        curvature += f(faces[i]).curvature;
-    }
-    curvature /= faces.size();
-
-#endif
-
-    return curvature;
+    return (2.f * static_cast<float>(M_PI) - angleSum) / area;
 }
 
 float HalfEdgeMesh::FaceCurvature(size_t faceIndex) const {
