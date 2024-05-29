@@ -100,24 +100,35 @@ std::vector<std::vector<glm::vec3>> LoopSubdivisionMesh::Subdivide(size_t faceIn
     return faces;
 }
 
-/*! Computes a new vertex, replacing a vertex in the old mesh
+/*! Computes a new vertex, replacing a vertex in the old mesh - this is done to create smoothness
  */
 glm::vec3 LoopSubdivisionMesh::VertexRule(size_t vertexIndex) {
-    // Get the current vertex
-    glm::vec3 vtx = v(vertexIndex).pos;
+    // Get the current vertex onering 
+    std::vector<size_t> neighbours = FindNeighborVertices(vertexIndex);
+    size_t k = neighbours.size();
 
+    glm::vec3 vtx = v(vertexIndex).pos*(1.0f - k * Beta(k));
+    for (size_t i : neighbours) {
+        vtx += v(i).pos * Beta(k); // get the weight of onering
+    }
     return vtx;
 }
 
-/*! Computes a new vertex, placed along an edge in the old mesh
+/*! Computes a new vertex, placed along an edge in the old mesh - new position is weighted from old
  */
 glm::vec3 LoopSubdivisionMesh::EdgeRule(size_t edgeIndex) {
     // Place the edge vertex halfway along the edge
-    HalfEdge& e0 = e(edgeIndex);
-    HalfEdge& e1 = e(e0.pair);
-    glm::vec3& v0 = v(e0.vert).pos;
-    glm::vec3& v1 = v(e1.vert).pos;
-    return (v0 + v1) * 0.5f;
+    HalfEdge &e0 = e(edgeIndex);
+    HalfEdge &e1 = e(e0.pair);
+    HalfEdge &e2 = e(e0.prev);
+    HalfEdge &e3 = e(e1.prev);
+
+    glm::vec3 &v0 = v(e0.vert).pos;
+    glm::vec3 &v1 = v(e1.vert).pos;
+    glm::vec3 &v2 = v(e2.vert).pos;
+    glm::vec3 &v3 = v(e3.vert).pos;
+
+    return ((v2 + v3) * 0.125f + (v0 + v1) * 0.375f);
 }
 
 //! Return weights for interior verts
