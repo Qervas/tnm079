@@ -675,9 +675,12 @@ void FrameMain::AddObjectImplicitMesh(wxCommandEvent& event) {
 }
 
 void FrameMain::AddObjectQuadricPlane(wxCommandEvent& event) {
-    glm::mat4 M{1.0f};
-    // Construct the quadric matrix here
-
+    // Plane: ax + by + cz + d = 0, represented by [a b c d] in mQuadric
+    glm::mat4 M{0.0f};
+    M[0][3] = 1.0f; // Example coefficients for a plane
+    M[1][3] = 0.0f;
+    M[2][3] = 0.0f;
+    M[3][3] = -1.0f;
     Quadric* Q = new Quadric(M);
     Q->SetBoundingBox(Bbox(-1, 1));
     Q->SetMeshSampling(GetMeshSampling());
@@ -689,9 +692,11 @@ void FrameMain::AddObjectQuadricPlane(wxCommandEvent& event) {
 }
 
 void FrameMain::AddObjectQuadricCylinder(wxCommandEvent& event) {
-    glm::mat4 M{1.0f};
-    // Construct the quadric matrix here
-
+    glm::mat4 M{0.0f};
+    // Cylinder: x^2 + y^2 - 1 = 0
+    M[0][0] = 1.0f;
+    M[1][1] = 1.0f;
+    M[3][3] = -1.0f;
     Quadric* Q = new Quadric(M);
     Q->SetBoundingBox(Bbox(-1, 1));
     Q->SetMeshSampling(GetMeshSampling());
@@ -704,8 +709,12 @@ void FrameMain::AddObjectQuadricCylinder(wxCommandEvent& event) {
 
 void FrameMain::AddObjectQuadricEllipsoid(wxCommandEvent& event) {
     glm::mat4 M{1.0f};
-    // Construct the quadric matrix here
-
+    // Ellipsoid: x^2/a^2 + y^2/b^2 + z^2/c^2 - 1 = 0
+    float a = 1.0f, b = 1.0f, c = 0.6f;
+    M[0][0] = 1.0f / (a * a);
+    M[1][1] = 1.0f / (b * b);
+    M[2][2] = 1.0f / (c * c);
+    M[3][3] = -1.0f;
     Quadric* Q = new Quadric(M);
     Q->SetBoundingBox(Bbox(-1, 1));
     Q->SetMeshSampling(GetMeshSampling());
@@ -717,9 +726,11 @@ void FrameMain::AddObjectQuadricEllipsoid(wxCommandEvent& event) {
 }
 
 void FrameMain::AddObjectQuadricCone(wxCommandEvent& event) {
-    glm::mat4 M{1.0f};
-    // Construct the quadric matrix here
-
+    glm::mat4 M{0.0f};
+    // Cone: x^2 + y^2 - z^2 = 0
+    M[0][0] = 1.0f;
+    M[1][1] = 1.0f;
+    M[2][2] = -1.0f;
     Quadric* Q = new Quadric(M);
     Q->SetBoundingBox(Bbox(-1, 1));
     Q->SetMeshSampling(GetMeshSampling());
@@ -731,9 +742,12 @@ void FrameMain::AddObjectQuadricCone(wxCommandEvent& event) {
 }
 
 void FrameMain::AddObjectQuadricParaboloid(wxCommandEvent& event) {
-    glm::mat4 M{1.0f};
-    // Construct the quadric matrix here
-
+    glm::mat4 M{0.0f};
+    // Paraboloid: x^2 + y^2 - z = 0
+    M[0][0] = 1.0f;
+    M[1][1] = 1.0f;
+    M[2][3] = -0.5f; // coefficient for z term
+    M[3][3] = 0.0f;
     Quadric* Q = new Quadric(M);
     Q->SetBoundingBox(Bbox(-2, 2));
     Q->SetMeshSampling(GetMeshSampling());
@@ -745,9 +759,12 @@ void FrameMain::AddObjectQuadricParaboloid(wxCommandEvent& event) {
 }
 
 void FrameMain::AddObjectQuadricHyperboloid(wxCommandEvent& event) {
-    glm::mat4 M{1.0f};
-    // Construct the quadric matrix here
-
+    glm::mat4 M{0.0f};
+    // Hyperboloid: x^2 + y^2 - z^2 - 1 = 0
+    M[0][0] = 1.0f;
+    M[1][1] = 1.0f;
+    M[2][2] = -1.0f;
+    M[3][3] = -1.0f; // constant term
     Quadric* Q = new Quadric(M);
     Q->SetBoundingBox(Bbox(-2, 2));
     Q->SetMeshSampling(GetMeshSampling());

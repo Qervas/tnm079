@@ -24,12 +24,20 @@ Quadric::~Quadric() {}
  * coefficient matrix by GetTransform() ONCE (see Section 2.2 in lab text).
  */
 float Quadric::GetValue(float x, float y, float z) const {
-    return 0.f;
+    TransformW2O(x, y, z);
+    glm::vec4 p(x, y, z, 1.0f);
+    float value = glm::dot(p, mQuadric * p);
+    return value;
 }
 
 /*!
  * Use the quadric matrix to evaluate the gradient.
  */
 glm::vec3 Quadric::GetGradient(float x, float y, float z) const {
-    return glm::vec3(0.f, 0.f, 0.f);
+    TransformW2O(x, y, z);
+    glm::mat3 Qsub(mQuadric);
+    glm::vec3 translation(mQuadric[3]);
+    glm::vec3 p(x, y, z);
+    glm::vec3 grad = 2.0f *( Qsub * p + translation);
+    return grad;
 }

@@ -24,9 +24,9 @@ public:
     Quadric(const glm::mat4& q);
     virtual ~Quadric();
     //! evaluate the quadric at world coordinates x y z
-    virtual float GetValue(float x, float y, float z) const;
+    virtual float GetValue(float x, float y, float z) const override;
     //! calculate the gradient at world coordinates x y z
-    virtual glm::vec3 GetGradient(float x, float y, float z) const;
+    virtual glm::vec3 GetGradient(float x, float y, float z) const override;
 
 protected:
     //! The quadrics coefficent matrix
