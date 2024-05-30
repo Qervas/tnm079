@@ -33,7 +33,9 @@ public:
 
     virtual float ComputeTimestep() {
         // Compute and return a stable timestep
-        return 1.f;
+        float dx = mLS->GetDx();
+        float maxV = std::max({std::abs(mF / dx), std::abs(mF / dx), std::abs(mF / dx)});
+        return dx / maxV;
     }
 
     virtual void Propagate(float time) {
@@ -56,6 +58,10 @@ public:
 
     virtual float Evaluate(size_t i, size_t j, size_t k) {
         // Compute the rate of change (dphi/dt)
-        return 0.f;
+        // Calculate the magnitude of the gradient using Godunov's method
+        float ddx2, ddy2, ddz2;
+        Godunov(i, j, k, mF, ddx2, ddy2, ddz2);
+        float magGrad = std::sqrt(ddx2 + ddy2 + ddz2);
+        return -mF * magGrad;
     }
 };
