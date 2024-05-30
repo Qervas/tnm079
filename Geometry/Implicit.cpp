@@ -79,18 +79,49 @@ void Implicit::Initialize() {
 glm::vec3 Implicit::GetGradient(float x, float y, float z) const {
     // Implement finite difference evaluation of gradient at world coordinates
     // (x,y,z) Use mDelta variable as epsilon in eqn. 16 in lab text
-    std::cerr << "Implicit::GetGradient() not implemented" << std::endl;
-    return glm::vec3(0, 0, 0);
+    // Central difference for gradient calculation
+    float epsilon = mDelta;
+
+    float phi_x = (GetValue(x + epsilon, y, z) - GetValue(x - epsilon, y, z)) / (2 * epsilon);
+    float phi_y = (GetValue(y + epsilon, y, z) - GetValue(y - epsilon, y, z)) / (2 * epsilon);
+    float phi_z = (GetValue(x, y, z + epsilon) - GetValue(x, y, z - epsilon)) / (2 * epsilon);
+
+    return glm::vec3(phi_x, phi_y, phi_z);
 }
 
 /*!
  * Evaluates curvature at (x,y,z) through discrete finite difference scheme.
  */
 float Implicit::GetCurvature(float x, float y, float z) const {
-    // Implement finite difference evaluation of curvature at world coordinates
-    // (x,y,z) Use mDelta variable as epsilon in eqn. 16 in lab text
-    std::cerr << "Implicit::GetCurvature() not implemented" << std::endl;
-    return 0;
+    // Central difference for second-order partial derivatives
+    float epsilon = mDelta;
+    
+    // First-order partial derivatives
+    float phi_x = (GetValue(x + epsilon, y, z) - GetValue(x - epsilon, y, z)) / (2 * epsilon);
+    float phi_y = (GetValue(x, y + epsilon, z) - GetValue(x, y - epsilon, z)) / (2 * epsilon);
+    float phi_z = (GetValue(x, y, z + epsilon) - GetValue(x, y, z - epsilon)) / (2 * epsilon);
+
+    // Second-order partial derivatives
+    float phi_xx = (GetValue(x + epsilon, y, z) - 2 * GetValue(x, y, z) + GetValue(x - epsilon, y, z)) / (epsilon * epsilon);
+    float phi_yy = (GetValue(x, y + epsilon, z) - 2 * GetValue(x, y, z) + GetValue(x, y - epsilon, z)) / (epsilon * epsilon);
+    float phi_zz = (GetValue(x, y, z + epsilon) - 2 * GetValue(x, y, z) + GetValue(x, y, z - epsilon)) / (epsilon * epsilon);
+
+    float phi_xy = (GetValue(x + epsilon, y + epsilon, z) - GetValue(x + epsilon, y - epsilon, z) -
+                    GetValue(x - epsilon, y + epsilon, z) + GetValue(x - epsilon, y - epsilon, z)) / (4 * epsilon * epsilon);
+
+    float phi_yz = (GetValue(x, y + epsilon, z + epsilon) - GetValue(x, y + epsilon, z - epsilon) -
+                    GetValue(x, y - epsilon, z + epsilon) + GetValue(x, y - epsilon, z - epsilon)) / (4 * epsilon * epsilon);
+
+    float phi_zx = (GetValue(x + epsilon, y, z + epsilon) - GetValue(x + epsilon, y, z - epsilon) -
+                    GetValue(x - epsilon, y, z + epsilon) + GetValue(x - epsilon, y, z - epsilon)) / (4 * epsilon * epsilon);
+
+    // Compute mean curvature using the derived formula
+    float gradient_magnitude = glm::sqrt(phi_x * phi_x + phi_y * phi_y + phi_z * phi_z);
+    float curvature = ((phi_xx * (phi_y * phi_y + phi_z * phi_z) - 2 * phi_x * phi_y * phi_xy - 2 * phi_x * phi_z * phi_zx) +
+                       (phi_yy * (phi_x * phi_x + phi_z * phi_z) - 2 * phi_y * phi_z * phi_yz) +
+                       (phi_zz * (phi_x * phi_x + phi_y * phi_y))) / glm::pow(gradient_magnitude, 3);
+
+    return curvature;
 }
 
 float Implicit::ComputeArea(float dx) const { return 0; }
