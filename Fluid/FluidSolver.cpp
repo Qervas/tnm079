@@ -143,23 +143,23 @@ void FluidSolver::ExternalForces(float dt) {
     for (size_t i = 0; i < mVoxels.GetDimX(); i++) {
         for (size_t j = 0; j < mVoxels.GetDimY(); j++) {
             for (size_t k = 0; k < mVoxels.GetDimZ(); k++) {
+                if (IsFluid(i, j, k)) {
+                    // Transform grid coordinates to world coordinates
+                    TransformGridToWorld(i, j, k, x, y, z);
 
-                // If we're in fluid (see FluidSolver::IsFluid()), sample the external
-                // force field (using world coordinates, see
-                // FluidSolver::TransformGridToWorld()) and perform the integration to
-                // update the velocity field (mVelocityField). The simplest possible
-                // integrator is the explicit Euler.
-                // TODO: Add code here
+                    // Sample the external force field
+                    glm::vec3 force = mExternalForces->GetValue(x, y, z);
 
-                // OBS: DELETE FOLLOWING LINE, IT'S JUST HERE TO SUPPRESS A WARNING FOR UNUSED
-                // VARIABLES
-                x = 1.f;
-                y = 1.f;
-                z = 1.f;
+                    // Update the velocity field using explicit Euler integration
+                    glm::vec3 velocity = mVelocityField.GetValue(i, j, k);
+                    velocity += force * dt;
+                    mVelocityField.SetValue(i, j, k, velocity);
+                }
             }
         }
     }
 }
+
 
 // Compute the self advection term
 void FluidSolver::SelfAdvection(float dt, int steps) {
@@ -242,6 +242,10 @@ void FluidSolver::Projection() {
                     // Compute entry for b vector (divergence of the velocity field:
                     // \nabla \dot w_i,j,k)
                     // TODO: Add code here
+                    // Compute entry for b vector (divergence of the velocity field)
+                    b[ind] = -(mVelocityField.GetValue(i + 1, j, k).x - mVelocityField.GetValue(i - 1, j, k).x +
+                               mVelocityField.GetValue(i, j + 1, k).y - mVelocityField.GetValue(i, j - 1, k).y +
+                               mVelocityField.GetValue(i, j, k + 1).z - mVelocityField.GetValue(i, j, k - 1).z) / dx2;
 
                     // Compute entries for A matrix (discrete Laplacian operator).
                     // The A matrix is a sparse matrix but can be used like a regular
@@ -254,6 +258,15 @@ void FluidSolver::Projection() {
                     // a solid (allow no change of flow in that direction).
                     // Remember to treat the boundaries of (i,j,k).
                     // TODO: Add code here
+
+                    // Compute entries for A matrix (discrete Laplacian operator)
+                    A(ind, ind) = -6;
+                    if (i > 0 && IsFluid(i - 1, j, k)) A(ind, ind_im) = 1;
+                    if (i < mVoxels.GetDimX() - 1 && IsFluid(i + 1, j, k)) A(ind, ind_ip) = 1;
+                    if (j > 0 && IsFluid(j - 1, j, k)) A(ind, ind_jm) = 1;
+                    if (j < mVoxels.GetDimY() - 1 && IsFluid(j + 1, j, k)) A(ind, ind_jp) = 1;
+                    if (k > 0 && IsFluid(i, j, k - 1)) A(ind, ind_km) = 1;
+                    if (k < mVoxels.GetDimZ() - 1 && IsFluid(i, j, k + 1)) A(ind, ind_kp) = 1;
                 }
             }
         }
@@ -289,6 +302,12 @@ void FluidSolver::Projection() {
                     // and subtract this gradient from the velocity field.
                     // Thereby removing divergence - preserving volume.
                     // TODO: Add code here
+                    float gradX = (x[ind_ip] - x[ind_im]) / (2 * mDx);
+                    float gradY = (x[ind_jp] - x[ind_jm]) / (2 * mDx);
+                    float gradZ = (x[ind_kp] - x[ind_km]) / (2 * mDx);
+                    glm::vec3 velocity = mVelocityField.GetValue(i, j, k);
+                    velocity -= glm::vec3(gradX, gradY, gradZ);
+                    mVelocityField.SetValue(i, j, k, velocity);
                 }
             }
         }
