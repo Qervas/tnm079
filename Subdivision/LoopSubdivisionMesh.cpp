@@ -104,11 +104,11 @@ std::vector<std::vector<glm::vec3>> LoopSubdivisionMesh::Subdivide(size_t faceIn
  */
 glm::vec3 LoopSubdivisionMesh::VertexRule(size_t vertexIndex) {
     // Get the current vertex onering 
-    std::vector<size_t> neighbours = FindNeighborVertices(vertexIndex);
-    size_t k = neighbours.size();
+    auto neighbours = FindNeighborVertices(vertexIndex);// get the neighbours of the vertex
+    size_t k = neighbours.size();// get the valence of the vertex
 
-    glm::vec3 vtx = v(vertexIndex).pos*(1.0f - k * Beta(k));
-    for (size_t i : neighbours) {
+    glm::vec3 vtx = v(vertexIndex).pos*(1.0f - k * Beta(k));// get the weight of the vertex
+    for (auto i : neighbours) {
         vtx += v(i).pos * Beta(k); // get the weight of onering
     }
     return vtx;

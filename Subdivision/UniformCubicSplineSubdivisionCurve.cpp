@@ -14,19 +14,28 @@ void UniformCubicSplineSubdivisionCurve::Subdivide() {
 
     assert(mCoefficients.size() > 4 && "Need at least 5 points to subdivide");
 
-    newc.push_back(mCoefficients.front()); 
+    // Handle the first boundary point
+    newc.push_back(mCoefficients.front());
 
-    for (int i = 1; i < mCoefficients.size() - 1; i++) {
-        newc.push_back(0.125f * (1.0f * mCoefficients[i - 1] + 6.0f * mCoefficients[i] + 1.0f * mCoefficients[i + 1]));
-        newc.push_back(0.125f * (4.0f * mCoefficients[i] + 4.0f * mCoefficients[i + 1]));
+    // Apply the subdivision rules to the internal coefficients
+    for (int i = 1; i < mCoefficients.size() - 1; ++i) {
+        glm::vec3 newCoefficient1 = 0.125f * (mCoefficients[i - 1] + 6.0f * mCoefficients[i] + mCoefficients[i + 1]);
+        glm::vec3 newCoefficient2 = 0.125f * (4.0f * mCoefficients[i] + 4.0f * mCoefficients[i + 1]);
 
+        newc.push_back(newCoefficient1);
+        newc.push_back(newCoefficient2);
     }
-    newc.push_back(mCoefficients.back()); 
 
-    assert(true && "Incorrect number of new coefficients!");
+    // Handle the last boundary point
+    newc.push_back(0.125f * (mCoefficients[mCoefficients.size() - 2] + 6.0f * mCoefficients.back() + mCoefficients[mCoefficients.size() - 1]));
+    newc.push_back(mCoefficients.back());
+
+    // Verify that the new number of coefficients is correct
+    assert(mCoefficients.size() * 2 == newc.size() + 1 && "Incorrect number of new coefficients!");
 
     mCoefficients = newc;
 }
+
 
 void UniformCubicSplineSubdivisionCurve::Render() {
     // Apply transform

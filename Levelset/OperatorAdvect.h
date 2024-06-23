@@ -24,9 +24,18 @@ public:
     virtual float ComputeTimestep() {
         // Compute and return a stable timestep
         // (Hint: Function3D::GetMaxValue())
+        //version 1:
         float maxVelocity = glm::length(mVectorField->GetMaxValue());
         float dx = mLS->GetDx();
         return dx / maxVelocity;
+
+        //version 2:
+        // float dx = mLS->GetDx();
+        // glm::vec3 max(glm::abs(mVectorField->GetMaxValue()));
+        // float V = std::max(max.x, max.y); //need the maximum value to get the direction of V
+        // V = std::max(V, max.z);
+        // // Courant-Friedrichs-Lewy (CFL) stability condition
+        // return (dx / V) * 0.9;
     }
 
     virtual void Propagate(float time) {
@@ -37,11 +46,13 @@ public:
         // until requested time is reached
         for (float elapsed = 0.f; elapsed < time;) {
             if (dt > time - elapsed) {
-                dt = time - elapsed;
+                dt = time - elapsed;    
             }
             elapsed += dt;
 
             // IntegrateEuler(dt);
+
+            
             IntegrateRungeKutta(dt);
         }
     }
@@ -53,22 +64,34 @@ public:
         // the velocity field used for advection needs to be sampled in
         // world coordinates (x,y,z). You can use LevelSet::TransformGridToWorld()
         // for this task.
-            // Transform grid coordinates to world coordinates
-        float x = static_cast<float>(i) * mLS->GetDx();
-        float y = static_cast<float>(j) * mLS->GetDx();
-        float z = static_cast<float>(k) * mLS->GetDx();
+        // Transform grid coordinates to world coordinates
+        float x = static_cast<float>(i);
+        float y = static_cast<float>(j);
+        float z = static_cast<float>(k);
         mLS->TransformGridToWorld(x, y, z);
 
         // Sample the external velocity field
-        glm::vec3 velocity = mVectorField->GetValue(x, y, z);
+        glm::vec3 v = mVectorField->GetValue(x, y, z);
+        glm::vec3 gradient;
 
-        // Compute the rate of change using the dot product of the velocity field and the gradient
-        float phi_x = mLS->DiffXp(i, j, k) - mLS->DiffXm(i, j, k);
-        float phi_y = mLS->DiffYp(i, j, k) - mLS->DiffYm(i, j, k);
-        float phi_z = mLS->DiffZp(i, j, k) - mLS->DiffZm(i, j, k);
+        if (v.x < 0) {
+            gradient.x = mLS->DiffXp(i, j, k);
+        } else {
+            gradient.x = mLS->DiffXm(i, j, k);
+        }
 
-        float rateOfChange = velocity.x * phi_x + velocity.y * phi_y + velocity.z * phi_z;
+        if (v.y < 0) {
+            gradient.y = mLS->DiffYp(i, j, k);
+        } else {
+            gradient.y = mLS->DiffYm(i, j, k);
+        }
 
-        return -rateOfChange;
+        if (v.z < 0) {
+            gradient.z = mLS->DiffZp(i, j, k);
+        } else {
+            gradient.z = mLS->DiffZm(i, j, k);
+        }
+
+        return -glm::dot(v, gradient);
     }
 };

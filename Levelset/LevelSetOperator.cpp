@@ -95,4 +95,78 @@ void LevelSetOperator::IntegrateEuler(float dt) {
 void LevelSetOperator::IntegrateRungeKutta(float dt) {
     // Advance the solution one time step (dt) using the Runge-Kutta scheme
     // Hint: This scheme is a sequence of Euler steps..
+        // Create grids used to store intermediate and next time step values
+    LevelSetGrid grid = GetGrid();
+    LevelSetGrid k1Grid = GetGrid();
+    LevelSetGrid k2Grid = GetGrid();
+
+    // First step (Euler step to compute intermediate k1)
+    LevelSetGrid::Iterator iter = GetGrid().BeginNarrowBand();
+    LevelSetGrid::Iterator iend = GetGrid().EndNarrowBand();
+    while (iter != iend) {
+        size_t i = iter.GetI();
+        size_t j = iter.GetJ();
+        size_t k = iter.GetK();
+
+        // Compute rate of change
+        float ddt = Evaluate(i, j, k);
+
+        // Store the intermediate value k1
+        k1Grid.SetValue(i, j, k, ddt);
+
+        iter++;
+    }
+
+    // Second step (Euler step using k1 to compute final value k2)
+    iter = GetGrid().BeginNarrowBand();
+    while (iter != iend) {
+        size_t i = iter.GetI();
+        size_t j = iter.GetJ();
+        size_t k = iter.GetK();
+
+        // Get the original value and the intermediate value
+        float originalValue = GetGrid().GetValue(i, j, k);
+        float k1 = k1Grid.GetValue(i, j, k);
+
+        // Compute the intermediate level set value
+        float intermediateValue = originalValue + 0.5f * dt * k1;
+
+        // Set the intermediate value in the grid temporarily
+        k2Grid.SetValue(i, j, k, intermediateValue);
+
+        iter++;
+    }
+
+    // Compute the final values for the next time step
+    iter = GetGrid().BeginNarrowBand();
+    while (iter != iend) {
+        size_t i = iter.GetI();
+        size_t j = iter.GetJ();
+        size_t k = iter.GetK();
+
+        // Get the intermediate value from k2Grid
+        float intermediateValue = k2Grid.GetValue(i, j, k);
+
+        // Use Evaluate to compute the rate of change based on the intermediate value
+        // Temporarily set the grid value to the intermediate value
+        float originalValue = GetGrid().GetValue(i, j, k);
+        GetGrid().SetValue(i, j, k, intermediateValue);
+
+        // Compute the rate of change at the intermediate value
+        float ddt = Evaluate(i, j, k);
+
+        // Restore the original value
+        GetGrid().SetValue(i, j, k, originalValue);
+
+        // Compute the final value using the rate of change at the intermediate value
+        float finalValue = originalValue + dt * ddt;
+
+        // Store the final value in the grid
+        grid.SetValue(i, j, k, finalValue);
+
+        iter++;
+    }
+
+    // Update the grid with the next time step
+    GetGrid() = grid;
 }
