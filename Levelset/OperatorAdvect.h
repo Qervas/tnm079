@@ -25,17 +25,17 @@ public:
         // Compute and return a stable timestep
         // (Hint: Function3D::GetMaxValue())
         //version 1:
-        float maxVelocity = glm::length(mVectorField->GetMaxValue());
-        float dx = mLS->GetDx();
-        return dx / maxVelocity;
+        // float maxVelocity = glm::length(mVectorField->GetMaxValue());
+        // float dx = mLS->GetDx();
+        // return dx / maxVelocity;
 
         //version 2:
-        // float dx = mLS->GetDx();
-        // glm::vec3 max(glm::abs(mVectorField->GetMaxValue()));
-        // float V = std::max(max.x, max.y); //need the maximum value to get the direction of V
-        // V = std::max(V, max.z);
-        // // Courant-Friedrichs-Lewy (CFL) stability condition
-        // return (dx / V) * 0.9;
+        float dx = mLS->GetDx();
+        glm::vec3 max(glm::abs(mVectorField->GetMaxValue()));
+        float V = std::max(max.x, max.y); //need the maximum value to get the direction of V
+        V = std::max(V, max.z);
+        // Courant-Friedrichs-Lewy (CFL) stability condition
+        return (dx / V) * 0.9;
     }
 
     virtual void Propagate(float time) {

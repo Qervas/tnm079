@@ -14,6 +14,7 @@
  */
 class HalfEdgeMesh : public Mesh {
 public:
+
     HalfEdgeMesh();
     ~HalfEdgeMesh();
     virtual void Update();
@@ -88,11 +89,19 @@ public:
     //! Calculates the curvature at a vertex
     virtual float FaceCurvature(size_t faceIndex) const;
 
+    //! Calculates the Voronoi area at a vertex
+    virtual float ComputeVoronoiArea(size_t vertexIndex) const;
+
+    //! Calculates the mean curvature at a vertex
+    virtual glm::vec3 ComputeMeanCurvature(size_t vertexIndex) const;
+
     //! Calculates the normal at a face
     virtual glm::vec3 FaceNormal(size_t faceIndex) const;
 
     //! Calculates the normal at a vertex
     virtual glm::vec3 VertexNormal(size_t vertexIndex) const;
+
+
 
     //! Checks to see if the mesh is valid
     void Validate();

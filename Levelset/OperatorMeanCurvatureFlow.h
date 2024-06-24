@@ -56,6 +56,30 @@ public:
 
     virtual float Evaluate(size_t i, size_t j, size_t k) {
         // Compute the rate of change (dphi/dt)
-        return 0.f;
+
+        float dx = mLS->DiffXpm(i, j, k);
+        float dy = mLS->DiffYpm(i, j, k);
+        float dz = mLS->DiffZpm(i, j, k);
+
+        float dxx = mLS->Diff2Xpm(i, j, k);
+        float dyy = mLS->Diff2Ypm(i, j, k);
+        float dzz = mLS->Diff2Zpm(i, j, k);
+
+        float dyz = mLS->Diff2YZpm(i, j, k);
+        float dzx = mLS->Diff2ZXpm(i, j, k);
+        float dxy = mLS->Diff2XYpm(i, j, k);
+
+        float gradientMagnitudeSquared = dx * dx + dy * dy + dz * dz;
+        float denominator = 2.0f * std::pow(gradientMagnitudeSquared, 1.5f);
+
+        float curvatureTerm1 = ((dx * dx) * (dyy + dzz) - 2.0f * dy * dz * dyz) / denominator;
+        float curvatureTerm2 = ((dy * dy) * (dxx + dzz) - 2.0f * dx * dz * dzx) / denominator;
+        float curvatureTerm3 = ((dz * dz) * (dxx + dyy) - 2.0f * dx * dy * dxy) / denominator;
+
+        float curvature = curvatureTerm1 + curvatureTerm2 + curvatureTerm3;
+
+        float gradientMagnitude = std::sqrt(gradientMagnitudeSquared);
+
+        return mAlpha * curvature * gradientMagnitude;
     }
 };

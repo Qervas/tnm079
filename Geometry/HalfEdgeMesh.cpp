@@ -2,6 +2,7 @@
 #include <gtc/type_ptr.hpp>
 #include <iterator>
 #include <math.h>
+#include <Util/Util.h>
 HalfEdgeMesh::HalfEdgeMesh() {}
 
 HalfEdgeMesh::~HalfEdgeMesh() {}
@@ -12,6 +13,7 @@ HalfEdgeMesh::~HalfEdgeMesh() {}
  * \param[in] v2 vertex 2, glm::vec3
  * \param[in] v3 vertex 3, glm::vec3
  */
+
 bool HalfEdgeMesh::AddFace(const std::vector<glm::vec3>& verts) {
     // Add your code here
     if(verts.size()!= 3){throw std::runtime_error("`verts` must be size of 3!");}
@@ -290,30 +292,35 @@ float HalfEdgeMesh::VertexCurvature(size_t vertexIndex) const {
     std::vector<size_t> oneRing = FindNeighborVertices(vertexIndex);
     assert(oneRing.size() != 0);
 
-    size_t curr, next;
-    const glm::vec3& vi = mVerts.at(vertexIndex).pos;
-    float angleSum = 0.f;
-    float area = 0.f;
-    for (size_t i = 0; i < oneRing.size(); i++) {
-        // connections
-        curr = oneRing.at(i);
-        if (i < oneRing.size() - 1) {
-            next = oneRing.at(i + 1);
-        } else {
-            next = oneRing.front();
-        }
+    //grade 3
+    // size_t curr, next;
+    // const glm::vec3& vi = mVerts.at(vertexIndex).pos;
+    // float angleSum = 0.f;
+    // float area = 0.f;
+    // for (size_t i = 0; i < oneRing.size(); i++) {
+    //     // connections
+    //     curr = oneRing.at(i);
+    //     if (i < oneRing.size() - 1) {
+    //         next = oneRing.at(i + 1);
+    //     } else {
+    //         next = oneRing.front();
+    //     }
 
-        // find vertices in 1-ring according to figure 5 in lab text
-        // next - beta
-        const glm::vec3& nextPos = mVerts.at(next).pos;
-        const glm::vec3& vj = mVerts.at(curr).pos;
+    //     // find vertices in 1-ring according to figure 5 in lab text
+    //     // next - beta
+    //     const glm::vec3& nextPos = mVerts.at(next).pos;
+    //     const glm::vec3& vj = mVerts.at(curr).pos;
 
-        // compute angle and area
-        angleSum += acos(glm::dot(vj - vi, nextPos - vi) /
-                         (glm::length(vj - vi) * glm::length(nextPos - vi)));
-        area += glm::length(glm::cross(vi - vj, nextPos - vj)) * 0.5f;
-    }
-    return (2.f * static_cast<float>(M_PI) - angleSum) / area;
+    //     // compute angle and area
+    //     angleSum += acos(glm::dot(vj - vi, nextPos - vi) /
+    //                      (glm::length(vj - vi) * glm::length(nextPos - vi)));
+    //     area += glm::length(glm::cross(vi - vj, nextPos - vj)) * 0.5f;
+    // }
+    // return (2.f * static_cast<float>(M_PI) - angleSum) / area;
+
+    //grade 4
+    glm::vec3 Hn = ComputeMeanCurvature(vertexIndex);
+    return glm::length(Hn);
 }
 
 float HalfEdgeMesh::FaceCurvature(size_t faceIndex) const {
@@ -470,11 +477,10 @@ size_t HalfEdgeMesh::Shells() const { return 1; }
 /*! \lab1 Implement the genus */
 size_t HalfEdgeMesh::Genus() const {
     // Add code here
-    std::cerr << "Genus calculation not implemented for half-edge mesh!\n";
     size_t V = GetNumVerts();
     size_t E = GetNumEdges();
     size_t F = GetNumFaces();
-    return (V - E + F) / 2; // Euler characteristic
+    return (V - E + F) / 2;  // Euler characteristic
 }
 
 
@@ -603,3 +609,44 @@ void HalfEdgeMesh::Render() {
 }
 
 // Customized functions
+float HalfEdgeMesh::ComputeVoronoiArea(size_t vertexIndex) const {
+    const auto& oneRing = FindNeighborVertices(vertexIndex);
+    float area = 0.0f;
+    const auto& vi = v(vertexIndex).pos;
+
+    for (size_t j = 0; j < oneRing.size(); ++j) {
+        const auto& vj = v(oneRing[j]).pos;
+        const auto& vk = v(oneRing[(j + 1) % oneRing.size()]).pos;
+
+        // Voronoi area for the triangle
+        float triangleArea = 0.5f * glm::length(glm::cross(vj - vi, vk - vi));
+
+        float cotAlpha = Cotangent(vj, vi, vk);
+        float cotBeta = Cotangent(vk, vi, vj);
+
+        // Voronoi area is 1/8 * sum of the lengths squared weighted by cotangents
+        area += (triangleArea / 3.0f);
+    }
+
+    return area;
+}
+
+
+glm::vec3 HalfEdgeMesh::ComputeMeanCurvature(size_t vertexIndex) const {
+    const auto& oneRing = FindNeighborVertices(vertexIndex);
+    const auto& vi = v(vertexIndex).pos;
+    glm::vec3 meanCurvature(0.0f);
+    float area = ComputeVoronoiArea(vertexIndex);
+
+    for (size_t j = 0; j < oneRing.size(); ++j) {
+        const auto& vj = v(oneRing[j]).pos;
+        const auto& vk = v(oneRing[(j + 1) % oneRing.size()]).pos;
+
+        float cotAlpha = Cotangent(vj, vi, vk);
+        float cotBeta = Cotangent(vk, vi, vj);
+
+        meanCurvature += (cotAlpha + cotBeta) * (vj - vi);
+    }
+
+    return meanCurvature / (4.0f * area);
+}

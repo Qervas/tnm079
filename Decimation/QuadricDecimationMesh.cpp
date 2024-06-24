@@ -1,6 +1,6 @@
 #include "QuadricDecimationMesh.h"
 #include <VC++/glm/gtx/euler_angles.hpp>
-
+#include <GUI/GLViewer.h>
 const QuadricDecimationMesh::VisualizationMode QuadricDecimationMesh::QuadricIsoSurfaces =
     NewVisualizationMode("Quadric Iso Surfaces");
 
@@ -70,6 +70,20 @@ void QuadricDecimationMesh::computeCollapse(EdgeCollapse* collapse) {
     float costV2 = glm::dot(posV2, Q * posV2);
     float costBetween = glm::dot(between, Q * between);
 
+    // Retrieve the camera position
+    glm::vec3 cameraPos = GLViewer::GetCamera().GetPosition();
+
+    // Calculate distance from camera to vertices
+    float distV1 = glm::distance(glm::vec3(posV1), cameraPos);
+    float distV2 = glm::distance(glm::vec3(posV2), cameraPos);
+    float distBetween = glm::distance(glm::vec3(between), cameraPos);
+
+    // Introduce a weighting factor for distance
+    float distWeight = 0.1f;  
+    costV1 += distWeight * distV1;
+    costV2 += distWeight * distV2;
+    costBetween += distWeight * distBetween;
+
     if (!notInvertible) {
         glm::vec4 v = glm::inverse(Qhat) * zero;
         collapse->position = glm::vec3(v);
@@ -87,6 +101,51 @@ void QuadricDecimationMesh::computeCollapse(EdgeCollapse* collapse) {
     float deltaV = glm::dot(position, Q * position);
     collapse->cost = deltaV;
 }
+// void QuadricDecimationMesh::computeCollapse(EdgeCollapse* collapse) {
+//     // Retrieve the vertices at the endpoints of the edge to be collapsed
+//     size_t v1 = e(collapse->halfEdge).vert;
+//     size_t v2 = e(e(collapse->halfEdge).next).vert;
+
+//     glm::vec4 posV1(v(v1).pos, 1.0f);
+//     glm::vec4 posV2(v(v2).pos, 1.0f);
+//     glm::vec4 between = 0.5f * (posV1 + posV2);
+
+//     // Create and combine quadrics for the vertices
+//     auto Q1 = createQuadricForVert(v1);
+//     auto Q2 = createQuadricForVert(v2);
+//     auto Q = Q1 + Q2;
+
+//     // Modify Q for solving the position
+//     auto Qhat = Q;
+//     Qhat[0][3] = Qhat[1][3] = Qhat[2][3] = 0.0f;
+//     Qhat[3][3] = 1.0f;
+
+//     glm::vec4 zero(0.0f, 0.0f, 0.0f, 1.0f);
+
+//     float EPSILON = 1e-9f;
+//     bool notInvertible = abs(glm::determinant(Qhat)) < EPSILON;
+
+//     float costV1 = glm::dot(posV1, Q * posV1);
+//     float costV2 = glm::dot(posV2, Q * posV2);
+//     float costBetween = glm::dot(between, Q * between);
+
+//     if (!notInvertible) {
+//         glm::vec4 v = glm::inverse(Qhat) * zero;
+//         collapse->position = glm::vec3(v);
+//     } else {
+//         if (costV1 < costV2 && costV1 < costBetween) {
+//             collapse->position = glm::vec3(posV1);
+//         } else if (costV2 < costV1 && costV2 < costBetween) {
+//             collapse->position = glm::vec3(posV2);
+//         } else {
+//             collapse->position = glm::vec3(between);
+//         }
+//     }
+
+//     glm::vec4 position(collapse->position, 1.0f);
+//     float deltaV = glm::dot(position, Q * position);
+//     collapse->cost = deltaV;
+// }
 
 /*! After each edge collapse the vertex properties need to be updated */
 void QuadricDecimationMesh::updateVertexProperties(size_t ind) {

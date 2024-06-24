@@ -83,7 +83,7 @@ glm::vec3 Implicit::GetGradient(float x, float y, float z) const {
     float epsilon = mDelta;
 
     float phi_x = (GetValue(x + epsilon, y, z) - GetValue(x - epsilon, y, z)) / (2 * epsilon);
-    float phi_y = (GetValue(y + epsilon, y, z) - GetValue(y - epsilon, y, z)) / (2 * epsilon);
+    float phi_y = (GetValue(x, y + epsilon, z) - GetValue(x, y - epsilon, z)) / (2 * epsilon);
     float phi_z = (GetValue(x, y, z + epsilon) - GetValue(x, y, z - epsilon)) / (2 * epsilon);
 
     return glm::vec3(phi_x, phi_y, phi_z);

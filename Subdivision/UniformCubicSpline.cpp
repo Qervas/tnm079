@@ -43,13 +43,47 @@ float UniformCubicSpline::GetBSplineValue(size_t i, float t) {
 
 /*! Evaluate the spline as the sum of the coefficients times the bsplines */
 glm::vec3 UniformCubicSpline::GetValue(float t) {
-    glm::vec3 val;
-    float sum = 0;
-    for (size_t i = 0; i < mCoefficients.size(); i++) {
-        float bval = GetBSplineValue(i, t);
-        val += mCoefficients.at(i) * bval;
-        sum += bval;
+    // glm::vec3 val;
+    // float sum = 0;
+    // for (size_t i = 0; i < mCoefficients.size(); i++) {
+    //     float bval = GetBSplineValue(i, t);
+    //     val += mCoefficients.at(i) * bval;
+    //     sum += bval;
+    // }
+
+        glm::vec3 val(0.0f); // Initialize the result vector to zero
+    float sum = 0.0f; // Variable to store the sum of basis function values
+    
+    // Find the starting index of the relevant control points
+    size_t startIndex = static_cast<size_t>(std::floor(t)) - 1;
+    
+    // Ensure the index is within valid range
+    if (startIndex < 0) {
+        startIndex = 0;
+    } else if (startIndex >= mCoefficients.size() - 3) {
+        startIndex = mCoefficients.size() - 3;
     }
+    
+    // Iterate over the four relevant control points
+    for (size_t i = 0; i < 4; i++) {
+        size_t index = startIndex + i;
+        if (index < mCoefficients.size()) {
+            // Get the basis function value for the current control point
+            float bval = GetBSplineValue(index, t);
+            
+            // Accumulate the weighted control point to the result
+            val += mCoefficients.at(index) * bval;
+            
+            // Accumulate the sum of basis function values
+            sum += bval;
+        }
+    }
+    
+    // Normalize the result if the sum of basis function values is not zero
+    if (sum != 0.0f) {
+        val /= sum;
+    }
+    
     return val;
 }
 
