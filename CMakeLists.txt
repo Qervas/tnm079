@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.5)
 cmake_policy(SET CMP0043 NEW)
 cmake_policy(SET CMP0072 NEW)
 
+add_definitions(-DWIN32)
+
+
+
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 
 project(MoA)
@@ -176,6 +180,9 @@ add_definitions(-DFREEGLUT_STATIC)
 add_definitions(-D_USE_MATH_DEFINES)
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+if(MSVC)
+    add_compile_options(/EHsc)
+endif()
 add_compile_definitions(
 	STB_IMAGE_WRITE_IMPLEMENTATION
 	STB_IMAGE_IMPLEMENTATION

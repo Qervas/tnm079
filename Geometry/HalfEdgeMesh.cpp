@@ -3,9 +3,39 @@
 #include <iterator>
 #include <math.h>
 #include <Util/Util.h>
+
 HalfEdgeMesh::HalfEdgeMesh() {}
 
 HalfEdgeMesh::~HalfEdgeMesh() {}
+
+glm::vec3 HalfEdgeMesh::VertexNormal(size_t vertexIndex) const {
+    // Area-weighted vertex normal
+    glm::vec3 normal(0.0f);
+    std::vector<size_t> faces = FindNeighborFaces(vertexIndex);
+    
+    for (size_t i = 0; i < faces.size(); i++) {
+        // Get the face normal (already normalized)
+        glm::vec3 faceNormal = f(faces[i]).normal;
+        
+        // Get the area of the face (for weighting)
+        size_t edge = f(faces[i]).edge;
+        glm::vec3 p1 = v(e(edge).vert).pos;
+        glm::vec3 p2 = v(e(e(edge).next).vert).pos;
+        glm::vec3 p3 = v(e(e(e(edge).next).next).vert).pos;
+        
+        float area = 0.5f * glm::length(glm::cross(p2 - p1, p3 - p1));
+        
+        // Add weighted normal
+        normal += faceNormal * area;
+    }
+    
+    // Normalize the result
+    if (glm::length(normal) > 0.0f) {
+        normal = glm::normalize(normal);
+    }
+    
+    return normal;
+}
 
 /*! \lab1 Implement the addFace */
 /*!
@@ -348,16 +378,8 @@ glm::vec3 HalfEdgeMesh::FaceNormal(size_t faceIndex) const {
     return glm::normalize(glm::cross(e1, e2));
 }
 
-glm::vec3 HalfEdgeMesh::VertexNormal(size_t vertexIndex) const {
-    //Mean weighted equally
-    glm::vec3 n(0.f, 0.f, 0.f);
-    std::vector<size_t> faces = FindNeighborFaces(vertexIndex);
-    for (size_t i = 0; i < faces.size(); i++) {
-        n += f(faces[i]).normal;
-    }
-    n = glm::normalize(n); 
-    return n;
-}
+// This implementation has been moved to the top of the file
+// to avoid duplicate function definition errors
 
 void HalfEdgeMesh::Initialize() {
     Validate();
@@ -375,8 +397,8 @@ void HalfEdgeMesh::Update() {
     for (size_t i = 0; i < GetNumVerts(); i++) {
         // Vertex normals are just weighted averages
         mVerts.at(i).normal = VertexNormal(i);
-        std::cout << mVerts.at(i).normal.x << ", " << mVerts.at(i).normal.y << ", "
-                  << mVerts.at(i).normal.z << std::endl;
+        // std::cout << mVerts.at(i).normal.x << ", " << mVerts.at(i).normal.y << ", "
+        //           << mVerts.at(i).normal.z << std::endl;
     }
 
     // Then update vertex curvature
@@ -472,15 +494,84 @@ float HalfEdgeMesh::Volume() const {
 }
 
 /*! \lab1 Calculate the number of shells  */
-size_t HalfEdgeMesh::Shells() const { return 1; }
+size_t HalfEdgeMesh::Shells() const {
+    // Implementation of shell counting using flood fill algorithm
+    
+    // If there are no vertices, return 0
+    if (GetNumVerts() == 0) {
+        return 0;
+    }
+    
+    // Set to keep track of vertices that have been visited
+    std::set<size_t> vertexTaggedSet;
+    // Count of shells found
+    size_t shellCount = 0;
+    
+    // Process all vertices
+    for (size_t i = 0; i < GetNumVerts(); ++i) {
+        // Skip vertices that have already been tagged
+        if (vertexTaggedSet.find(i) != vertexTaggedSet.end()) {
+            continue;
+        }
+        
+        // Found a new shell
+        shellCount++;
+        
+        // Queue for flood fill
+        std::set<size_t> vertexQueueSet;
+        vertexQueueSet.insert(i);
+        
+        // Flood fill algorithm
+        while (!vertexQueueSet.empty()) {
+            // Get a vertex from the queue
+            auto it = vertexQueueSet.begin();
+            size_t v = *it;
+            vertexQueueSet.erase(it);
+            
+            // Mark this vertex as tagged
+            vertexTaggedSet.insert(v);
+            
+            // Find all neighboring vertices
+            std::vector<size_t> neighbors = FindNeighborVertices(v);
+            
+            // Add untagged neighbors to the queue
+            for (size_t vi : neighbors) {
+                if (vertexTaggedSet.find(vi) == vertexTaggedSet.end()) {
+                    vertexQueueSet.insert(vi);
+                }
+            }
+        }
+    }
+    
+    return shellCount;
+}
 
 /*! \lab1 Implement the genus */
 size_t HalfEdgeMesh::Genus() const {
-    // Add code here
+    // For a closed manifold surface, the genus g can be calculated using the formula:
+    // g = (2S - χ) / 2
+    // where χ is the Euler characteristic (V - E + F)
+    // and S is the number of shells (connected components)
+    
     size_t V = GetNumVerts();
-    size_t E = GetNumEdges();
+    // In the half-edge data structure, each edge is stored as two half-edges.
+    // The actual number of unique edges is mEdges.size() / 2
+    size_t E = GetNumEdges() / 2;
     size_t F = GetNumFaces();
-    return (V - E + F) / 2;  // Euler characteristic
+    size_t S = Shells();
+    
+    // Calculate Euler characteristic
+    int eulerChar = static_cast<int>(V - E + F);
+    
+    // For a cube (V=8, E=12, F=6, S=1):
+    // χ = 8 - 12 + 6 = 2
+    // g = (2*1 - 2)/2 = 0 (correct for a sphere)
+    
+    // For a torus (V=V, E=2V, F=V, S=1):
+    // χ = V - 2V + V = 0
+    // g = (2*1 - 0)/2 = 1 (correct for a torus)
+    
+    return (2 * S - eulerChar) / 2;
 }
 
 
@@ -618,14 +709,27 @@ float HalfEdgeMesh::ComputeVoronoiArea(size_t vertexIndex) const {
         const auto& vj = v(oneRing[j]).pos;
         const auto& vk = v(oneRing[(j + 1) % oneRing.size()]).pos;
 
-        // Voronoi area for the triangle
-        float triangleArea = 0.5f * glm::length(glm::cross(vj - vi, vk - vi));
-
+        // Calculate cotangents of angles opposite to edges
         float cotAlpha = Cotangent(vj, vi, vk);
         float cotBeta = Cotangent(vk, vi, vj);
 
-        // Voronoi area is 1/8 * sum of the lengths squared weighted by cotangents
-        area += (triangleArea / 3.0f);
+        // Voronoi area formula: (1/8) * sum((cot α + cot β) * ||v_i - v_j||²)
+        float edgeLengthSquared = glm::dot(vi - vj, vi - vj);
+        area += (cotAlpha + cotBeta) * edgeLengthSquared / 8.0f;
+    }
+
+    // If area is too small or negative (can happen with obtuse triangles),
+    // fall back to a simpler calculation using triangle areas
+    if (area <= 0.0f) {
+        area = 0.0f;
+        for (size_t j = 0; j < oneRing.size(); ++j) {
+            const auto& vj = v(oneRing[j]).pos;
+            const auto& vk = v(oneRing[(j + 1) % oneRing.size()]).pos;
+            
+            // Mixed area as fallback
+            float triangleArea = 0.5f * glm::length(glm::cross(vj - vi, vk - vi));
+            area += triangleArea / 3.0f;
+        }
     }
 
     return area;
@@ -638,13 +742,22 @@ glm::vec3 HalfEdgeMesh::ComputeMeanCurvature(size_t vertexIndex) const {
     glm::vec3 meanCurvature(0.0f);
     float area = ComputeVoronoiArea(vertexIndex);
 
+    // Ensure we have a valid area to prevent division by zero
+    if (area <= 0.0f) {
+        return glm::vec3(0.0f);
+    }
+
     for (size_t j = 0; j < oneRing.size(); ++j) {
         const auto& vj = v(oneRing[j]).pos;
         const auto& vk = v(oneRing[(j + 1) % oneRing.size()]).pos;
 
+        // Calculate cotangents of angles opposite to edges
         float cotAlpha = Cotangent(vj, vi, vk);
         float cotBeta = Cotangent(vk, vi, vj);
 
+        // Mean curvature formula: (1/4A) * sum((cot α + cot β) * (v_i - v_j))
+        // Note: The formula in the theory document has v_i - v_j, but we're using v_j - v_i
+        // to match the direction convention in the rest of your code
         meanCurvature += (cotAlpha + cotBeta) * (vj - vi);
     }
 
