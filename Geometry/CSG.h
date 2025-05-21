@@ -89,10 +89,20 @@ protected:
 class BlendedIntersection : public CSG_Operator {
 public:
     BlendedIntersection(Implicit* l, Implicit* r, int blend) : CSG_Operator(l, r), mBlend(blend) {
-        mBox = Bbox::BoxUnion(l->GetBoundingBox(), r->GetBoundingBox());
+        mBox = Bbox::BoxIntersection(l->GetBoundingBox(), r->GetBoundingBox());
     }
 
-    virtual float GetValue(float x, float y, float z) const { return 0.f; }
+    virtual float GetValue(float x, float y, float z) const override {
+        TransformW2O(x, y, z);
+        float leftValue = left->GetValue(x, y, z);
+        float rightValue = right->GetValue(x, y, z);
+        float k = static_cast<float>(mBlend);
+        if (k <= 0.0f) k = 0.0001f;
+        
+        // Super-elliptic blending for intersection
+        // Using the formula: log(exp(k*a) + exp(k*b))/k
+        return std::log(std::exp(k * leftValue) + std::exp(k * rightValue)) / k;
+    }
 
 protected:
     int mBlend;
@@ -105,7 +115,17 @@ public:
         mBox = l->GetBoundingBox();
     }
 
-    virtual float GetValue(float x, float y, float z) const { return 0.f; }
+    virtual float GetValue(float x, float y, float z) const override {
+        TransformW2O(x, y, z);
+        float leftValue = left->GetValue(x, y, z);
+        float rightValue = right->GetValue(x, y, z);
+        float k = static_cast<float>(mBlend);
+        if (k <= 0.0f) k = 0.0001f;
+        
+        // Super-elliptic blending for difference
+        // Using the formula: log(exp(k*a) + exp(-k*b))/k
+        return std::log(std::exp(k * leftValue) + std::exp(-k * rightValue)) / k;
+    }
 
 protected:
     int mBlend;

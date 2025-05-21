@@ -179,20 +179,39 @@ void FluidSolver::SelfAdvection(float dt, int steps) {
                 // When you trace the particle you interpolate the velocities inbetween
                 // the grid points, use mVelocityField.GetValue(float i, float j, float
                 // k) for trilinear interpolation.
-                // TODO: Add code here
-
                 if (IsFluid(i, j, k)) {
-                    glm::vec3 V = velocities.GetValue(i, j, k);
-                    glm::vec3 tracing_pos = {(float)i, (float)j, (float)k};
+                    // Start at current position
+                    float posX = static_cast<float>(i);
+                    float posY = static_cast<float>(j);
+                    float posZ = static_cast<float>(k);
+                    
+                    // Calculate step size
+                    float stepSize = dt / static_cast<float>(steps);
+                    
+                    // Trace the particle backward in time
                     for (int step = 0; step < steps; step++) {
-                        tracing_pos -= (V * (dt / steps)) / mDx;
-                        V = velocities.GetValue(tracing_pos.x, tracing_pos.y, tracing_pos.z);
-                        // tracing_pos.x -= (V.x * (dt / steps)) / mDx;
-                        // tracing_pos.y -= (V.y * (dt / steps)) / mDx;
-                        // tracing_pos.z -= (V.z * (dt / steps)) / mDx;
+                        // Get interpolated velocity at current position
+                        glm::vec3 velocity = mVelocityField.GetValue(posX, posY, posZ);
+                        
+                        // Convert from world space to grid space
+                        velocity /= mDx;
+                        
+                        // Move backward in time
+                        posX -= velocity.x * stepSize;
+                        posY -= velocity.y * stepSize;
+                        posZ -= velocity.z * stepSize;
+                        
+                        // Clamp to grid boundaries
+                        posX = glm::clamp(posX, 0.0f, static_cast<float>(mVoxels.GetDimX() - 1));
+                        posY = glm::clamp(posY, 0.0f, static_cast<float>(mVoxels.GetDimY() - 1));
+                        posZ = glm::clamp(posZ, 0.0f, static_cast<float>(mVoxels.GetDimZ() - 1));
                     }
-                    // velocities.SetValue(i, j, k, mVelocityField.GetValue(tracing_pos.x, tracing_pos.y, tracing_pos.z));
-                    velocities.SetValue(i, j, k, V);
+                    
+                    // Sample velocity at the final traced position
+                    glm::vec3 sampledVelocity = mVelocityField.GetValue(posX, posY, posZ);
+                    
+                    // Update velocity at the original position
+                    velocities.SetValue(i, j, k, sampledVelocity);
                 }
             }
         }
@@ -273,12 +292,28 @@ void FluidSolver::Projection() {
 
                     // Compute entry for b vector (divergence of the velocity field:
                     // \nabla \dot w_i,j,k)
-                    // TODO: Add code here
-                    b[ind] =
+                    // Calculate the divergence
+                    float divergence = 
                             (mVelocityField.GetValue(i + 1, j, k).x - mVelocityField.GetValue(i - 1, j, k).x +
                             mVelocityField.GetValue(i, j + 1, k).y - mVelocityField.GetValue(i, j - 1, k).y +
                             mVelocityField.GetValue(i, j, k + 1).z - mVelocityField.GetValue(i, j, k - 1).z)
                             / (2.0f * mDx);
+                    
+                    // Grade 5: Add artificial source term to counter volume loss
+                    // Calculate volume loss ratio
+                    float volumeLossRatio = 0.0f;
+                    if (mInitialVolume > 0.0f) {
+                        volumeLossRatio = (mInitialVolume - mCurrentVolume) / mInitialVolume;
+                    }
+                    
+                    // Add source term to counteract volume loss
+                    // The source term should be proportional to the volume loss
+                    // and distributed across all fluid cells
+                    float sourceStrength = 0.1f; // Adjust this parameter to control how aggressively volume is restored
+                    float sourceTerm = volumeLossRatio * sourceStrength;
+                    
+                    // Add the source term to the divergence
+                    b[ind] = divergence + sourceTerm;
 
                     // Compute entries for A matrix (discrete Laplacian operator).
                     // The A matrix is a sparse matrix but can be used like a regular

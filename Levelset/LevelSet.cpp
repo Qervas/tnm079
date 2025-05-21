@@ -219,8 +219,17 @@ void LevelSet::SetBoundingBox(const Bbox& b) {
 }
 
 void LevelSet::SetNarrowBandWidth(int width) {
-    mGrid.SetInsideConstant(-width * 0.5f * mDx);
-    mGrid.SetOutsideConstant(width * 0.5f * mDx);
+    if (width <= 0) {
+        // Disable narrow band by setting constants to extreme values
+        mGrid.SetInsideConstant(-std::numeric_limits<float>::max());
+        mGrid.SetOutsideConstant(std::numeric_limits<float>::max());
+    } else {
+        // Set narrow band width in world units (width * dx)
+        mGrid.SetInsideConstant(-width * 0.5f * mDx);
+        mGrid.SetOutsideConstant(width * 0.5f * mDx);
+    }
+    
+    // Rebuild the narrow band with the new width
     mGrid.Rebuild();
 }
 

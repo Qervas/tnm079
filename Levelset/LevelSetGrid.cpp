@@ -54,23 +54,61 @@ void LevelSetGrid::Dilate() {
 }
 
 void LevelSetGrid::Rebuild() {
-    Iterator it = BeginNarrowBand();
-    Iterator iend = EndNarrowBand();
-    while (it != iend) {
-        size_t i = it.GetI();
-        size_t j = it.GetJ();
-        size_t k = it.GetK();
-
-        //    std::cerr << mPhi.GetValue(i,j,k) << " -> " ;
-        if (mPhi.GetValue(i, j, k) > mOutsideConstant) {
-            mPhi.SetValue(i, j, k, mOutsideConstant);
-            mMask.SetValue(i, j, k, false);
-        } else if (mPhi.GetValue(i, j, k) < mInsideConstant) {
-            mPhi.SetValue(i, j, k, mInsideConstant);
-            mMask.SetValue(i, j, k, false);
+    // Initialize a new mask to track cells in the narrow band
+    BitMask3D newMask(mMask.GetDimX(), mMask.GetDimY(), mMask.GetDimZ());
+    
+    // Check if narrow band is disabled (extreme constant values)
+    bool narrowBandDisabled = (mInsideConstant <= -std::numeric_limits<float>::max() / 2.0f) && 
+                             (mOutsideConstant >= std::numeric_limits<float>::max() / 2.0f);
+    
+    if (narrowBandDisabled) {
+        // If narrow band is disabled, include all cells
+        for (size_t i = 0; i < mPhi.GetDimX(); i++) {
+            for (size_t j = 0; j < mPhi.GetDimY(); j++) {
+                for (size_t k = 0; k < mPhi.GetDimZ(); k++) {
+                    newMask.SetValue(i, j, k, true);
+                }
+            }
         }
-        //    std::cerr << mPhi.GetValue(i,j,k) << ", " ;
-        it++;
+    } else {
+        // First pass: identify cells that should be in the narrow band
+        for (size_t i = 0; i < mPhi.GetDimX(); i++) {
+            for (size_t j = 0; j < mPhi.GetDimY(); j++) {
+                for (size_t k = 0; k < mPhi.GetDimZ(); k++) {
+                    float value = mPhi.GetValue(i, j, k);
+                    
+                    // Check if the value is within the narrow band range
+                    if (value >= mInsideConstant && value <= mOutsideConstant) {
+                        newMask.SetValue(i, j, k, true);
+                    }
+                }
+            }
+        }
+        
+        // Second pass: clamp values outside the narrow band
+        for (size_t i = 0; i < mPhi.GetDimX(); i++) {
+            for (size_t j = 0; j < mPhi.GetDimY(); j++) {
+                for (size_t k = 0; k < mPhi.GetDimZ(); k++) {
+                    if (!newMask.GetValue(i, j, k)) {
+                        // If outside the narrow band, set to appropriate constant
+                        if (mPhi.GetValue(i, j, k) > 0) {
+                            mPhi.SetValue(i, j, k, mOutsideConstant);
+                        } else {
+                            mPhi.SetValue(i, j, k, mInsideConstant);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Dilate the narrow band to ensure we have enough cells for gradient calculations
+        mMask = newMask;
+        Dilate();
+    }
+    
+    // Update the mask
+    if (narrowBandDisabled) {
+        mMask = newMask;
     }
 }
 

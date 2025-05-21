@@ -12,6 +12,7 @@
 #pragma once
 
 #include "Levelset/LevelSetOperator.h"
+#include "Util/Stopwatch.h"
 
 /*! \brief A level set operator that does mean curvature flow.
  *
@@ -27,6 +28,8 @@ class OperatorMeanCurvatureFlow : public LevelSetOperator {
 protected:
     //! Scaling parameter, affects time step constraint
     float mAlpha;
+    //! Stopwatch for performance measurements
+    Stopwatch mStopwatch;
 
 public:
     OperatorMeanCurvatureFlow(LevelSet* LS, float alpha = 0.9f)
@@ -41,6 +44,9 @@ public:
         // Determine timestep for stability
         float dt = ComputeTimestep();
 
+        // Start timing
+        mStopwatch.start();
+
         // Propagate level set with stable timestep dt
         // until requested time is reached
         for (float elapsed = 0.f; elapsed < time;) {
@@ -52,6 +58,21 @@ public:
             IntegrateEuler(dt);
             // IntegrateRungeKutta(dt);
         }
+        
+        // Stop timing and report
+        double elapsedTime = mStopwatch.stop();
+        
+        // Get narrow band information
+        int width = mLS->GetNarrowBandWidth();
+        std::string bandStatus = (width > 0) ? "enabled" : "disabled";
+        
+        // Report performance
+        std::cout << "Mean Curvature Flow Performance:" << std::endl;
+        std::cout << "  Narrow band: " << bandStatus << std::endl;
+        if (width > 0) {
+            std::cout << "  Band width: " << width << std::endl;
+        }
+        std::cout << "  Elapsed time: " << elapsedTime << " seconds" << std::endl;
     }
 
     virtual float Evaluate(size_t i, size_t j, size_t k) {
