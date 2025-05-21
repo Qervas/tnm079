@@ -193,18 +193,175 @@ glm::mat4 QuadricDecimationMesh::createQuadricForFace(size_t indx) const {
 
 void QuadricDecimationMesh::Render() {
     DecimationMesh::Render();
-
-    glEnable(GL_LIGHTING);
-    glMatrixMode(GL_MODELVIEW);
-
+    
+    // If QuadricIsoSurfaces mode is active, render the iso-surfaces
     if (mVisualizationMode == QuadricIsoSurfaces) {
-        // Apply transform
-        glPushMatrix();  // Push modelview matrix onto stack
-
-        // Implement the quadric visualization here
-        std::cout << "Quadric visualization not implemented" << std::endl;
-
-        // Restore modelview matrix
-        glPopMatrix();
+        // Set up OpenGL state for transparent ellipsoids
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(0.0f, 0.8f, 0.8f, 0.4f); // Cyan, semi-transparent
+        glDisable(GL_LIGHTING);
+        
+        // Save current OpenGL state
+        glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT);
+        
+        // Set polygon mode to wireframe for better visualization
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        
+        RenderQuadricIsoSurfaces();
+        
+        // Restore OpenGL state
+        glPopAttrib();
+        glEnable(GL_LIGHTING);
+        glDisable(GL_BLEND);
     }
+}
+
+// Render quadric error ellipsoids for all vertices
+void QuadricDecimationMesh::RenderQuadricIsoSurfaces() {
+    // Set up OpenGL state for rendering ellipsoids
+    glEnable(GL_LIGHTING);
+    glDisable(GL_CULL_FACE);
+    
+    // Use wireframe mode for better visualization
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    
+    // Set line width for better visibility
+    glLineWidth(1.0f);
+    
+    // Enable blending for transparency
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    // Set material properties
+    float diffuse[] = {0.0f, 0.8f, 0.0f, 0.7f}; // Green color like in Garland's paper
+    float ambient[] = {0.0f, 0.2f, 0.0f, 0.7f};
+    float specular[] = {0.5f, 1.0f, 0.5f, 0.7f};
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100.0f);
+    
+    // Use a smaller stride to show more ellipsoids on important features
+    // but not too many to avoid clutter
+    size_t stride = std::max(size_t(1), mVerts.size() / 100);
+    float visualEpsilon = mQuadricEpsilon * 0.1f; // Smaller epsilon for more precise ellipsoids
+    int displayedCount = 0;
+    
+    // Display ellipsoids for selected vertices
+    for (size_t i = 0; i < mVerts.size(); i += stride) {
+        // Get the quadric for this vertex
+        glm::mat4 Q = mQuadrics[i];
+        
+        // Get the vertex position
+        glm::vec3 vertexPos = mVerts[i].pos;
+        
+        // Visualize the quadric error ellipsoid
+        if (VisualizeQuadricEllipsoid(Q, vertexPos, visualEpsilon)) {
+            displayedCount++;
+        }
+    }
+    
+    // Reset OpenGL state
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDisable(GL_BLEND);
+    
+    // Debug output
+    std::cout << "Displayed " << displayedCount << " quadric ellipsoids" << std::endl;
+}
+
+// Visualize a single quadric error ellipsoid
+// Following Garland's thesis section 4.1.2
+bool QuadricDecimationMesh::VisualizeQuadricEllipsoid(const glm::mat4& Q, 
+                                                     const glm::vec3& center, 
+                                                     float epsilon) {
+    // 1. Extract the upper 3x3 submatrix of Q (A) and the vector part (b)
+    glm::mat3 A;
+    glm::vec3 b;
+    float c = Q[3][3];
+    
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            A[i][j] = Q[i][j];
+        }
+        b[i] = Q[i][3];
+    }
+    
+    // 2. Check if A is invertible
+    float detA = glm::determinant(A);
+    if (std::abs(detA) < 1e-10) {
+        return false; // Skip if not invertible
+    }
+    
+    // 3. Compute the center of the ellipsoid: v0 = -A^(-1)b
+    glm::vec3 v0 = -glm::inverse(A) * b;
+    
+    // 4. Compute the offset quadric: K = c - b^T * A^(-1) * b
+    float K = c - glm::dot(b, v0);
+    
+    // 5. If K is zero or negative, the ellipsoid doesn't exist
+    if (K <= 1e-10) { // Use a small threshold instead of exactly 0
+        return false;
+    }
+    
+    // 6. Perform eigendecomposition of A to get principal directions
+    // For simplicity, we'll use Cholesky factorization as an approximation
+    glm::mat4 Atemp(0.0f);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            Atemp[i][j] = A[i][j];
+        }
+        Atemp[i][3] = 0.0f;
+        Atemp[3][i] = 0.0f;
+    }
+    Atemp[3][3] = 1.0f;
+    
+    glm::mat4 Rtemp(0.0f);
+    if (!CholeskyFactorization(Atemp, Rtemp)) {
+        return false; // Skip if factorization fails
+    }
+    
+    // Extract the 3x3 part
+    glm::mat3 R3;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            R3[i][j] = Rtemp[i][j];
+        }
+    }
+    
+    // 7. Compute the transformation matrix
+    // Use K to scale properly according to Garland's method
+    float scaleFactor = std::sqrt(epsilon / K);
+    glm::mat3 T = glm::inverse(R3) * scaleFactor;
+    
+    // 8. Render the ellipsoid
+    glPushMatrix();
+    
+    // Place ellipsoid on the surface
+    // Use a small fraction of v0 to keep ellipsoids close to the surface
+    // but still showing the error direction
+    glm::vec3 ellipsoidCenter = center + v0 * 0.1f;
+    glTranslatef(ellipsoidCenter.x, ellipsoidCenter.y, ellipsoidCenter.z);
+    
+    // Apply the transformation matrix
+    float glMat[16] = {0};
+    // Convert glm::mat3 to OpenGL matrix (column-major)
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            glMat[i*4+j] = T[j][i]; // Note the transpose here
+        }
+    }
+    glMat[15] = 1.0f; // Set the homogeneous coordinate
+    
+    glMultMatrixf(glMat);
+    
+    // Draw a unit sphere that will be transformed into an ellipsoid
+    GLUquadric* quad = gluNewQuadric();
+    gluQuadricDrawStyle(quad, GLU_LINE); // Use wireframe for better visualization
+    gluQuadricNormals(quad, GLU_SMOOTH);
+    gluSphere(quad, 1.0, 12, 12); // Fewer slices for cleaner look
+    gluDeleteQuadric(quad);
+    
+    glPopMatrix();
+    return true;
 }

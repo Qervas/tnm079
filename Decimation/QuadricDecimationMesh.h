@@ -36,7 +36,17 @@ protected:
     glm::mat4 createQuadricForFace(size_t indx) const;
     //! Render (redefined)
     virtual void Render();
+    
+    //! Render quadric error ellipsoids
+    void RenderQuadricIsoSurfaces();
+    
+    //! Visualize a single quadric error ellipsoid
+    //! Returns true if the ellipsoid was successfully visualized
+    bool VisualizeQuadricEllipsoid(const glm::mat4& Q, const glm::vec3& center, float epsilon);
 
     //! The quadrics used in the decimation
     std::vector<glm::mat4> mQuadrics;
+    
+    //! Error tolerance for quadric visualization
+    float mQuadricEpsilon = 0.01f;
 };
