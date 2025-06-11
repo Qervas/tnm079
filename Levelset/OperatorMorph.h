@@ -27,8 +27,28 @@ public:
     OperatorMorph(LevelSet* LS, const Implicit* target) : LevelSetOperator(LS), mTarget(target) {}
 
     virtual float ComputeTimestep() {
-        // Compute and return a stable timestep
-        return 1.f;
+        float dx = mLS->GetDx();
+        float maxSpeed = 0.0f;
+        
+        // Find maximum speed (difference between target and current) in narrow band
+        LevelSetGrid::Iterator iter = mLS->BeginNarrowBand();
+        LevelSetGrid::Iterator iend = mLS->EndNarrowBand();
+        while (iter != iend) {
+            size_t i = iter.GetI();
+            size_t j = iter.GetJ();
+            size_t k = iter.GetK();
+            float x = i, y = j, z = k;
+            mLS->TransformGridToWorld(x, y, z);
+            float currentPhi = mLS->GetValue(x, y, z);
+            float targetPhi = mTarget->GetValue(x, y, z);
+            float speed = std::abs(currentPhi - targetPhi);
+            if (speed > maxSpeed) maxSpeed = speed;
+            iter++;
+        }
+        
+        // Ensure stable timestep
+        if (maxSpeed < 1e-6f) maxSpeed = 1.0f;
+        return 0.5f * dx / maxSpeed;  // Conservative factor
     }
 
     virtual void Propagate(float time) {
@@ -67,33 +87,27 @@ public:
     }
 
     virtual float Evaluate(size_t i, size_t j, size_t k) {
-        // Compute the rate of change (dphi/dt)
-        
-        // 1. Get the current position in world coordinates
-        float x = i;
-        float y = j;
-        float z = k;
+        // Convert grid coordinates to world coordinates
+        float x = i, y = j, z = k;
         mLS->TransformGridToWorld(x, y, z);
         
-        // 2. Get the current level set value (phi) at this position
-        float currentPhi = mLS->GetValue(i, j, k);
-        
-        // 3. Get the target implicit value at this position
+        // Get current and target level set values
+        float currentPhi = mLS->GetValue(x, y, z);  // Use world coordinates
         float targetPhi = mTarget->GetValue(x, y, z);
         
-        // 4. Calculate the gradient magnitude of the level set
-        float dx = mLS->DiffXpm(i, j, k);
-        float dy = mLS->DiffYpm(i, j, k);
-        float dz = mLS->DiffZpm(i, j, k);
-        float gradientMagnitude = std::sqrt(dx*dx + dy*dy + dz*dz);
+        // Speed function: difference between current and target (flipped)
+        // This makes the surface move away from target toward current shape
+        float speed = currentPhi - targetPhi;
         
-        // 5. Implement morphing as a speed function based on the difference
-        // between the current level set and the target implicit
-        // The speed is proportional to the difference between the two surfaces
-        float speed = targetPhi - currentPhi;
+        // Use existing Godunov method for upwind differencing
+        float ddx2, ddy2, ddz2;
+        Godunov(i, j, k, speed, ddx2, ddy2, ddz2);
         
-        // 6. Return the rate of change: speed * gradient magnitude
-        // This follows the level set equation: dϕ/dt = speed * |∇ϕ|
-        return speed * gradientMagnitude;
+        // Compute gradient magnitude
+        float gradientMagnitude = std::sqrt(ddx2 + ddy2 + ddz2);
+        
+        // Return rate of change: ∂ϕ/∂t = -F|∇ϕ|
+        // where F is the target distance (speed function)
+        return -speed * gradientMagnitude;
     }
 };
