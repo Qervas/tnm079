@@ -12,7 +12,6 @@
 #pragma once
 
 #include "Levelset/LevelSetOperator.h"
-#include "Util/Stopwatch.h"
 
 /*! \brief A level set operator that does mean curvature flow.
  *
@@ -28,8 +27,6 @@ class OperatorMeanCurvatureFlow : public LevelSetOperator {
 protected:
     //! Scaling parameter, affects time step constraint
     float mAlpha;
-    //! Stopwatch for performance measurements
-    Stopwatch mStopwatch;
 
 public:
     OperatorMeanCurvatureFlow(LevelSet* LS, float alpha = 0.9f)
@@ -37,15 +34,15 @@ public:
 
     virtual float ComputeTimestep() {
         // Compute and return a stable timestep
-        return 1.f;
+        // Safety factor: 0.1 = very safe, 0.5 = moderate, 0.9 = risky
+        float safetyFactor = 0.1f;  // Adjustable for experimentation
+        float dx = mLS->GetDx();
+        return safetyFactor * (dx * dx) / (6.0f * mAlpha);
     }
 
     virtual void Propagate(float time) {
         // Determine timestep for stability
         float dt = ComputeTimestep();
-
-        // Start timing
-        mStopwatch.start();
 
         // Propagate level set with stable timestep dt
         // until requested time is reached
@@ -58,21 +55,6 @@ public:
             IntegrateEuler(dt);
             // IntegrateRungeKutta(dt);
         }
-        
-        // Stop timing and report
-        double elapsedTime = mStopwatch.stop();
-        
-        // Get narrow band information
-        int width = mLS->GetNarrowBandWidth();
-        std::string bandStatus = (width > 0) ? "enabled" : "disabled";
-        
-        // Report performance
-        std::cout << "Mean Curvature Flow Performance:" << std::endl;
-        std::cout << "  Narrow band: " << bandStatus << std::endl;
-        if (width > 0) {
-            std::cout << "  Band width: " << width << std::endl;
-        }
-        std::cout << "  Elapsed time: " << elapsedTime << " seconds" << std::endl;
     }
 
     virtual float Evaluate(size_t i, size_t j, size_t k) {
@@ -91,6 +73,12 @@ public:
         float dxy = mLS->Diff2XYpm(i, j, k);
 
         float gradientMagnitudeSquared = dx * dx + dy * dy + dz * dz;
+        
+        // Prevent division by zero in flat regions
+        if (gradientMagnitudeSquared < 1e-9f) {
+            return 0.0f;
+        }
+        
         float denominator = 2.0f * std::pow(gradientMagnitudeSquared, 1.5f);
 
         float curvatureTerm1 = ((dx * dx) * (dyy + dzz) - 2.0f * dy * dz * dyz) / denominator;

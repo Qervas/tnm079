@@ -706,12 +706,19 @@ float HalfEdgeMesh::ComputeVoronoiArea(size_t vertexIndex) const {
     const auto& vi = v(vertexIndex).pos;
 
     for (size_t j = 0; j < oneRing.size(); ++j) {
-        const auto& vj = v(oneRing[j]).pos;
-        const auto& vk = v(oneRing[(j + 1) % oneRing.size()]).pos;
-
-        // Calculate cotangents of angles opposite to edges
-        float cotAlpha = Cotangent(vj, vi, vk);
-        float cotBeta = Cotangent(vk, vi, vj);
+        // Current neighbor vertex
+        size_t jIdx = oneRing[j];
+        const auto& vj = v(jIdx).pos;
+        
+        // Find the previous and next vertices in the one-ring
+        size_t prevIdx = oneRing[(j > 0) ? j-1 : oneRing.size()-1];
+        size_t nextIdx = oneRing[(j + 1) % oneRing.size()];
+        const auto& vPrev = v(prevIdx).pos;
+        const auto& vNext = v(nextIdx).pos;
+        
+        // Calculate cotangents of angles at the opposite vertices
+        float cotAlpha = Cotangent(vi, vPrev, vj);  // cot(angle at vPrev)
+        float cotBeta = Cotangent(vi, vNext, vj);   // cot(angle at vNext)
 
         // Voronoi area formula: (1/8) * sum((cot α + cot β) * ||v_i - v_j||²)
         float edgeLengthSquared = glm::dot(vi - vj, vi - vj);
@@ -723,8 +730,10 @@ float HalfEdgeMesh::ComputeVoronoiArea(size_t vertexIndex) const {
     if (area <= 0.0f) {
         area = 0.0f;
         for (size_t j = 0; j < oneRing.size(); ++j) {
-            const auto& vj = v(oneRing[j]).pos;
-            const auto& vk = v(oneRing[(j + 1) % oneRing.size()]).pos;
+            size_t jIdx = oneRing[j];
+            size_t nextIdx = oneRing[(j + 1) % oneRing.size()];
+            const auto& vj = v(jIdx).pos;
+            const auto& vk = v(nextIdx).pos;
             
             // Mixed area as fallback
             float triangleArea = 0.5f * glm::length(glm::cross(vj - vi, vk - vi));
@@ -747,18 +756,28 @@ glm::vec3 HalfEdgeMesh::ComputeMeanCurvature(size_t vertexIndex) const {
         return glm::vec3(0.0f);
     }
 
+    // For each edge in the one-ring neighborhood
     for (size_t j = 0; j < oneRing.size(); ++j) {
-        const auto& vj = v(oneRing[j]).pos;
-        const auto& vk = v(oneRing[(j + 1) % oneRing.size()]).pos;
-
-        // Calculate cotangents of angles opposite to edges
-        float cotAlpha = Cotangent(vj, vi, vk);
-        float cotBeta = Cotangent(vk, vi, vj);
-
-        // Mean curvature formula: (1/4A) * sum((cot α + cot β) * (v_i - v_j))
-        // Note: The formula in the theory document has v_i - v_j, but we're using v_j - v_i
-        // to match the direction convention in the rest of your code
-        meanCurvature += (cotAlpha + cotBeta) * (vj - vi);
+        // Current neighbor vertex
+        size_t jIdx = oneRing[j];
+        const auto& vj = v(jIdx).pos;
+        
+        // Find the previous and next vertices in the one-ring
+        size_t prevIdx = oneRing[(j > 0) ? j-1 : oneRing.size()-1];
+        size_t nextIdx = oneRing[(j + 1) % oneRing.size()];
+        const auto& vPrev = v(prevIdx).pos;
+        const auto& vNext = v(nextIdx).pos;
+        
+        // Calculate cotangents of angles at the opposite vertices
+        // For the edge (vi, vj), we need the angles at the opposite vertices
+        // Alpha is the angle at vPrev in the triangle (vi, vPrev, vj)
+        // Beta is the angle at vNext in the triangle (vi, vj, vNext)
+        float cotAlpha = Cotangent(vi, vPrev, vj);  // cot(angle at vPrev)
+        float cotBeta = Cotangent(vi, vNext, vj);   // cot(angle at vNext)
+        
+        // Mean curvature formula: (1/4A) * sum((cot α + cot β) * (vi - vj))
+        // This matches equation (9) from the image
+        meanCurvature += (cotAlpha + cotBeta) * (vi - vj);
     }
 
     return meanCurvature / (4.0f * area);
