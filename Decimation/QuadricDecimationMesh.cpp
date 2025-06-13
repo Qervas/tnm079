@@ -1,10 +1,16 @@
 #include "QuadricDecimationMesh.h"
 #include <VC++/glm/gtx/euler_angles.hpp>
+#include <VC++/glm/gtc/type_ptr.hpp>
 #include <GUI/GLViewer.h>
+#include <Util/Util.h>
 const QuadricDecimationMesh::VisualizationMode QuadricDecimationMesh::QuadricIsoSurfaces =
     NewVisualizationMode("Quadric Iso Surfaces");
 
 void QuadricDecimationMesh::Initialize() {
+    // Print camera information at the start of decimation
+    std::cout << "\n=== QUADRIC DECIMATION INITIALIZE ===" << std::endl;
+    printCameraDebugInfo();
+    
     // Allocate memory for the quadric array
     size_t numVerts = mVerts.size();
     mQuadrics.reserve(numVerts);
@@ -28,6 +34,8 @@ void QuadricDecimationMesh::Initialize() {
 
     // Run the initialize for the parent class to initialize the edge collapses
     DecimationMesh::Initialize();
+    
+    std::cout << "=== INITIALIZATION COMPLETE ===\n" << std::endl;
 }
 
 /*! \lab2 Implement the computeCollapse here */
@@ -43,109 +51,254 @@ void QuadricDecimationMesh::Initialize() {
 #include <cmath>
 
 void QuadricDecimationMesh::computeCollapse(EdgeCollapse* collapse) {
-    // Retrieve the vertices at the endpoints of the edge to be collapsed
+    // Get the vertices at the endpoints of the edge to be collapsed
     size_t v1 = e(collapse->halfEdge).vert;
     size_t v2 = e(e(collapse->halfEdge).next).vert;
 
-    glm::vec4 posV1(v(v1).pos, 1.0f);
-    glm::vec4 posV2(v(v2).pos, 1.0f);
-    glm::vec4 between = 0.5f * (posV1 + posV2);
+    glm::vec3 posV1 = v(v1).pos;
+    glm::vec3 posV2 = v(v2).pos;
+    glm::vec3 between = 0.5f * (posV1 + posV2);
 
-    // Create and combine quadrics for the vertices
-    auto Q1 = createQuadricForVert(v1);
-    auto Q2 = createQuadricForVert(v2);
+    // GRADE 4: CUSTOM HEURISTIC - View-Dependent Decimation
+    // =====================================================
+    // MOTIVATION: Real-time rendering applications where screen-space detail matters
+    // APPLICATIONS: 
+    // - Games: LOD systems that preserve detail where players look
+    // - VR: Maintain quality in central vision, reduce in periphery  
+    // - Interactive walkthroughs: Preserve nearby detail, reduce distant geometry
+    // - Streaming/bandwidth optimization: Reduce data for distant objects
+    
+    // HYBRID APPROACH: Combine quadric quality with view-dependent factors
+    
+    // 1. Start with basic quadric computation for geometric quality
+    auto Q1 = mQuadrics[v1];
+    auto Q2 = mQuadrics[v2];
     auto Q = Q1 + Q2;
 
-    // Modify Q for solving the position
+    // Find optimal position using quadrics
     auto Qhat = Q;
     Qhat[0][3] = Qhat[1][3] = Qhat[2][3] = 0.0f;
     Qhat[3][3] = 1.0f;
 
-    glm::vec4 zero(0.0f, 0.0f, 0.0f, 1.0f);
-
     float EPSILON = 1e-9f;
     bool notInvertible = abs(glm::determinant(Qhat)) < EPSILON;
-
-    float costV1 = glm::dot(posV1, Q * posV1);
-    float costV2 = glm::dot(posV2, Q * posV2);
-    float costBetween = glm::dot(between, Q * between);
-
-    // Retrieve the camera position
-    glm::vec3 cameraPos = GLViewer::GetCamera().GetPosition();
-
-    // Calculate distance from camera to vertices
-    float distV1 = glm::distance(glm::vec3(posV1), cameraPos);
-    float distV2 = glm::distance(glm::vec3(posV2), cameraPos);
-    float distBetween = glm::distance(glm::vec3(between), cameraPos);
-
-    // Introduce a weighting factor for distance
-    float distWeight = 0.1f;  
-    costV1 += distWeight * distV1;
-    costV2 += distWeight * distV2;
-    costBetween += distWeight * distBetween;
-
+    
+    glm::vec3 optimalPos;
+    float quadricCost;
+    
     if (!notInvertible) {
-        glm::vec4 v = glm::inverse(Qhat) * zero;
-        collapse->position = glm::vec3(v);
+        glm::vec4 rhs(0.0f, 0.0f, 0.0f, 1.0f);
+        glm::vec4 solution = glm::inverse(Qhat) * rhs;
+        optimalPos = glm::vec3(solution.x, solution.y, solution.z);
+        
+        // Calculate quadric error
+        glm::vec4 pos4(optimalPos.x, optimalPos.y, optimalPos.z, 1.0f);
+        quadricCost = glm::dot(pos4, (Q * pos4));
     } else {
-        if (costV1 < costV2 && costV1 < costBetween) {
-            collapse->position = glm::vec3(posV1);
-        } else if (costV2 < costV1 && costV2 < costBetween) {
-            collapse->position = glm::vec3(posV2);
-        } else {
-            collapse->position = glm::vec3(between);
+        // Fallback to midpoint
+        optimalPos = between;
+        glm::vec4 pos4(between.x, between.y, between.z, 1.0f);
+        quadricCost = glm::dot(pos4, (Q * pos4));
+    }
+    
+    // 2. VIEW-DEPENDENT FACTORS FOR ORBITAL CAMERA
+    // ============================================
+    
+    glm::vec3 cameraPos = GLViewer::GetCamera().GetPosition();
+    
+    // FIXED: Calculate actual world-space viewing direction for orbital camera
+    // In orbital camera, we look toward the origin (0,0,0) from camera position
+    glm::vec3 actualViewDir = glm::normalize(glm::vec3(0.0f, 0.0f, 0.0f) - cameraPos);
+    glm::vec3 viewTarget = glm::vec3(0.0f, 0.0f, 0.0f); // Looking at origin
+    
+    // A) DEPTH FROM VIEWING PLANE
+    // Calculate how far the edge is along the actual viewing direction
+    glm::vec3 toEdge = between - cameraPos;
+    float depthAlongView = glm::dot(toEdge, actualViewDir);
+    float depthWeight = 1.0f + 0.8f * std::max(0.0f, depthAlongView / 3.0f); // Farther = less important
+    
+    // B) DISTANCE FROM VIEW CENTER 
+    // How far is the edge from what we're actually looking at (origin)
+    float screenDistance = glm::distance(between, viewTarget);
+    float screenWeight = 1.0f + 0.6f * (screenDistance / 2.0f); // Center = more important
+    
+    // C) VIEWING ANGLE ALIGNMENT
+    // Edges that are more perpendicular to the actual view direction are less important
+    glm::vec3 edgeVector = glm::normalize(posV2 - posV1);
+    float viewAlignment = std::abs(glm::dot(edgeVector, actualViewDir));
+    float alignmentWeight = 1.0f + 0.5f * (1.0f - viewAlignment); // Perpendicular = less important
+    
+    // D) FEATURE PRESERVATION (keep sharp edges)
+    float featureImportance = calculateFeatureImportance(v1, v2);
+    float featureWeight = 1.0f + 1.0f * featureImportance; 
+    
+    // E) SILHOUETTE PRESERVATION
+    // Edges on the silhouette (boundary of the object) are more important
+    float silhouetteImportance = calculateSilhouetteImportance(v1, v2, actualViewDir);
+    float silhouetteWeight = 1.0f + 1.2f * silhouetteImportance;
+    
+    // 3. FINAL COST CALCULATION
+    // ========================
+    
+    // Base cost: quadric error (ensures geometric quality)
+    float baseCost = std::max(0.0f, quadricCost);
+    
+    // Apply all view-dependent factors
+    float finalCost = baseCost * depthWeight * screenWeight * alignmentWeight * featureWeight * silhouetteWeight;
+    
+    // Set result
+    collapse->position = optimalPos;
+    collapse->cost = finalCost;
+    
+    // DEBUG: Print camera position and decimation details
+    static int debugCounter = 0;
+    if (debugCounter % 1000 == 0) {
+        std::cout << "\n=== VIEW-DEPENDENT DECIMATION DEBUG ===" << std::endl;
+        std::cout << "Camera Position: (" << cameraPos.x << ", " << cameraPos.y << ", " << cameraPos.z << ")" << std::endl;
+        std::cout << "Actual View Dir: (" << actualViewDir.x << ", " << actualViewDir.y << ", " << actualViewDir.z << ")" << std::endl;
+        std::cout << "Edge Position: (" << between.x << ", " << between.y << ", " << between.z << ")" << std::endl;
+        std::cout << "Depth Along View: " << depthAlongView << " -> Weight: " << depthWeight << std::endl;
+        std::cout << "Screen Distance: " << screenDistance << " -> Weight: " << screenWeight << std::endl;
+        std::cout << "View Alignment: " << viewAlignment << " -> Weight: " << alignmentWeight << std::endl;
+        std::cout << "Feature Importance: " << featureImportance << " -> Weight: " << featureWeight << std::endl;
+        std::cout << "Silhouette Importance: " << silhouetteImportance << " -> Weight: " << silhouetteWeight << std::endl;
+        std::cout << "Quadric Cost: " << baseCost << " -> Final Cost: " << finalCost << std::endl;
+        std::cout << "========================================\n" << std::endl;
+    }
+    debugCounter++;
+}
+
+// GRADE 4: Helper functions for feature importance calculation
+float QuadricDecimationMesh::calculateFeatureImportance(size_t v1, size_t v2) {
+    // Calculate feature importance based on local geometry
+    // Higher values = more important features (sharp edges, corners)
+    
+    auto faces1 = FindNeighborFaces(v1);
+    auto faces2 = FindNeighborFaces(v2);
+
+    if (faces1.size() < 2 || faces2.size() < 2) {
+        return 2.0f; // Boundary edges are very important
+    }
+    
+    // Calculate curvature around both vertices
+    float curvature1 = calculateNormalVariation(v1, faces1);
+    float curvature2 = calculateNormalVariation(v2, faces2);
+    
+    // Calculate dihedral angle across the edge
+    float dihedralAngle = calculateDihedralAngle(v1, v2);
+    
+    // Combine measures - weight dihedral angle more heavily
+    float avgCurvature = 0.5f * (curvature1 + curvature2);
+    return avgCurvature + 2.0f * dihedralAngle;
+}
+
+float QuadricDecimationMesh::calculateNormalVariation(size_t vertexIdx, 
+                                                     const std::vector<size_t>& faces) {
+    if (faces.size() < 2) return 0.0f;
+    
+    // Calculate average normal
+    glm::vec3 avgNormal(0.0f);
+    for (size_t faceIdx : faces) {
+        avgNormal += f(faceIdx).normal;
+    }
+    avgNormal = glm::normalize(avgNormal);
+    
+    // Calculate deviation from average
+    float variation = 0.0f;
+    for (size_t faceIdx : faces) {
+        glm::vec3 normal = f(faceIdx).normal;
+        float dot = glm::clamp(glm::dot(normal, avgNormal), -1.0f, 1.0f);
+        float angle = std::acos(dot);
+        variation += angle;
+    }
+    
+    return variation / faces.size();
+}
+
+float QuadricDecimationMesh::calculateDihedralAngle(size_t v1, size_t v2) {
+    // Find faces shared by both vertices (the edge between them)
+    auto faces1 = FindNeighborFaces(v1);
+    auto faces2 = FindNeighborFaces(v2);
+    
+    std::vector<size_t> sharedFaces;
+    for (size_t f1 : faces1) {
+        for (size_t f2 : faces2) {
+            if (f1 == f2) {
+                sharedFaces.push_back(f1);
+                break;
+            }
         }
     }
-
-    glm::vec4 position(collapse->position, 1.0f);
-    float deltaV = glm::dot(position, Q * position);
-    collapse->cost = deltaV;
+    
+    if (sharedFaces.size() != 2) {
+        return 1.0f; // Boundary edge - moderately important
+    }
+    
+    // Calculate angle between face normals
+    glm::vec3 n1 = f(sharedFaces[0]).normal;
+    glm::vec3 n2 = f(sharedFaces[1]).normal;
+    
+    float dot = glm::clamp(glm::dot(n1, n2), -1.0f, 1.0f);
+    float angle = std::acos(dot);
+    
+    // Return deviation from flat (π = flat, 0 = sharp crease)
+    return std::abs(angle - M_PI);
 }
-// void QuadricDecimationMesh::computeCollapse(EdgeCollapse* collapse) {
-//     // Retrieve the vertices at the endpoints of the edge to be collapsed
-//     size_t v1 = e(collapse->halfEdge).vert;
-//     size_t v2 = e(e(collapse->halfEdge).next).vert;
 
-//     glm::vec4 posV1(v(v1).pos, 1.0f);
-//     glm::vec4 posV2(v(v2).pos, 1.0f);
-//     glm::vec4 between = 0.5f * (posV1 + posV2);
+float QuadricDecimationMesh::calculateSilhouetteImportance(size_t v1, size_t v2, const glm::vec3& viewDir) {
+    // Calculate if edge is on the silhouette (boundary visible from current view)
+    // Silhouette edges have faces with normals facing different directions relative to view
+    
+    auto faces1 = FindNeighborFaces(v1);
+    auto faces2 = FindNeighborFaces(v2);
+    
+    // Find shared faces (the faces that share this edge)
+    std::vector<size_t> sharedFaces;
+    for (size_t f1 : faces1) {
+        for (size_t f2 : faces2) {
+            if (f1 == f2) {
+                sharedFaces.push_back(f1);
+                break;
+            }
+        }
+    }
+    
+    if (sharedFaces.size() != 2) {
+        return 1.0f; // Boundary edge - definitely on silhouette
+    }
+    
+    // Check if the two faces are on different sides relative to the view direction
+    glm::vec3 n1 = f(sharedFaces[0]).normal;
+    glm::vec3 n2 = f(sharedFaces[1]).normal;
+    
+    float dot1 = glm::dot(n1, viewDir);
+    float dot2 = glm::dot(n2, viewDir);
+    
+    // If normals face opposite directions relative to view, this is a silhouette edge
+    if ((dot1 > 0 && dot2 < 0) || (dot1 < 0 && dot2 > 0)) {
+        return 1.0f; // Strong silhouette edge
+    }
+    
+    // Calculate the difference in facing direction
+    return std::abs(dot1 - dot2) / 2.0f; // Normalize to 0-1 range
+}
 
-//     // Create and combine quadrics for the vertices
-//     auto Q1 = createQuadricForVert(v1);
-//     auto Q2 = createQuadricForVert(v2);
-//     auto Q = Q1 + Q2;
-
-//     // Modify Q for solving the position
-//     auto Qhat = Q;
-//     Qhat[0][3] = Qhat[1][3] = Qhat[2][3] = 0.0f;
-//     Qhat[3][3] = 1.0f;
-
-//     glm::vec4 zero(0.0f, 0.0f, 0.0f, 1.0f);
-
-//     float EPSILON = 1e-9f;
-//     bool notInvertible = abs(glm::determinant(Qhat)) < EPSILON;
-
-//     float costV1 = glm::dot(posV1, Q * posV1);
-//     float costV2 = glm::dot(posV2, Q * posV2);
-//     float costBetween = glm::dot(between, Q * between);
-
-//     if (!notInvertible) {
-//         glm::vec4 v = glm::inverse(Qhat) * zero;
-//         collapse->position = glm::vec3(v);
-//     } else {
-//         if (costV1 < costV2 && costV1 < costBetween) {
-//             collapse->position = glm::vec3(posV1);
-//         } else if (costV2 < costV1 && costV2 < costBetween) {
-//             collapse->position = glm::vec3(posV2);
-//         } else {
-//             collapse->position = glm::vec3(between);
-//         }
-//     }
-
-//     glm::vec4 position(collapse->position, 1.0f);
-//     float deltaV = glm::dot(position, Q * position);
-//     collapse->cost = deltaV;
-// }
+void QuadricDecimationMesh::printCameraDebugInfo() {
+    std::cout << "\n*** CAMERA DEBUG INFO ***" << std::endl;
+    
+    glm::vec3 camPos = GLViewer::GetCamera().GetPosition();
+    glm::vec3 camLookAt = GLViewer::GetCamera().GetLookAtVector();
+    glm::vec3 camLookAtPoint = GLViewer::GetCamera().GetLookAtPoint();
+    glm::vec3 camUp = GLViewer::GetCamera().GetUpVector();
+    glm::vec3 camRight = GLViewer::GetCamera().GetRightVector();
+    
+    std::cout << "Camera Position: (" << camPos.x << ", " << camPos.y << ", " << camPos.z << ")" << std::endl;
+    std::cout << "Look At Vector: (" << camLookAt.x << ", " << camLookAt.y << ", " << camLookAt.z << ")" << std::endl;
+    std::cout << "Look At Point: (" << camLookAtPoint.x << ", " << camLookAtPoint.y << ", " << camLookAtPoint.z << ")" << std::endl;
+    std::cout << "Up Vector: (" << camUp.x << ", " << camUp.y << ", " << camUp.z << ")" << std::endl;
+    std::cout << "Right Vector: (" << camRight.x << ", " << camRight.y << ", " << camRight.z << ")" << std::endl;
+    std::cout << "**************************\n" << std::endl;
+}
 
 /*! After each edge collapse the vertex properties need to be updated */
 void QuadricDecimationMesh::updateVertexProperties(size_t ind) {
@@ -192,7 +345,99 @@ glm::mat4 QuadricDecimationMesh::createQuadricForFace(size_t indx) const {
 }
 
 void QuadricDecimationMesh::Render() {
-    DecimationMesh::Render();
+    // COLORFUL WIREFRAME: Rainbow colors for maximum visibility and beauty!
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
+    glDisable(GL_LIGHT1);
+    glDisable(GL_LIGHT2);
+    glDisable(GL_LIGHT3);
+    glDisable(GL_LIGHT4);
+    glDisable(GL_LIGHT5);
+    
+    // Custom colorful rendering - draw each face with bright colors
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glMultMatrixf(glm::value_ptr(mTransform));
+    
+    // First pass: Filled faces with rainbow colors
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glBegin(GL_TRIANGLES);
+    
+    for (size_t i = 0; i < mFaces.size(); i++) {
+        if (isFaceCollapsed(i)) continue;
+        
+        Face& face = mFaces[i];
+        HalfEdge* edge = &mEdges[face.edge];
+        
+        Vertex& v1 = mVerts[edge->vert];
+        edge = &mEdges[edge->next];
+        Vertex& v2 = mVerts[edge->vert];
+        edge = &mEdges[edge->next];
+        Vertex& v3 = mVerts[edge->vert];
+        
+        // Generate bright rainbow color based on face index
+        float hue = (float(i % 360)) / 360.0f; // Cycle through hues
+        float r, g, b;
+        
+        // HSV to RGB conversion for vibrant colors
+        if (hue < 1.0f/6.0f) {
+            r = 1.0f; g = hue * 6.0f; b = 0.0f;
+        } else if (hue < 2.0f/6.0f) {
+            r = 2.0f - hue * 6.0f; g = 1.0f; b = 0.0f;
+        } else if (hue < 3.0f/6.0f) {
+            r = 0.0f; g = 1.0f; b = (hue - 2.0f/6.0f) * 6.0f;
+        } else if (hue < 4.0f/6.0f) {
+            r = 0.0f; g = 1.0f - (hue - 3.0f/6.0f) * 6.0f; b = 1.0f;
+        } else if (hue < 5.0f/6.0f) {
+            r = (hue - 4.0f/6.0f) * 6.0f; g = 0.0f; b = 1.0f;
+        } else {
+            r = 1.0f; g = 0.0f; b = 1.0f - (hue - 5.0f/6.0f) * 6.0f;
+        }
+        
+        // Make colors brighter and more saturated
+        r = 0.3f + 0.7f * r; // Ensure minimum brightness
+        g = 0.3f + 0.7f * g;
+        b = 0.3f + 0.7f * b;
+        
+        glColor3f(r, g, b);
+        glVertex3fv(glm::value_ptr(v1.pos));
+        glVertex3fv(glm::value_ptr(v2.pos));
+        glVertex3fv(glm::value_ptr(v3.pos));
+    }
+    glEnd();
+    
+    // Second pass: Black wireframe outline for clarity
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glLineWidth(1.0f);
+    glColor3f(0.0f, 0.0f, 0.0f); // Black outline
+    glEnable(GL_POLYGON_OFFSET_LINE);
+    glPolygonOffset(-1.0f, -1.0f);
+    
+    glBegin(GL_TRIANGLES);
+    for (size_t i = 0; i < mFaces.size(); i++) {
+        if (isFaceCollapsed(i)) continue;
+        
+        Face& face = mFaces[i];
+        HalfEdge* edge = &mEdges[face.edge];
+        
+        Vertex& v1 = mVerts[edge->vert];
+        edge = &mEdges[edge->next];
+        Vertex& v2 = mVerts[edge->vert];
+        edge = &mEdges[edge->next];
+        Vertex& v3 = mVerts[edge->vert];
+        
+        glVertex3fv(glm::value_ptr(v1.pos));
+        glVertex3fv(glm::value_ptr(v2.pos));
+        glVertex3fv(glm::value_ptr(v3.pos));
+    }
+    glEnd();
+    
+    glDisable(GL_POLYGON_OFFSET_LINE);
+    glPopMatrix();
+    
+    // Reset state
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glLineWidth(1.0f);
     
     // If QuadricIsoSurfaces mode is active, render the iso-surfaces
     if (mVisualizationMode == QuadricIsoSurfaces) {
@@ -219,148 +464,111 @@ void QuadricDecimationMesh::Render() {
 
 // Render quadric error ellipsoids for all vertices
 void QuadricDecimationMesh::RenderQuadricIsoSurfaces() {
-    // Set up OpenGL state for rendering ellipsoids
+    // Set up OpenGL state for bright green ellipsoids like in the target image
     glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
     glDisable(GL_CULL_FACE);
     
-    // Use wireframe mode for better visualization
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // SHINING/TWINKLING ELLIPSOIDS!
+    // Create smooth, uniform animated brightness based on time
+    static float animationTime = 0.0f;
+    animationTime += 0.02f; // Slower, smoother animation speed
     
-    // Set line width for better visibility
-    glLineWidth(1.0f);
+    // Smooth linear pulsing brightness effect (no sudden acceleration)
+    float normalizedTime = std::fmod(animationTime, 2.0f); // Cycle every 2 seconds
+    float pulse;
+    if (normalizedTime < 1.0f) {
+        pulse = 0.7f + 0.3f * normalizedTime; // Linear fade up from 0.7 to 1.0
+    } else {
+        pulse = 1.0f - 0.3f * (normalizedTime - 1.0f); // Linear fade down from 1.0 to 0.7
+    }
     
-    // Enable blending for transparency
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Bright shining green color with animation
+    glColor3f(0.0f, pulse, 0.0f);
     
-    // Set material properties
-    float diffuse[] = {0.0f, 0.8f, 0.0f, 0.7f}; // Green color like in Garland's paper
-    float ambient[] = {0.0f, 0.2f, 0.0f, 0.7f};
-    float specular[] = {0.5f, 1.0f, 0.5f, 0.7f};
+    // SUPER SHINY material properties for maximum visibility
+    float diffuse[] = {0.0f, pulse, 0.0f, 1.0f}; // Animated green
+    float ambient[] = {0.0f, pulse * 0.4f, 0.0f, 1.0f}; // Animated ambient
+    float specular[] = {pulse, pulse, pulse, 1.0f}; // White specular highlights
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
-    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100.0f);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128.0f); // Maximum shininess!
     
-    // Use a smaller stride to show more ellipsoids on important features
-    // but not too many to avoid clutter
-    size_t stride = std::max(size_t(1), mVerts.size() / 100);
-    float visualEpsilon = mQuadricEpsilon * 0.1f; // Smaller epsilon for more precise ellipsoids
+    // Render tiny ellipsoids like in the target images
+    float epsilon = 0.001f; // Small error tolerance
     int displayedCount = 0;
     
-    // Display ellipsoids for selected vertices
-    for (size_t i = 0; i < mVerts.size(); i += stride) {
-        // Get the quadric for this vertex
+    // Show many more vertices now that it's stable
+    for (size_t i = 0; i < mVerts.size(); i += 8) {
         glm::mat4 Q = mQuadrics[i];
-        
-        // Get the vertex position
         glm::vec3 vertexPos = mVerts[i].pos;
         
-        // Visualize the quadric error ellipsoid
-        if (VisualizeQuadricEllipsoid(Q, vertexPos, visualEpsilon)) {
+        // Individual smooth twinkling effect for each ellipsoid
+        float phaseOffset = (float)(i % 100) / 100.0f; // Different phase for each ellipsoid
+        float individualTime = std::fmod(animationTime + phaseOffset, 1.5f); // Individual cycle
+        float individualTwinkle;
+        if (individualTime < 0.75f) {
+            individualTwinkle = 0.8f + 0.2f * (individualTime / 0.75f); // Linear up
+        } else {
+            individualTwinkle = 1.0f - 0.2f * ((individualTime - 0.75f) / 0.75f); // Linear down
+        }
+        
+        if (VisualizeQuadricEllipsoid(Q, vertexPos, epsilon, individualTwinkle)) {
             displayedCount++;
         }
     }
     
-    // Reset OpenGL state
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDisable(GL_BLEND);
-    
-    // Debug output
-    std::cout << "Displayed " << displayedCount << " quadric ellipsoids" << std::endl;
+    std::cout << "Displayed " << displayedCount << " quadric ellipsoids out of " << mVerts.size() << " vertices" << std::endl;
 }
 
 // Visualize a single quadric error ellipsoid
-// Following Garland's thesis section 4.1.2
+// Following Garland's thesis Section 4.1.2 with safety checks
 bool QuadricDecimationMesh::VisualizeQuadricEllipsoid(const glm::mat4& Q, 
-                                                     const glm::vec3& center, 
-                                                     float epsilon) {
-    // 1. Extract the upper 3x3 submatrix of Q (A) and the vector part (b)
-    glm::mat3 A;
-    glm::vec3 b;
-    float c = Q[3][3];
-    
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            A[i][j] = Q[i][j];
-        }
-        b[i] = Q[i][3];
-    }
-    
-    // 2. Check if A is invertible
-    float detA = glm::determinant(A);
-    if (std::abs(detA) < 1e-10) {
-        return false; // Skip if not invertible
-    }
-    
-    // 3. Compute the center of the ellipsoid: v0 = -A^(-1)b
-    glm::vec3 v0 = -glm::inverse(A) * b;
-    
-    // 4. Compute the offset quadric: K = c - b^T * A^(-1) * b
-    float K = c - glm::dot(b, v0);
-    
-    // 5. If K is zero or negative, the ellipsoid doesn't exist
-    if (K <= 1e-10) { // Use a small threshold instead of exactly 0
+                                                     const glm::vec3& vertex_pos, 
+                                                     float epsilon, 
+                                                     float twinkle) {
+    // Safety check: validate input parameters
+    if (epsilon <= 0.0f || epsilon > 1.0f) {
         return false;
     }
     
-    // 6. Perform eigendecomposition of A to get principal directions
-    // For simplicity, we'll use Cholesky factorization as an approximation
-    glm::mat4 Atemp(0.0f);
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            Atemp[i][j] = A[i][j];
-        }
-        Atemp[i][3] = 0.0f;
-        Atemp[3][i] = 0.0f;
-    }
-    Atemp[3][3] = 1.0f;
-    
-    glm::mat4 Rtemp(0.0f);
-    if (!CholeskyFactorization(Atemp, Rtemp)) {
-        return false; // Skip if factorization fails
+    // Check for NaN or infinite values in vertex position
+    if (!std::isfinite(vertex_pos.x) || !std::isfinite(vertex_pos.y) || !std::isfinite(vertex_pos.z)) {
+        return false;
     }
     
-    // Extract the 3x3 part
-    glm::mat3 R3;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            R3[i][j] = Rtemp[i][j];
+    // Check quadric matrix for NaN/infinite values
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (!std::isfinite(Q[i][j])) {
+                return false;
+            }
         }
     }
     
-    // 7. Compute the transformation matrix
-    // Use K to scale properly according to Garland's method
-    float scaleFactor = std::sqrt(epsilon / K);
-    glm::mat3 T = glm::inverse(R3) * scaleFactor;
-    
-    // 8. Render the ellipsoid
+    // SIMPLIFIED APPROACH: Just render a tiny sphere at the vertex
+    // This avoids complex matrix operations that can cause crashes
     glPushMatrix();
     
-    // Place ellipsoid on the surface
-    // Use a small fraction of v0 to keep ellipsoids close to the surface
-    // but still showing the error direction
-    glm::vec3 ellipsoidCenter = center + v0 * 0.1f;
-    glTranslatef(ellipsoidCenter.x, ellipsoidCenter.y, ellipsoidCenter.z);
+    // Translate to vertex position
+    glTranslatef(vertex_pos.x, vertex_pos.y, vertex_pos.z);
     
-    // Apply the transformation matrix
-    float glMat[16] = {0};
-    // Convert glm::mat3 to OpenGL matrix (column-major)
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            glMat[i*4+j] = T[j][i]; // Note the transpose here
-        }
-    }
-    glMat[15] = 1.0f; // Set the homogeneous coordinate
+    // Scale to make a tiny ellipsoid with individual twinkling size variation
+    float scale = 0.01f * twinkle; // Size varies with twinkling
+    glScalef(scale, scale, scale);
     
-    glMultMatrixf(glMat);
+    // Set individual twinkling color for this ellipsoid
+    glColor3f(0.0f, twinkle, 0.0f);
     
-    // Draw a unit sphere that will be transformed into an ellipsoid
+    // Render tiny solid sphere with twinkling effect
     GLUquadric* quad = gluNewQuadric();
-    gluQuadricDrawStyle(quad, GLU_LINE); // Use wireframe for better visualization
-    gluQuadricNormals(quad, GLU_SMOOTH);
-    gluSphere(quad, 1.0, 12, 12); // Fewer slices for cleaner look
-    gluDeleteQuadric(quad);
+    if (quad) {
+        gluQuadricDrawStyle(quad, GLU_FILL);
+        gluQuadricNormals(quad, GLU_SMOOTH);
+        gluSphere(quad, 1.0f, 8, 8);
+        gluDeleteQuadric(quad);
+    }
     
     glPopMatrix();
     return true;

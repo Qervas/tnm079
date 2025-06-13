@@ -34,6 +34,16 @@ protected:
     glm::mat4 createQuadricForVert(size_t indx) const;
     //! Copmute the quadric for a face
     glm::mat4 createQuadricForFace(size_t indx) const;
+    
+    //! Grade 4: Custom heuristic helper functions for view-dependent decimation
+    float calculateFeatureImportance(size_t v1, size_t v2);
+    float calculateNormalVariation(size_t vertexIdx, const std::vector<size_t>& faces);
+    float calculateDihedralAngle(size_t v1, size_t v2);
+    float calculateSilhouetteImportance(size_t v1, size_t v2, const glm::vec3& viewDir);
+    
+    //! Debug function to print camera information
+    void printCameraDebugInfo();
+    
     //! Render (redefined)
     virtual void Render();
     
@@ -42,7 +52,7 @@ protected:
     
     //! Visualize a single quadric error ellipsoid
     //! Returns true if the ellipsoid was successfully visualized
-    bool VisualizeQuadricEllipsoid(const glm::mat4& Q, const glm::vec3& center, float epsilon);
+    bool VisualizeQuadricEllipsoid(const glm::mat4& Q, const glm::vec3& center, float epsilon, float twinkle = 1.0f);
 
     //! The quadrics used in the decimation
     std::vector<glm::mat4> mQuadrics;
